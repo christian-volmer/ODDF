@@ -20,31 +20,26 @@
 
 /*
 
-    Simulator support for the 'constant' design block.
+    <no description>
 
 */
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorBlockBase.h>
+#include <cstdint>
 
-namespace oddf::simulator::common::backend::blocks {
+namespace oddf::simulator::common::backend {
 
-//
-// ConstantMaster
-//
+struct SimulatorType {
 
-class ConstantMaster : public SimulatorBlockBase {
+	using Boolean = std::uint8_t;
+	using Integer = std::int64_t;
+	using Real = double;
 
-public:
+	using InternalElement = std::uint32_t;
 
-	ConstantMaster(design::blocks::backend::IDesignBlock const &designBlock);
-
-	virtual std::string GetDesignPathHint() const override;
-
-	virtual void Elaborate(ISimulatorElaborationContext &context) override;
-
-	virtual void GenerateCode(ISimulatorCodeGenerationContext &context) override;
+	using BitVectorElement = InternalElement;
+	using FixedPointElement = InternalElement;
 };
 
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace oddf::simulator::common::backend

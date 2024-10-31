@@ -43,6 +43,8 @@ public:
 	virtual std::string GetDesignPathHint() const override;
 
 	virtual void Elaborate(ISimulatorElaborationContext &context) override;
+
+	virtual void GenerateCode(ISimulatorCodeGenerationContext &context) override;
 };
 
 } // namespace oddf::simulator::common::backend::blocks

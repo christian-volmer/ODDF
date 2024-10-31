@@ -20,7 +20,7 @@
 
 /*
 
-    Defines `SimulatorBaseClass`, which is the base class to all simulator
+    Defines `SimulatorBlockBase`, which is the base class to all simulator
     blocks.
 
 */
@@ -30,6 +30,7 @@
 #include <oddf/design/blocks/backend/IDesignBlock.h>
 
 #include <oddf/simulator/common/backend/ISimulatorElaborationContext.h>
+#include <oddf/simulator/common/backend/ISimulatorCodeGenerationContext.h>
 
 #include "SimulatorBlockInput.h"
 #include "SimulatorBlockOutput.h"
@@ -83,6 +84,9 @@ public:
 
 	// Elaborates the block. Default implementation does nothing.
 	virtual void Elaborate(ISimulatorElaborationContext &context);
+
+	// Generates the final code for this block. Default implementation throws.
+	virtual void GenerateCode(ISimulatorCodeGenerationContext &context);
 
 	// Returns a descriptive string (similar to a resource path) that hints at the origin of this simulator block in the original design.
 	virtual std::string GetDesignPathHint() const = 0;

@@ -42,4 +42,30 @@ void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
 {
 }
 
+struct ProbeInstruction : public SimulatorInstructionBase {
+
+private:
+
+	SimulatorType::Boolean const *m_input;
+
+	static size_t InstructionFunction(ProbeInstruction &instruction)
+	{
+		return sizeof(instruction);
+	}
+
+public:
+
+	ProbeInstruction(ISimulatorCodeGenerationContext &context) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_input()
+	{
+		context.RegisterInput(0, m_input);
+	}
+};
+
+void ProbeMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
+{
+	context.EmitInstruction<ProbeInstruction>();
+}
+
 } // namespace oddf::simulator::common::backend::blocks

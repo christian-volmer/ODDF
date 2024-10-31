@@ -29,6 +29,7 @@
 #include <oddf/simulator/common/backend/SimulatorBlockBase.h>
 
 #include <list>
+#include <vector>
 
 namespace oddf::simulator::common::backend {
 
@@ -45,8 +46,10 @@ public:
 	// Blocks in this component.
 	std::list<SimulatorBlockBase *> m_blocks;
 
+	std::vector<char> m_code;
+
 	// Base pointer to the storage for the component's nets.
-	std::unique_ptr<char[]> m_netsBase;
+	// TODO remove? std::unique_ptr<char[]> m_netsBase;
 
 	SimulatorComponent();
 	SimulatorComponent(SimulatorComponent const &) = delete;
@@ -69,6 +72,8 @@ public:
 
 	// Returns the number of blocks in this component.
 	size_t GetSize() const;
+
+	void EnsureValid();
 };
 
 } // namespace oddf::simulator::common::backend

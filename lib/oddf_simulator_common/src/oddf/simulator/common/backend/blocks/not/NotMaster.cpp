@@ -26,6 +26,8 @@
 
 #include "../Not.h"
 
+#include <oddf/simulator/common/backend/SimulatorTypes.h>
+
 namespace oddf::simulator::common::backend::blocks {
 
 NotMaster::NotMaster(design::blocks::backend::IDesignBlock const &designBlock) :
@@ -40,6 +42,35 @@ std::string NotMaster::GetDesignPathHint() const
 
 void NotMaster::Elaborate(ISimulatorElaborationContext &)
 {
+}
+
+struct NotInstruction : public SimulatorInstructionBase {
+
+private:
+
+	SimulatorType::Boolean const *m_input;
+	SimulatorType::Boolean m_output;
+
+	static size_t InstructionFunction(NotInstruction &instruction)
+	{
+		instruction.m_output = !(*instruction.m_input);
+		return sizeof(instruction);
+	}
+
+public:
+
+	NotInstruction(ISimulatorCodeGenerationContext &context) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_input(), m_output()
+	{
+		context.RegisterInput(0, m_input);
+		context.RegisterOutput(0, m_output);
+	}
+};
+
+void NotMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
+{
+	context.EmitInstruction<NotInstruction>();
 }
 
 } // namespace oddf::simulator::common::backend::blocks

@@ -34,7 +34,8 @@ namespace oddf::simulator::common::backend {
 
 SimulatorComponent::SimulatorComponent() :
 	m_blocks(),
-	m_netsBase()
+	m_code()
+	// TODO remove?	m_netsBase()
 {
 }
 
@@ -89,6 +90,18 @@ size_t SimulatorComponent::GetSize() const
 bool SimulatorComponent::IsEmpty() const
 {
 	return m_blocks.empty();
+}
+
+void SimulatorComponent::EnsureValid()
+{
+	char *position = m_code.data();
+	char *end = m_code.data() + m_code.size();
+
+	while (position < end) {
+
+		auto instruction = reinterpret_cast<SimulatorInstructionBase *>(position);
+		position += instruction->Execute();
+	}
 }
 
 } // namespace oddf::simulator::common::backend

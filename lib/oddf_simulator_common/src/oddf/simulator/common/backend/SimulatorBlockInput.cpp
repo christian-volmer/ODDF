@@ -35,14 +35,16 @@ namespace oddf::simulator::common::backend {
 SimulatorBlockInput::SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index) :
 	m_owningBlock(owningBlock),
 	m_driver(nullptr),
-	m_index(index)
+	m_index(index),
+	m_inputPointerReference(0)
 {
 }
 
 SimulatorBlockInput::SimulatorBlockInput(SimulatorBlockInput &&other) :
 	m_owningBlock(other.m_owningBlock),
 	m_driver(nullptr),
-	m_index(0)
+	m_index(0),
+	m_inputPointerReference(0)
 {
 	// Since the address of an input object must never change, it cannot be moved.
 	throw oddf::Exception(oddf::ExceptionCode::Unexpected);

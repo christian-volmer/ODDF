@@ -30,6 +30,8 @@ namespace oddf::simulator::common::backend {
 
 void SimulatorCore::EnsureValid()
 {
+	for (auto &component : m_components)
+		component.EnsureValid();
 }
 
 } // namespace oddf::simulator::common::backend

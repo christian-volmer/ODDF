@@ -42,4 +42,30 @@ void ConstantMaster::Elaborate(ISimulatorElaborationContext &)
 {
 }
 
+struct ConstantInstruction : public SimulatorInstructionBase {
+
+private:
+
+	SimulatorType::Boolean m_output;
+
+	static size_t InstructionFunction(ConstantInstruction &instruction)
+	{
+		return sizeof(instruction);
+	}
+
+public:
+
+	ConstantInstruction(ISimulatorCodeGenerationContext &context) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_output(5)
+	{
+		context.RegisterOutput(0, m_output);
+	}
+};
+
+void ConstantMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
+{
+	context.EmitInstruction<ConstantInstruction>();
+}
+
 } // namespace oddf::simulator::common::backend::blocks

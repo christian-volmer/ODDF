@@ -6,10 +6,11 @@ add_library(oddf_simulator_common
 	src/oddf/simulator/common/backend/blocks/delay/DelayStartingPoint.cpp
 	src/oddf/simulator/common/backend/blocks/not/NotMaster.cpp
 	src/oddf/simulator/common/backend/blocks/probe/ProbeMaster.cpp
-	src/oddf/simulator/common/backend/SimulatorCore/AllocateNets.cpp
+	# src/oddf/simulator/common/backend/SimulatorCore/AllocateNets.cpp
 	src/oddf/simulator/common/backend/SimulatorCore/BuildComponents.cpp
 	src/oddf/simulator/common/backend/SimulatorCore/ElaborateBlocks.cpp
 	src/oddf/simulator/common/backend/SimulatorCore/EnsureValid.cpp
+	src/oddf/simulator/common/backend/SimulatorCore/GenerateCode.cpp
 	src/oddf/simulator/common/backend/SimulatorCore/GetSimulatorObjectInterface.cpp
 	src/oddf/simulator/common/backend/SimulatorCore/MapBlocks.cpp
 	src/oddf/simulator/common/backend/SimulatorCore/MapConnections.cpp

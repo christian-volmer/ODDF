@@ -44,6 +44,9 @@ private:
 	SimulatorBlockOutput *m_driver;
 	size_t m_index;
 
+	// Relative address where the instruction stores a pointer to the storage of the driver
+	ptrdiff_t m_inputPointerReference;
+
 public:
 
 	SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index);

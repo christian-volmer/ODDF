@@ -49,7 +49,7 @@ void SimulatorCore::TranslateDesign(design::IDesign const &design)
 
 	BuildComponents();
 
-	AllocateNets();
+	GenerateCode();
 
 	size_t componentIndex = 0;
 
@@ -163,7 +163,9 @@ void SimulatorCore::TranslateDesign(design::IDesign const &design)
 	    EmitCode(T *) -> Typ T der Struktur als Template-Parameter
 	        übergeben, damit die Struktur mit korrektem Alignment in die
 	        Execution-List eingebaut werden kann. Es werden ggf.
-	        Füller-Instruktionen emittiert. Rückgabewert muss sizeof(T) sein.
+	        Füller-Instruktionen emittiert.
+
+	        Rückgabewert muss sizeof(T) sein. (--> was ist mit variabler Struktur?)
 
 	        Die Struktur sollte von einer Basisklasse abgeleitet sein, die
 	            - alignas(void *) ist.
@@ -189,7 +191,7 @@ void SimulatorCore::TranslateDesign(design::IDesign const &design)
 	                    - Falls der Wert sich geändert hat, wird die
 	                      Komponente als ungültig markiert.
 
-	            - Sie StartingPoints haben die Addresse der Storage. Bei
+	            - Die StartingPoints haben die Addresse der Storage. Bei
 	              Evaluate() kopieren sie die Werte in ihren Ausgangsknoten.
 
 	        Probe
@@ -199,9 +201,9 @@ void SimulatorCore::TranslateDesign(design::IDesign const &design)
 	        Logging
 	        Forcing
 	        Assertions / Evaluations
-				--> C++ functions that execute on the values of simulation nodes (Leon equalise bug evaluation)
-				--> Logging could also apply functions to nodes before logging the result
-				--> Nodes must be named in the design (inputs, outputs, labels)
+	            --> C++ functions that execute on the values of simulation nodes (Leon equalise bug evaluation)
+	            --> Logging could also apply functions to nodes before logging the result
+	            --> Nodes must be named in the design (inputs, outputs, labels)
 	        Memory
 	        Sink
 	        Source

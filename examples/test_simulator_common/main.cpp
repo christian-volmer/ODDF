@@ -93,7 +93,7 @@ int main()
 
 #endif
 
-	b::Probe(b::Delay(!!b::Delay(b::Constant(true))));
+	b::Probe(!b::Constant(true));
 
 	/*
 	    dfx::Simulator simulator(design);
@@ -104,6 +104,8 @@ int main()
 	oddf::simulator::common::Simulator simulator2;
 
 	simulator2.TranslateDesign(design);
+
+	simulator2.GetSimulatorAccess().EnsureValid();
 
 	auto probeValue = ProbeValue<bool>(simulator2, "test");
 

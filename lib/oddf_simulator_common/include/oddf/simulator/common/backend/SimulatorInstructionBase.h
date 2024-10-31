@@ -20,31 +20,40 @@
 
 /*
 
-    Simulator support for the 'constant' design block.
+    <no description>
 
 */
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorBlockBase.h>
+#include <type_traits>
 
-namespace oddf::simulator::common::backend::blocks {
+namespace oddf::simulator::common::backend {
 
-//
-// ConstantMaster
-//
+struct SimulatorInstructionBase;
 
-class ConstantMaster : public SimulatorBlockBase {
+using SimulatorInstructionFunction = size_t(SimulatorInstructionBase &);
+
+struct SimulatorInstructionBase {
+
+private:
+
+	SimulatorInstructionFunction *m_instructionFunction;
+
+protected:
+
+	template<typename instructionT, std::enable_if_t<std::is_convertible_v<instructionT *, SimulatorInstructionBase *>> * = nullptr>
+	SimulatorInstructionBase(size_t (*instructionFunction)(instructionT &)) :
+		m_instructionFunction(reinterpret_cast<SimulatorInstructionFunction *>(reinterpret_cast<void *>(instructionFunction)))
+	{
+	}
 
 public:
 
-	ConstantMaster(design::blocks::backend::IDesignBlock const &designBlock);
-
-	virtual std::string GetDesignPathHint() const override;
-
-	virtual void Elaborate(ISimulatorElaborationContext &context) override;
-
-	virtual void GenerateCode(ISimulatorCodeGenerationContext &context) override;
+	size_t Execute()
+	{
+		return m_instructionFunction(*this);
+	}
 };
 
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace oddf::simulator::common::backend

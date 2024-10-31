@@ -20,31 +20,33 @@
 
 /*
 
-    Simulator support for the 'constant' design block.
+    Defines `SimulatorObjectBase`, which is the base class to all simulator
+    blocks.
 
 */
 
+#include <oddf/Uid.h>
+
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorBlockBase.h>
+namespace oddf::simulator::common::backend {
 
-namespace oddf::simulator::common::backend::blocks {
-
-//
-// ConstantMaster
-//
-
-class ConstantMaster : public SimulatorBlockBase {
+/*
+    Base class to all simulator objects.
+*/
+class SimulatorObjectBase {
 
 public:
 
-	ConstantMaster(design::blocks::backend::IDesignBlock const &designBlock);
+	SimulatorObjectBase(SimulatorObjectBase const &) = delete;
+	void operator=(SImulatorObjectBase const &) = delete;
 
-	virtual std::string GetDesignPathHint() const override;
+	SimulatorObjectBase(SimulatorObjectBase &&) = delete;
+	void operator=(SImulatorObjectBase &&) = delete;
 
-	virtual void Elaborate(ISimulatorElaborationContext &context) override;
+	virtual ~SimulatorObjectBase() = 0;
 
-	virtual void GenerateCode(ISimulatorCodeGenerationContext &context) override;
+	void *GetInterface(Uid const &iid) = 0;
 };
 
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace oddf::simulator::common::backend
