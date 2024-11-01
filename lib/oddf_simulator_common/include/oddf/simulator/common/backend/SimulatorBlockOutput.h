@@ -57,12 +57,6 @@ private:
 		void *m_storagePointer;
 	};
 
-/*	TODO remove? static constexpr size_t EmptyNetIndex = static_cast<size_t>(-1);
-
-	ptrdiff_t m_netRefCount;
-	size_t m_netIndex;
-	void *m_netAddress;*/
-
 public:
 
 	SimulatorBlockOutput(SimulatorBlockBase &owningBlock, design::NodeType const &nodeType, size_t index);
@@ -92,15 +86,6 @@ public:
 
 	// Disconnects all targets driven by this output.
 	void DisconnectAll();
-
-	/* TODO remove?
-
-	// Declares that the address for storing the value of this output must not be reused for a different output.
-	void DeclareExclusiveAccess();
-
-	void *GetAddress();
-
-	*/
 };
 
 } // namespace oddf::simulator::common::backend

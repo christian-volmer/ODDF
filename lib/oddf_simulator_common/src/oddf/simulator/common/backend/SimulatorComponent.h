@@ -48,9 +48,6 @@ public:
 
 	std::vector<char> m_code;
 
-	// Base pointer to the storage for the component's nets.
-	// TODO remove? std::unique_ptr<char[]> m_netsBase;
-
 	SimulatorComponent();
 	SimulatorComponent(SimulatorComponent const &) = delete;
 	void operator=(SimulatorComponent const &) = delete;

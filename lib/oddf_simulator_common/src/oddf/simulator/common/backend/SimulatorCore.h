@@ -69,9 +69,6 @@ private:
 	// Builds the simulator components.
 	void BuildComponents();
 
-	// Allocates memory for nets on the components.
-	// TODO remove? void AllocateNets();
-
 	// Generates the final simulation code on every component.
 	void GenerateCode();
 

@@ -36,9 +36,6 @@ SimulatorBlockOutput::SimulatorBlockOutput(SimulatorBlockBase &owningBlock, desi
 	m_index(index),
 	m_targets(),
 	m_storageReference()
-/*	TODO remove? m_netRefCount(),
-    m_netIndex(EmptyNetIndex),
-    m_netAddress()*/
 {
 }
 
@@ -48,9 +45,6 @@ SimulatorBlockOutput::SimulatorBlockOutput(SimulatorBlockOutput &&other) :
 	m_index(0),
 	m_targets(),
 	m_storageReference()
-/* TODO remove? m_netRefCount(),
-    m_netIndex(EmptyNetIndex),
-    m_netAddress()*/
 {
 	// Since the address of an output object must never change, it must not be moved.
 	throw oddf::Exception(oddf::ExceptionCode::Unexpected);
@@ -93,22 +87,5 @@ void SimulatorBlockOutput::DisconnectAll()
 	while (!targets.IsEmpty())
 		targets.GetFirst().Disconnect();
 }
-
-/* TODO remove?
-
-void SimulatorBlockOutput::DeclareExclusiveAccess()
-{
-	m_netRefCount = 1;
-}
-
-void *SimulatorBlockOutput::GetAddress()
-{
-	if (!m_netRefCount || !m_netAddress)
-		throw oddf::Exception(oddf::ExceptionCode::IllegalMethodCall);
-
-	return m_netAddress;
-}
-
-*/
 
 } // namespace oddf::simulator::common::backend

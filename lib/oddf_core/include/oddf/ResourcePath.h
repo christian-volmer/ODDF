@@ -38,7 +38,7 @@ namespace oddf {
 class ResourcePath : public std::string {
 
 	/*
-	    TODO: this is a stub implementation. TO be replaced by something more
+	    TODO: this is a stub implementation. To be replaced by something more
 	    elaborate.
 	*/
 

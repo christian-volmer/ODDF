@@ -26,8 +26,6 @@
 
 #include "../SimulatorCore.h"
 
-#include "../SimulatorBlockInternals.h" // TODO: delete if not required anymore.
-
 #include <cassert>
 #include <iostream>
 
@@ -50,75 +48,6 @@ void SimulatorCore::TranslateDesign(design::IDesign const &design)
 	BuildComponents();
 
 	GenerateCode();
-
-	size_t componentIndex = 0;
-
-	for (auto &component : m_components) {
-
-		std::cout << "\n-- Component " << componentIndex++ << " --\n\n";
-
-		for (auto const &block : component.m_blocks) {
-
-			if (!block) {
-
-				std::cout << "[block was removed]\n\n";
-				continue;
-			}
-
-			assert(block->m_internals->m_component == &component);
-
-			std::cout << "<" << block << ">: " << block->GetDesignPathHint() << "\n";
-
-			auto inputsList = block->GetInputsList();
-
-			for (size_t i = 0; i < inputsList.GetSize(); ++i) {
-
-				auto const &input = inputsList[i];
-
-				std::cout << "  input[" << i << "]: ";
-
-				if (input.IsConnected()) {
-
-					auto *drivingBlock = &input.GetDriver().GetOwningBlock();
-					std::cout << "driven by <" << drivingBlock << ">: " << drivingBlock->GetDesignPathHint();
-				}
-				else {
-
-					std::cout << "unconnected";
-				}
-
-				std::cout << "\n";
-			}
-
-			auto outputsList = block->GetOutputsList();
-
-			for (size_t i = 0; i < outputsList.GetSize(); ++i) {
-
-				auto const &output = outputsList[i];
-
-				std::cout << "  output[" << i << "]: " + outputsList[i].GetType().ToString() << ": ";
-
-				auto targetsCollection = output.GetTargetsCollection();
-
-				if (targetsCollection.GetSize() > 0) {
-
-					std::cout << "driving inputs of";
-					auto targetsEnumerator = targetsCollection.GetEnumerator();
-					targetsEnumerator.Reset();
-					while (targetsEnumerator.MoveNext())
-						std::cout << " <" << &targetsEnumerator.GetCurrent().GetOwningBlock() << ">";
-				}
-				else {
-
-					std::cout << "unconnected";
-				}
-
-				std::cout << "\n";
-			}
-
-			std::cout << "\n";
-		}
-	}
 
 	/*
 

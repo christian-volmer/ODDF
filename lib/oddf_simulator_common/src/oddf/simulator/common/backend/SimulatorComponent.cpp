@@ -35,7 +35,6 @@ namespace oddf::simulator::common::backend {
 SimulatorComponent::SimulatorComponent() :
 	m_blocks(),
 	m_code()
-	// TODO remove?	m_netsBase()
 {
 }
 

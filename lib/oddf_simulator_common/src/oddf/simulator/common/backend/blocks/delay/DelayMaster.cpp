@@ -68,12 +68,12 @@ void DelayMaster::Elaborate(ISimulatorElaborationContext &context)
 	    e.g. ReconnectOutput(fromOutput, toOutput);
 
 	    #####
-		Vielleicht sollte diese Funktion Teil von `ISimulatorElaborationContext`
+	    Vielleicht sollte diese Funktion Teil von `ISimulatorElaborationContext`
 	    sein. Vielleicht brauchen die Simulator-Objekte dann keinen
-		Schreibzugriff auf die Inputs und Outputs. Das würde vermeiden, dass
-		die Blöcke aus Versehen strukturell am Design etwas kaputt machen
-		können.
-		#####
+	    Schreibzugriff auf die Inputs und Outputs. Das würde vermeiden, dass
+	    die Blöcke aus Versehen strukturell am Design etwas kaputt machen
+	    können.
+	    #####
 
 	*/
 
