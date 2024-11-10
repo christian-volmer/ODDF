@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Classes and interfaces that support the creation of read and write
-	registers and mapped memory access with automatic address generation
-	and support for hierarchical blocks.
+    Classes and interfaces that support the creation of read and write
+    registers and mapped memory access with automatic address generation
+    and support for hierarchical blocks.
 
 */
 
@@ -41,7 +41,6 @@ int const AddressWidth = 19;
 int const DataWidth = 32;
 using AddressT = ufix<AddressWidth>;
 using DataT = sfix<DataWidth>;
-
 
 //
 // Range interface
@@ -92,6 +91,8 @@ class IBuilder {
 
 public:
 
+	virtual ~IBuilder() { }
+
 	virtual void Break(int extraPipelining) = 0;
 	virtual void Merge(int extraPipelining) = 0;
 
@@ -103,7 +104,6 @@ public:
 	virtual Range AddRange(bool isSigned, int wordWidth, int fraction, int length, std::string const &tag) = 0;
 };
 
-
 //
 // IController interface
 //
@@ -112,11 +112,12 @@ class IController {
 
 public:
 
+	virtual ~IController() { }
+
 	virtual void ClearAll() = 0;
 	virtual void Write(int theAddress, std::uint32_t const *values, int count) = 0;
 	virtual void Read(int theAddress, std::uint32_t *values, int count) = 0;
 };
-
 
 //
 // Namespace
@@ -157,11 +158,10 @@ public:
 
 	void Report(std::basic_ostream<char> &os) const;
 	void Table(std::basic_ostream<char> &os, std::string const &nSpaceArg) const;
-
 };
 
-}
-}
+} // namespace configuration
+} // namespace dfx
 
 #include "configuration_section.h"
 #include "configuration_access.h"

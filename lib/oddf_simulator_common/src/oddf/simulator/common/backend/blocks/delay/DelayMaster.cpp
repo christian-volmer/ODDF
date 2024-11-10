@@ -26,6 +26,8 @@
 
 #include "../Delay.h"
 
+#include <oddf/Exception.h>
+
 namespace oddf::simulator::common::backend::blocks {
 
 DelayMaster::DelayMaster(design::blocks::backend::IDesignBlock const &designBlock) :
@@ -40,6 +42,22 @@ std::string DelayMaster::GetDesignPathHint() const
 
 void DelayMaster::Elaborate(ISimulatorElaborationContext &context)
 {
+	auto outputs = GetOutputsList();
+
+	if (outputs.GetSize() != 1)
+		throw Exception(ExceptionCode::Unsupported);
+
+	if (outputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
+		throw Exception(ExceptionCode::Unsupported);
+
+	auto inputs = GetInputsList();
+
+	if (inputs.GetSize() != 1)
+		throw Exception(ExceptionCode::Unsupported);
+
+	if (inputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
+		throw Exception(ExceptionCode::Unsupported);
+
 	/*
 
 	Elaboration splits the original delay block ('DelayMaster') up into two
@@ -77,7 +95,7 @@ void DelayMaster::Elaborate(ISimulatorElaborationContext &context)
 
 	*/
 
-	auto masterOutputTargets = GetOutputsList().GetFirst().GetTargetsCollection();
+	auto masterOutputTargets = outputs.GetFirst().GetTargetsCollection();
 	auto &startingPointOutput = startingPoint->GetOutputsList().GetFirst();
 
 	while (!masterOutputTargets.IsEmpty()) {
@@ -99,7 +117,7 @@ void DelayMaster::Elaborate(ISimulatorElaborationContext &context)
 
 	auto endpoint = context.AddSimulatorBlock<DelayEndpoint>(GetDesignBlockReference());
 
-	auto &masterInput = GetInputsList().GetFirst();
+	auto &masterInput = inputs.GetFirst();
 
 	if (masterInput.IsConnected()) {
 

@@ -68,12 +68,12 @@ class TestSimulatorAccess : public oddf::simulator::backend::ISimulatorAccess {
 
 private:
 
-	TestSimulatorObject m_simulatorObject;
+	std::unique_ptr<TestSimulatorObject> m_simulatorObject;
 
 public:
 
 	TestSimulatorAccess() :
-		m_simulatorObject()
+		m_simulatorObject(new TestSimulatorObject())
 	{
 	}
 
@@ -81,12 +81,12 @@ public:
 	{
 	}
 
-	virtual void *GetSimulatorObjectInterface(ResourcePath const &path, Uid const &iid) override
+	virtual void *GetNamedObjectInterface(std::string const &name, Uid const &iid) const override
 	{
-		if (path == "ExistingObject") {
+		if (name == "ExistingObject") {
 
 			if (iid == ITestObjectInterface::IID)
-				return static_cast<void *>(&m_simulatorObject);
+				return dynamic_cast<void *>(m_simulatorObject.get());
 			else
 				throw Exception(ExceptionCode::NoInterface);
 		}
@@ -94,23 +94,23 @@ public:
 			throw Exception(ExceptionCode::NoResource);
 	}
 
-	using oddf::simulator::backend::ISimulatorAccess::GetSimulatorObjectInterface;
+	using oddf::simulator::backend::ISimulatorAccess::GetNamedObjectInterface;
 };
 
 void Test_ISimulatorAccess()
 {
 	TestSimulatorAccess simulatorAccess;
 
-	ITestObjectInterface &interface = simulatorAccess.GetSimulatorObjectInterface<ITestObjectInterface>("ExistingObject");
+	ITestObjectInterface &interface = simulatorAccess.GetNamedObjectInterface<ITestObjectInterface>("ExistingObject");
 
 	Expect(interface.ReturnsEleven() == 11);
 
 	ExpectThrows(ExceptionCode::NoResource, [&]() {
-		simulatorAccess.GetSimulatorObjectInterface<ITestObjectInterface>("NonExistingObject");
+		simulatorAccess.GetNamedObjectInterface<ITestObjectInterface>("NonExistingObject");
 	});
 
 	ExpectThrows(ExceptionCode::NoInterface, [&]() {
-		simulatorAccess.GetSimulatorObjectInterface<IWrongInterface>("ExistingObject");
+		simulatorAccess.GetNamedObjectInterface<IWrongInterface>("ExistingObject");
 	});
 }
 

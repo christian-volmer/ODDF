@@ -54,6 +54,8 @@ private:
 	// List of all simulator components. Components are independent lists of simulator operations that can execute in parallel.
 	std::list<SimulatorComponent> m_components;
 
+	std::map<std::string, std::unique_ptr<IObject>> m_namedSimulatorObjects;
+
 	// Registers simulator block factories for all standard ODDF design blocks.
 	void RegisterDefaultBlockFactories();
 
@@ -72,10 +74,16 @@ private:
 	// Generates the final simulation code on every component.
 	void GenerateCode();
 
+	// Last step of design translation. After this the simulator will be ready.
+	void FinaliseTranslation();
+
 public:
 
 	SimulatorCore();
 	~SimulatorCore();
+
+	SimulatorCore(SimulatorCore const &) = delete;
+	void operator=(SimulatorCore const &) = delete;
 
 	bool RegisterSimulatorBlockFactory(design::blocks::backend::DesignBlockClass const &designBlockClass,
 		std::unique_ptr<ISimulatorBlockFactory> &&simulatorBlockFactory);
@@ -88,7 +96,7 @@ public:
 
 	virtual void EnsureValid() override;
 
-	virtual void *GetSimulatorObjectInterface(ResourcePath const &path, Uid const &iid) override;
+	virtual void *GetNamedObjectInterface(std::string const &name, Uid const &iid) const override;
 };
 
 } // namespace oddf::simulator::common::backend

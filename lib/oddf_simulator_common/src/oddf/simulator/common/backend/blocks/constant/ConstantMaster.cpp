@@ -25,6 +25,9 @@
 */
 
 #include "../Constant.h"
+#include "I_Const_Bool.h"
+
+#include <oddf/Exception.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
@@ -40,32 +43,23 @@ std::string ConstantMaster::GetDesignPathHint() const
 
 void ConstantMaster::Elaborate(ISimulatorElaborationContext &)
 {
+	auto outputs = GetOutputsList();
+
+	if (outputs.GetSize() != 1)
+		throw Exception(ExceptionCode::Unsupported);
+
+	if (outputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
+		throw Exception(ExceptionCode::Unsupported);
+
+	auto inputs = GetInputsList();
+
+	if (inputs.GetSize() != 0)
+		throw Exception(ExceptionCode::Unsupported);
 }
-
-struct ConstantInstruction : public SimulatorInstructionBase {
-
-private:
-
-	SimulatorType::Boolean m_output;
-
-	static size_t InstructionFunction(ConstantInstruction &instruction)
-	{
-		return sizeof(instruction);
-	}
-
-public:
-
-	ConstantInstruction(ISimulatorCodeGenerationContext &context) :
-		SimulatorInstructionBase(&InstructionFunction),
-		m_output(5)
-	{
-		context.RegisterOutput(0, m_output);
-	}
-};
 
 void ConstantMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
-	context.EmitInstruction<ConstantInstruction>();
+	context.EmitInstruction<I_Const_Bool>();
 }
 
 } // namespace oddf::simulator::common::backend::blocks

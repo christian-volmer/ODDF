@@ -1,26 +1,26 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Simulator class and related classes.
+    Simulator class and related classes.
 
 */
 
@@ -42,10 +42,11 @@ public:
 	BlockBase **blocksEnd;
 	bool outdated;
 
-	Component() : size(0), blocksFirst(nullptr), blocksEnd(&blocksFirst), outdated(true) {}
+	Component() :
+		size(0), blocksFirst(nullptr), blocksEnd(&blocksFirst), outdated(true) { }
 };
 
-}
+} // namespace backend
 
 class Simulator {
 
@@ -59,7 +60,6 @@ private:
 
 	void RecursiveBuildExecutionOrder(backend::BlockBase *current);
 	void Prepare();
-
 
 	std::atomic<int> currentSteppableIndex;
 	std::atomic<int> currentTaskIndex;
@@ -83,6 +83,9 @@ public:
 	Simulator(Design const &design);
 	~Simulator();
 
+	Simulator(Simulator const &) = delete;
+	void operator=(Simulator const &) = delete;
+
 	void Run(unsigned numberOfIterations = 1);
 
 	void AsyncReset();
@@ -90,4 +93,4 @@ public:
 	void Report(std::basic_ostream<char> &os) const;
 };
 
-}
+} // namespace dfx

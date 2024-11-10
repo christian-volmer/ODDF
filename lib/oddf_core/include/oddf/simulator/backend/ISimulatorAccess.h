@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <oddf/ResourcePath.h>
 #include <oddf/Uid.h>
+#include <string>
 
 namespace oddf::simulator::backend {
 
@@ -39,12 +39,12 @@ public:
 
 	virtual void EnsureValid() = 0;
 
-	virtual void *GetSimulatorObjectInterface(ResourcePath const &path, Uid const &iid) = 0;
+	virtual void *GetNamedObjectInterface(std::string const &path, Uid const &iid) const = 0;
 
 	template<typename T>
-	T &GetSimulatorObjectInterface(ResourcePath const &path)
+	T &GetNamedObjectInterface(std::string const &path) const
 	{
-		return *static_cast<T *>(GetSimulatorObjectInterface(path, T::IID));
+		return *static_cast<T *>(GetNamedObjectInterface(path, T::IID));
 	}
 };
 

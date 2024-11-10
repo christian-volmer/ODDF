@@ -24,21 +24,36 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
 
-namespace oddf::simulator::common::backend {
+#include <oddf/Exception.h>
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+namespace oddf::utility {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+template<typename... interfaceTs>
+struct GetInterfaceHelper;
 
-} // namespace oddf::simulator::common::backend
+template<>
+struct GetInterfaceHelper<> {
+
+	template<typename objectT>
+	static void *GetInterface(objectT *, Uid const &)
+	{
+		throw Exception(ExceptionCode::NoInterface);
+	}
+};
+
+template<typename firstInterfaceT, typename... restInterfaceTs>
+struct GetInterfaceHelper<firstInterfaceT, restInterfaceTs...> {
+
+	template<typename objectT>
+	static void *GetInterface(objectT *object, Uid const &iid)
+	{
+		if (firstInterfaceT::IID == iid)
+			return dynamic_cast<firstInterfaceT *>(object);
+		else
+			return GetInterfaceHelper<restInterfaceTs...>::GetInterface(object, iid);
+	}
+};
+
+} // namespace oddf::utility

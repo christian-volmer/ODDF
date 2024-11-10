@@ -20,33 +20,47 @@
 
 /*
 
-    Simulator support for the 'probe' design block.
+    <no description>
 
 */
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorBlockBase.h>
+#include <oddf/utility/GetInterfaceHelper.h>
+#include <oddf/simulator/backend/IProbeAccess.h>
+#include <oddf/simulator/common/backend/DataReference.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
-//
-// ProbeMaster
-//
-
-class ProbeMaster : public SimulatorBlockBase {
+class ProbeAccess : public simulator::backend::IProbeAccess, public IObject {
 
 public:
 
-	ProbeMaster(design::blocks::backend::IDesignBlock const &designBlock);
+	design::NodeType m_nodeType;
+	DataReference m_dataReference;
 
-	virtual std::string GetDesignPathHint() const override;
+	ProbeAccess(SimulatorBlockOutput const &driver) :
+		m_nodeType(driver.GetType()),
+		m_dataReference(driver.GetReference())
+	{
+	}
 
-	virtual void Elaborate(ISimulatorElaborationContext &context) override;
+	virtual void *GetInterface(Uid const &iid) override
+	{
+		return utility::GetInterfaceHelper<
+			simulator::backend::IProbeAccess,
+			IObject>::GetInterface(this, iid);
+	}
 
-	virtual void GenerateCode(ISimulatorCodeGenerationContext &context) override;
+	virtual void Read(void *buffer, size_t size) const override
+	{
+		m_dataReference.Read(buffer, size);
+	}
 
-	virtual void Finalise(ISimulatorFinalisationContext &context) override;
+	virtual size_t GetSize() const noexcept override
+	{
+		return m_dataReference.GetSize();
+	}
 };
 
 } // namespace oddf::simulator::common::backend::blocks

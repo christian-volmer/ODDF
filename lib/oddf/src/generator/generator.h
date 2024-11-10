@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Classes that support the generation of code (e.g., Verilog) from the
-	design.
+    Classes that support the generation of code (e.g., Verilog) from the
+    design.
 
 */
 
@@ -55,6 +55,9 @@ public:
 		int index;
 		std::string name;
 		Output *driver;
+
+		Input(Input const &) = default;
+		Input &operator=(Input const &) = default;
 	};
 
 	struct Output {
@@ -71,17 +74,20 @@ public:
 
 	public:
 
-		Output() : 
-			index(0), 
-			name(), 
-			targets(), 
-			entity(nullptr), 
-			type(), 
+		Output() :
+			index(0),
+			name(),
+			targets(),
+			entity(nullptr),
+			type(),
 			groupIndex(0),
-			busSize(-1), 
+			busSize(-1),
 			busIndex(0)
 		{
 		}
+
+		Output(Output const &) = default;
+		Output &operator=(Output const &) = default;
 
 		std::string GetBaseName() const
 		{
@@ -120,9 +126,11 @@ public:
 	Entity(Instance *instance, std::string const &className, std::string const &name, std::vector<std::string> const &inputNames, std::vector<std::string> const &outputNames);
 	Entity(Instance *instance, std::string const &className, std::string const &name, int numberOfInputs, int numberOfOutputs);
 
+	Entity(Entity const &) = delete;
+	void operator=(Entity const &) = delete;
+
 	bool IsConsistent() const;
 };
-
 
 class Instance {
 
@@ -176,12 +184,14 @@ public:
 	{
 	}
 
+	Instance(Instance const &) = delete;
+	void operator=(Instance const &) = delete;
+
 private:
 
 	mutable bool cachedHashValid;
 	mutable std::size_t cachedHash;
 };
-
 
 class Generator {
 
@@ -207,7 +217,7 @@ private:
 	//
 	// generator_port_placing.cpp
 	//
-	
+
 	bool PlaceInputPorts(bool firstPass);
 	bool PlaceInputConnectors();
 	bool PlaceOutputPorts(bool firstPass);
@@ -259,5 +269,5 @@ public:
 	Generator(Design const &design, std::basic_ostream<char> &os, Configuration const &theConfiguration = Configuration());
 };
 
-}
-}
+} // namespace generator
+} // namespace dfx

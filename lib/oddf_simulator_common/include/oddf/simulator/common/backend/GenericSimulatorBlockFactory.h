@@ -31,9 +31,7 @@
 
 #include <memory>
 
-namespace oddf {
-namespace simulation {
-namespace backend {
+namespace oddf::simulator::common::backend {
 
 template<typename blockFactoryT>
 class GenericSimulatorBlockFactory : public SimulatorBlockFactoryBase {
@@ -46,6 +44,4 @@ public:
 	}
 };
 
-} // namespace backend
-} // namespace simulation
-} // namespace oddf
+} // namespace oddf::simulator::common::backend

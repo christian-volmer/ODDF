@@ -39,181 +39,177 @@
 
 namespace oddf::simulator::common::backend {
 
-namespace {
+void SimulatorCore::BuildComponents()
+{
+	/*
+	    Methods of class `ComponentBuilder` build the components of the simulator
+	    execution graph by traversing the simulator blocks according to their
+	    connectivity.
+	*/
+	class ComponentBuilder {
 
-/*
-    Methods of class `ComponentBuilder` build the components of the simulator
-    execution graph by traversing the simulator blocks according to their
-    connectivity.
-*/
-class ComponentBuilder {
+	private:
 
-private:
+		// Reference to the list of components of the `SimulatorCore` class instance.
+		std::list<SimulatorComponent> &m_components;
 
-	// Reference to the list of components of the `SimulatorCore` class instance.
-	std::list<SimulatorComponent> &m_components;
+		// List of pointers to released, empty components. They can be reused and speed up the memory management.
+		std::list<SimulatorComponent *> m_releasedComponents;
 
-	// List of pointers to released, empty components. They can be reused and speed up the memory management.
-	std::list<SimulatorComponent *> m_releasedComponents;
+		// Pointer to the component that is currently being built.
+		SimulatorComponent *m_currentComponent;
 
-	// Pointer to the component that is currently being built.
-	SimulatorComponent *m_currentComponent;
+		// Returns a pointer to a new, empty component.
+		SimulatorComponent *NewComponent()
+		{
+			SimulatorComponent *component = nullptr;
 
-	// Returns a pointer to a new, empty component.
-	SimulatorComponent *NewComponent()
-	{
-		SimulatorComponent *component = nullptr;
+			if (!m_releasedComponents.empty()) {
 
-		if (!m_releasedComponents.empty()) {
+				component = m_releasedComponents.back();
+				m_releasedComponents.pop_back();
+			}
+			else {
 
-			component = m_releasedComponents.back();
-			m_releasedComponents.pop_back();
-		}
-		else {
+				component = &m_components.emplace_back();
+			}
 
-			component = &m_components.emplace_back();
-		}
+			assert(component);
+			assert(component->IsEmpty());
 
-		assert(component);
-		assert(component->IsEmpty());
-
-		return component;
-	}
-
-	// Releases an empty component so it can be reused or freed later on.
-	void ReleaseComponent(SimulatorComponent *component)
-	{
-		assert(component);
-		assert(component->IsEmpty());
-
-		m_releasedComponents.push_back(component);
-	}
-
-	// Returns the set of blocks that have outputs that drive `block`.
-	auto GetDrivingBlocks(SimulatorBlockBase &block)
-	{
-		std::set<SimulatorBlockBase *> drivingBlocks;
-
-		auto inputsEnumerator = block.GetInputsList().GetEnumerator();
-
-		for (inputsEnumerator.Reset(); inputsEnumerator.MoveNext();) {
-
-			auto &input = inputsEnumerator.GetCurrent();
-
-			if (input.IsConnected())
-				drivingBlocks.insert(&input.GetDriver().GetOwningBlock());
+			return component;
 		}
 
-		return drivingBlocks;
-	}
+		// Releases an empty component so it can be reused or freed later on.
+		void ReleaseComponent(SimulatorComponent *component)
+		{
+			assert(component);
+			assert(component->IsEmpty());
 
-	// Builds a component by Visiting `block` and recursively all blocks that drive it.
-	SimulatorBlockBase const *VisitBlock(SimulatorBlockBase &block)
-	{
-		if (block.m_internals->m_component) {
+			m_releasedComponents.push_back(component);
+		}
 
-			assert(!block.m_internals->m_visiting);
+		// Returns the set of blocks that have outputs that drive `block`.
+		auto GetDrivingBlocks(SimulatorBlockBase &block)
+		{
+			std::set<SimulatorBlockBase *> drivingBlocks;
 
-			SimulatorComponent *otherComponent = block.m_internals->m_component;
+			auto inputsEnumerator = block.GetInputsList().GetEnumerator();
 
-			if (otherComponent != m_currentComponent) {
+			for (inputsEnumerator.Reset(); inputsEnumerator.MoveNext();) {
 
-				/*
-				    Blocks from 'otherComponent' and 'm_currentComponent' must
-				    be merged. Since blocks from 'otherComponent' had already
-				    been visited, they need to be placed before elements from
-				    'm_currentComponent'.
+				auto &input = inputsEnumerator.GetCurrent();
 
-				    TODO
+				if (input.IsConnected())
+					drivingBlocks.insert(&input.GetDriver().GetOwningBlock());
+			}
 
-				    Confirm these cases are really visited and that they work
-				    properly by activating block shuffling below.
+			return drivingBlocks;
+		}
 
-				    Is the size of m_currentComponent always non-zero?
-				*/
+		// Builds a component by Visiting `block` and recursively all blocks that drive it.
+		SimulatorBlockBase const *VisitBlock(SimulatorBlockBase &block)
+		{
+			if (block.m_internals->m_component) {
 
-				assert(m_currentComponent->GetSize() == 0); // Is GetSize ever different from 0?
+				assert(!block.m_internals->m_visiting);
 
-				if (m_currentComponent->GetSize() < otherComponent->GetSize()) {
+				SimulatorComponent *otherComponent = block.m_internals->m_component;
 
-					otherComponent->MoveAppendFromOther(m_currentComponent);
-					ReleaseComponent(m_currentComponent);
-					m_currentComponent = otherComponent;
+				if (otherComponent != m_currentComponent) {
+
+					/*
+					    Blocks from 'otherComponent' and 'm_currentComponent' must
+					    be merged. Since blocks from 'otherComponent' had already
+					    been visited, they need to be placed before elements from
+					    'm_currentComponent'.
+
+					    TODO
+
+					    Confirm these cases are really visited and that they work
+					    properly by activating block shuffling below.
+
+					    Is the size of m_currentComponent always non-zero?
+					*/
+
+					assert(m_currentComponent->GetSize() == 0); // Is GetSize ever different from 0?
+
+					if (m_currentComponent->GetSize() < otherComponent->GetSize()) {
+
+						otherComponent->MoveAppendFromOther(m_currentComponent);
+						ReleaseComponent(m_currentComponent);
+						m_currentComponent = otherComponent;
+					}
+					else {
+
+						m_currentComponent->MovePrependFromOther(otherComponent);
+						ReleaseComponent(otherComponent);
+					}
 				}
-				else {
 
-					m_currentComponent->MovePrependFromOther(otherComponent);
-					ReleaseComponent(otherComponent);
+				return nullptr;
+			}
+
+			if (block.m_internals->m_visiting) {
+
+				std::cout << "INFO: A loop was detected in the execution graph starting at block '" << block.GetDesignPathHint() << "'\n";
+				return &block;
+			}
+
+			block.m_internals->m_visiting = true;
+
+			auto drivingBlocks = GetDrivingBlocks(block);
+
+			for (auto *drivingBlock : drivingBlocks) {
+
+				auto *loop = VisitBlock(*drivingBlock);
+				if (loop) {
+
+					if (loop != &block) {
+
+						std::cout << "INFO: ... going through block '" << block.GetDesignPathHint() << "' ...\n";
+						return loop;
+					}
+					else {
+
+						std::cout << "INFO: ... and returning to block '" << block.GetDesignPathHint() << "' again.\n";
+						throw oddf::Exception(oddf::ExceptionCode::Fail);
+					}
 				}
 			}
 
+			block.m_internals->m_visiting = false;
+
+			m_currentComponent->AddBlock(block);
 			return nullptr;
 		}
 
-		if (block.m_internals->m_visiting) {
+	public:
 
-			std::cout << "INFO: A loop was detected in the execution graph starting at block '" << block.GetDesignPathHint() << "'\n";
-			return &block;
+		ComponentBuilder(std::list<SimulatorComponent> &components) :
+			m_components(components),
+			m_releasedComponents(),
+			m_currentComponent()
+		{
 		}
 
-		block.m_internals->m_visiting = true;
+		ComponentBuilder(ComponentBuilder const &) = delete;
+		void operator=(ComponentBuilder const &) = delete;
 
-		auto drivingBlocks = GetDrivingBlocks(block);
+		// Build all graph components by visiting all simulator blocks.
+		void BuildComponents(std::vector<std::unique_ptr<SimulatorBlockBase>> &blocks)
+		{
+			for (auto &block : blocks) {
 
-		for (auto *drivingBlock : drivingBlocks) {
-
-			auto *loop = VisitBlock(*drivingBlock);
-			if (loop) {
-
-				if (loop != &block) {
-
-					std::cout << "INFO: ... going through block '" << block.GetDesignPathHint() << "' ...\n";
-					return loop;
-				}
-				else {
-
-					std::cout << "INFO: ... and returning to block '" << block.GetDesignPathHint() << "' again.\n";
-					throw oddf::Exception(oddf::ExceptionCode::Fail);
-				}
+				m_currentComponent = NewComponent();
+				assert(block);
+				VisitBlock(*block);
 			}
+
+			m_components.remove_if([](auto const &component) { return component.IsEmpty(); });
 		}
+	};
 
-		block.m_internals->m_visiting = false;
-
-		m_currentComponent->AddBlock(block);
-		return nullptr;
-	}
-
-public:
-
-	ComponentBuilder(std::list<SimulatorComponent> &components) :
-		m_components(components),
-		m_releasedComponents(),
-		m_currentComponent()
-	{
-	}
-
-	ComponentBuilder(ComponentBuilder const &) = delete;
-	void operator=(ComponentBuilder const &) = delete;
-
-	// Build all graph components by visiting all simulator blocks.
-	void BuildComponents(std::vector<std::unique_ptr<SimulatorBlockBase>> &blocks)
-	{
-		for (auto &block : blocks) {
-
-			m_currentComponent = NewComponent();
-			assert(block);
-			VisitBlock(*block);
-		}
-
-		m_components.remove_if([](auto const &component) { return component.IsEmpty(); });
-	}
-};
-
-} // namespace
-
-void SimulatorCore::BuildComponents()
-{
 	std::cout << "\n";
 	std::cout << "-- Building components --\n";
 	std::cout << "\n";

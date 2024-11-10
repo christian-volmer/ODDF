@@ -20,33 +20,38 @@
 
 /*
 
-    Defines `SimulatorObjectBase`, which is the base class to all simulator
-    blocks.
+    <no description>
 
 */
-
-#include <oddf/Uid.h>
 
 #pragma once
 
-namespace oddf::simulator::common::backend {
+#include <oddf/simulator/common/backend/SimulatorType.h>
 
-/*
-    Base class to all simulator objects.
-*/
-class SimulatorObjectBase {
+namespace oddf::simulator::common::backend::blocks {
+
+struct I_Not_Bool : public SimulatorInstructionBase {
+
+private:
+
+	SimulatorType::Boolean const *m_input;
+	SimulatorType::Boolean m_output;
+
+	static size_t InstructionFunction(I_Not_Bool &instruction)
+	{
+		instruction.m_output = ~(*instruction.m_input);
+		return sizeof(instruction);
+	}
 
 public:
 
-	SimulatorObjectBase(SimulatorObjectBase const &) = delete;
-	void operator=(SImulatorObjectBase const &) = delete;
-
-	SimulatorObjectBase(SimulatorObjectBase &&) = delete;
-	void operator=(SImulatorObjectBase &&) = delete;
-
-	virtual ~SimulatorObjectBase() = 0;
-
-	void *GetInterface(Uid const &iid) = 0;
+	I_Not_Bool(ISimulatorCodeGenerationContext &context) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_input(), m_output()
+	{
+		context.RegisterInput(0, m_input);
+		context.RegisterOutput(0, m_output);
+	}
 };
 
-} // namespace oddf::simulator::common::backend
+} // namespace oddf::simulator::common::backend::blocks

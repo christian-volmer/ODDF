@@ -24,21 +24,31 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
 
-namespace oddf::simulator::common::backend {
+#include <oddf/simulator/common/backend/SimulatorType.h>
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+namespace oddf::simulator::common::backend::blocks {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+struct I_Const_Bool : public SimulatorInstructionBase {
 
-} // namespace oddf::simulator::common::backend
+private:
+
+	SimulatorType::Boolean m_output;
+
+	static size_t InstructionFunction(I_Const_Bool &instruction)
+	{
+		return sizeof(instruction);
+	}
+
+public:
+
+	I_Const_Bool(ISimulatorCodeGenerationContext &context) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_output(0)
+	{
+		context.RegisterOutput(0, m_output);
+	}
+};
+
+} // namespace oddf::simulator::common::backend::blocks

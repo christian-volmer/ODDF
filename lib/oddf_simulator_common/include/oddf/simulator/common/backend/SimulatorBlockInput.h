@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <oddf/design/NodeType.h>
+
 namespace oddf::simulator::common::backend {
 
 class SimulatorCore;
@@ -52,6 +54,8 @@ public:
 	SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index);
 	SimulatorBlockInput(SimulatorBlockInput const &) = delete;
 	SimulatorBlockInput(SimulatorBlockInput &&);
+
+	design::NodeType GetType() const;
 
 	// Returns the index of this output within the list of outputs of the owning block.
 	size_t GetIndex() const;

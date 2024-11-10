@@ -24,21 +24,20 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
 
-namespace oddf::simulator::common::backend {
+namespace oddf::simulator::backend {
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+class IProbeAccess {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+public:
 
-} // namespace oddf::simulator::common::backend
+	static constexpr Uid IID = { 0x695f4116, 0x335e, 0x47ed, 0xa2, 0xf, 0xc8, 0x29, 0x94, 0x59, 0xe6, 0x8e };
+
+	virtual ~IProbeAccess() { }
+
+	virtual void Read(void *buffer, size_t size) const = 0;
+	virtual size_t GetSize() const noexcept = 0;
+};
+
+} // namespace oddf::simulator::backend

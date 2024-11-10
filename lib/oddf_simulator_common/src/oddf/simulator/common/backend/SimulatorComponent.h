@@ -52,6 +52,8 @@ public:
 	SimulatorComponent(SimulatorComponent const &) = delete;
 	void operator=(SimulatorComponent const &) = delete;
 
+	// TODO: the following methods should be moved to class `ComponentBuilder` in BuildComponents.cpp
+
 	// Adds `block` to the current component.
 	void AddBlock(SimulatorBlockBase &block);
 

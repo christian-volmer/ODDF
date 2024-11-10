@@ -27,29 +27,9 @@
 #include "../../lib/oddf/src/dfx.h"
 
 #include <oddf/SimulatorCommon.h>
+#include <oddf/simulator/ProbeAccess.h>
 
 namespace b = dfx::blocks;
-
-template<typename T = void>
-class ProbeValue {
-
-private:
-
-	oddf::simulator::backend::ISimulatorAccess &m_simulator;
-
-public:
-
-	ProbeValue(oddf::simulator::ISimulator &simulator, std::string const &) :
-		m_simulator(simulator.GetSimulatorAccess())
-	{
-	}
-
-	template<typename S = T>
-	S get()
-	{
-		return {};
-	}
-};
 
 int main()
 {
@@ -105,21 +85,9 @@ int main()
 
 	simulator2.TranslateDesign(design);
 
-	simulator2.GetSimulatorAccess().EnsureValid();
-
-	auto probeValue = ProbeValue<bool>(simulator2, "test");
+	auto probeValue = oddf::simulator::ProbeAccess<bool>(simulator2, "myprobe");
 
 	std::cout << probeValue.get() << "\n";
-	// simulator2.Run(1);
-
-	std::cout << probeValue.get<bool>() << "\n";
-	// simulator2.Run(1);
-
-	std::cout << probeValue.get<bool>() << "\n";
-	// simulator2.Run(1);
-
-	std::cout << probeValue.get<bool>() << "\n";
-	// simulator2.Run(1);
 
 	return 0;
 }

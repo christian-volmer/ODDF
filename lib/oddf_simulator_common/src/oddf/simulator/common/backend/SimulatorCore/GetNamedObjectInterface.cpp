@@ -24,21 +24,20 @@
 
 */
 
-#include "SimulatorCore.h"
+#include "../SimulatorCore.h"
+
+#include <oddf/Exception.h>
 
 namespace oddf::simulator::common::backend {
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
+void *SimulatorCore::GetNamedObjectInterface(std::string const &name, Uid const &iid) const
 {
-	RegisterDefaultBlockFactories();
-}
+	auto objectIt = m_namedSimulatorObjects.find(name);
 
-SimulatorCore::~SimulatorCore()
-{
+	if (objectIt == m_namedSimulatorObjects.end())
+		throw Exception(ExceptionCode::NoResource);
+	else
+		return objectIt->second.get()->GetInterface(iid);
 }
 
 } // namespace oddf::simulator::common::backend

@@ -24,21 +24,30 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
+
+#include <oddf/IObject.h>
+
+#include <memory>
 
 namespace oddf::simulator::common::backend {
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+class ISimulatorFinalisationContext {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+public:
+
+	virtual ~ISimulatorFinalisationContext() { }
+
+	virtual void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object) = 0;
+
+	template<typename T, typename... argTs>
+	T &CreateNamedObject(std::string name, argTs &&...args)
+	{
+		auto object = std::make_unique<T>(args...);
+		auto &objectReference = *object;
+		RegisterNamedObject(name, std::move(object));
+		return objectReference;
+	}
+};
 
 } // namespace oddf::simulator::common::backend

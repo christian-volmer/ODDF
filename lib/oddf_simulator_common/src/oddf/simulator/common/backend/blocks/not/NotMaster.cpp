@@ -25,8 +25,9 @@
 */
 
 #include "../Not.h"
+#include "I_Not_Bool.h"
 
-#include <oddf/simulator/common/backend/SimulatorTypes.h>
+#include <oddf/Exception.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
@@ -42,35 +43,26 @@ std::string NotMaster::GetDesignPathHint() const
 
 void NotMaster::Elaborate(ISimulatorElaborationContext &)
 {
+	auto outputs = GetOutputsList();
+
+	if (outputs.GetSize() != 1)
+		throw Exception(ExceptionCode::Unsupported);
+
+	if (outputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
+		throw Exception(ExceptionCode::Unsupported);
+
+	auto inputs = GetInputsList();
+
+	if (inputs.GetSize() != 1)
+		throw Exception(ExceptionCode::Unsupported);
+
+	if (inputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
+		throw Exception(ExceptionCode::Unsupported);
 }
-
-struct NotInstruction : public SimulatorInstructionBase {
-
-private:
-
-	SimulatorType::Boolean const *m_input;
-	SimulatorType::Boolean m_output;
-
-	static size_t InstructionFunction(NotInstruction &instruction)
-	{
-		instruction.m_output = !(*instruction.m_input);
-		return sizeof(instruction);
-	}
-
-public:
-
-	NotInstruction(ISimulatorCodeGenerationContext &context) :
-		SimulatorInstructionBase(&InstructionFunction),
-		m_input(), m_output()
-	{
-		context.RegisterInput(0, m_input);
-		context.RegisterOutput(0, m_output);
-	}
-};
 
 void NotMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
-	context.EmitInstruction<NotInstruction>();
+	context.EmitInstruction<I_Not_Bool>();
 }
 
 } // namespace oddf::simulator::common::backend::blocks

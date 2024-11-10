@@ -24,6 +24,8 @@
     preferred way of reporting fatal errors in ODDF.
 */
 
+#pragma once
+
 #include <exception>
 #include <string>
 #include <cstdint>
@@ -59,7 +61,10 @@ enum class ExceptionCode : std::uint32_t {
 	NoInterface,
 
 	// The requested resource does not exist.
-	NoResource
+	NoResource,
+
+	// The requested operation is not supported.
+	Unsupported
 };
 
 /*

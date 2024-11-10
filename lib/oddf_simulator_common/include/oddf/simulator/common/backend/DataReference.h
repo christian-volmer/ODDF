@@ -24,21 +24,25 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
+
+#include <cstddef>
 
 namespace oddf::simulator::common::backend {
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+class DataReference {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+private:
+
+	void const *m_pointer;
+	size_t m_size;
+
+public:
+
+	DataReference(void const *pointer, size_t size);
+
+	size_t GetSize() const noexcept;
+	void Read(void *buffer, size_t count) const;
+};
 
 } // namespace oddf::simulator::common::backend

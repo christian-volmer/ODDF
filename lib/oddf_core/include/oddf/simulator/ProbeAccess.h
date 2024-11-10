@@ -24,21 +24,33 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
 
-namespace oddf::simulator::common::backend {
+#include "backend/IProbeAccess.h"
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+namespace oddf::simulator {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+template<typename T = void>
+class ProbeAccess {
 
-} // namespace oddf::simulator::common::backend
+private:
+
+	backend::IProbeAccess &m_access;
+
+public:
+
+	ProbeAccess(oddf::simulator::ISimulator &simulator, std::string const &name) :
+		m_access(simulator.GetSimulatorAccess().GetNamedObjectInterface<backend::IProbeAccess>(name))
+	{
+	}
+
+	template<typename S = T>
+	S get()
+	{
+		S value;
+		m_access.Read(&value, sizeof(value));
+		return value;
+	}
+};
+
+} // namespace oddf::simulator

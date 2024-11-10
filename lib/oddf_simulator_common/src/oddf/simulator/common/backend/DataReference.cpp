@@ -24,15 +24,31 @@
 
 */
 
-#include "../SimulatorCore.h"
+#include <oddf/simulator/common/backend/DataReference.h>
 
 #include <oddf/Exception.h>
 
+#include <cstring>
+
 namespace oddf::simulator::common::backend {
 
-void *SimulatorCore::GetSimulatorObjectInterface(ResourcePath const & /*path*/, Uid const & /*iid*/)
+DataReference::DataReference(void const *pointer, size_t size) :
+	m_pointer(pointer),
+	m_size(size)
 {
-	throw Exception(ExceptionCode::NoResource);
+}
+
+void DataReference::Read(void *buffer, size_t count) const
+{
+	if (count > m_size)
+		throw Exception(ExceptionCode::Bounds);
+
+	memcpy(buffer, m_pointer, count);
+}
+
+size_t DataReference::GetSize() const noexcept
+{
+	return m_size;
 }
 
 } // namespace oddf::simulator::common::backend

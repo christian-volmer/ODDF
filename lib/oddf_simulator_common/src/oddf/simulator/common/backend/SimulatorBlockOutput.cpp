@@ -35,7 +35,8 @@ SimulatorBlockOutput::SimulatorBlockOutput(SimulatorBlockBase &owningBlock, desi
 	m_nodeType(nodeType),
 	m_index(index),
 	m_targets(),
-	m_storageReference()
+	m_storageReference(),
+	m_storagePointer()
 {
 }
 
@@ -44,7 +45,8 @@ SimulatorBlockOutput::SimulatorBlockOutput(SimulatorBlockOutput &&other) :
 	m_nodeType(),
 	m_index(0),
 	m_targets(),
-	m_storageReference()
+	m_storageReference(),
+	m_storagePointer()
 {
 	// Since the address of an output object must never change, it must not be moved.
 	throw oddf::Exception(oddf::ExceptionCode::Unexpected);
@@ -53,6 +55,45 @@ SimulatorBlockOutput::SimulatorBlockOutput(SimulatorBlockOutput &&other) :
 design::NodeType SimulatorBlockOutput::GetType() const
 {
 	return m_nodeType;
+}
+
+DataReference SimulatorBlockOutput::GetReference() const
+{
+	if (!m_storagePointer)
+		throw Exception(ExceptionCode::IllegalMethodCall, "SimulatorBlockOutput::GetReference(): must call this function from 'SimulatorBlockBase::Finalise()'.");
+
+	size_t size;
+
+	using design::NodeType;
+
+	switch (GetType().GetTypeId()) {
+
+		case NodeType::BOOLEAN:
+			size = sizeof(SimulatorType::Boolean);
+			break;
+
+		case NodeType::INTEGER:
+			size = sizeof(SimulatorType::Integer);
+			break;
+
+		case NodeType::REAL:
+			size = sizeof(SimulatorType::Real);
+			break;
+
+		case NodeType::FIXED_POINT:
+		case NodeType::BIT_VECTOR: {
+
+			size_t elementSize = sizeof(SimulatorType::InternalElement) * 8;
+			size_t elementCount = (GetType().GetWordWidth() + elementSize - 1) / elementSize;
+			size = sizeof(SimulatorType::InternalElement) * elementCount;
+			break;
+		}
+
+		default:
+			throw Exception(ExceptionCode::Unexpected);
+	}
+
+	return DataReference(m_storagePointer, size);
 }
 
 size_t SimulatorBlockOutput::GetIndex() const

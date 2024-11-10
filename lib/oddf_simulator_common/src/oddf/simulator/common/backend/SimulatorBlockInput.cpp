@@ -50,6 +50,14 @@ SimulatorBlockInput::SimulatorBlockInput(SimulatorBlockInput &&other) :
 	throw oddf::Exception(oddf::ExceptionCode::Unexpected);
 }
 
+design::NodeType SimulatorBlockInput::GetType() const
+{
+	if (IsConnected())
+		return GetDriver().GetType();
+	else
+		throw Exception(ExceptionCode::IllegalMethodCall, "SimulatorBlockInput::GetType(): The input has no driver.");
+}
+
 size_t SimulatorBlockInput::GetIndex() const
 {
 	return m_index;

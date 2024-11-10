@@ -63,6 +63,8 @@ public:
 	void operator=(DelayStartingPoint const &) = delete;
 
 	virtual std::string GetDesignPathHint() const override;
+
+	virtual void Elaborate(ISimulatorElaborationContext &) override { }
 };
 
 //
@@ -83,6 +85,8 @@ public:
 	void operator=(DelayEndpoint const &) = delete;
 
 	virtual std::string GetDesignPathHint() const override;
+
+	virtual void Elaborate(ISimulatorElaborationContext &) override {};
 };
 
 } // namespace oddf::simulator::common::backend::blocks

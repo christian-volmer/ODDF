@@ -1,26 +1,26 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Main include for Verilog code emission.
+    Main include for Verilog code emission.
 
 */
 
@@ -38,13 +38,16 @@ protected:
 
 public:
 
-	EntityProcessor(VerilogExporter *theExporter) : exporter(theExporter) {}
-	virtual ~EntityProcessor() {}
+	EntityProcessor(VerilogExporter *theExporter) :
+		exporter(theExporter) { }
+	virtual ~EntityProcessor() { }
+
+	EntityProcessor(EntityProcessor const &) = delete;
+	void operator=(EntityProcessor const &) = delete;
 
 	virtual void WritePreamble(std::ofstream &f, dfx::generator::Instance &module, dfx::generator::Entity &entity) const = 0;
 	virtual void WriteCode(std::ofstream &f, dfx::generator::Instance &module, dfx::generator::Entity &entity) const = 0;
 };
-
 
 class VerilogExporter {
 
@@ -82,13 +85,16 @@ private:
 public:
 
 	VerilogExporter(dfx::generator::Generator &generator, Configuration const &theConfiguration = Configuration());
+
+	VerilogExporter(VerilogExporter const &) = delete;
+	void operator=(VerilogExporter const &) = delete;
+
 	void Export(std::string const &basePath, std::basic_ostream<char> &os);
 
 	Configuration const &GetConfiguration() const;
 
 	std::list<std::string> const &GetListOfFiles() const;
 };
-
 
 // Returns an expression for the given output, including bus index.
 std::string GetNodeExpression(dfx::generator::Entity::Output const *output);
@@ -102,7 +108,7 @@ std::string GetExpandedNodeExpression(dfx::types::TypeDescription const &targetT
 // Returns an array expression for the given list of inputs if possible, or an empty string otherwise.
 std::string GetArrayExpression(dfx::generator::Entity::Input const *inputs, int firstIndex, int length);
 
-// Tests if the given range of inputs is driven through a bus or a slice. 
+// Tests if the given range of inputs is driven through a bus or a slice.
 bool IsInputBusOrSlice(dfx::generator::Entity::Input const *inputs, int firstIndex, int length);
 
 std::string expand_signal(dfx::generator::Entity::Output *signal, int const &right, int const &left);

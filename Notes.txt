@@ -40,21 +40,19 @@ oddf_core library
 	simulator
 		ISimulator
 			GetSimulatorAccess()
-
-	simualtor::backend
-		ISimulatorAccess
-			void EnsureValid(); // Ensures that the state of the simulator is valid so that internal values can be read out
-			void *GetSimulatorObjectInterface(path, iid); // Throws if 'path' does not exist or the object does not expose the requested interface
-			T &GetSimulatorObjectInterface<T>(path); // Interfaces must have static IID member to support this function
-
-	simulator::access
-		[ interfaces for the required simulator objects go here as well ]
+		[ interfaces for the required simulator objects go here: ]
 		ResultsAccess // <-- This is what used to be the debug-logger
 		ProbeAccess
 		SignalAccess
 		SourceAccess
 		SinkAccess
 		MemoryAccess
+
+	simualtor::backend
+		ISimulatorAccess
+			void EnsureValid(); // Ensures that the state of the simulator is valid so that internal values can be read out
+			void *GetSimulatorObjectInterface(path, iid); // Throws if 'path' does not exist or the object does not expose the requested interface
+			T &GetSimulatorObjectInterface<T>(path); // Interfaces must have static IID member to support this function
 
 	utility
 		Enumerator<referenceT>

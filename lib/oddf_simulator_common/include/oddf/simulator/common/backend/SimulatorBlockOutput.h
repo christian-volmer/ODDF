@@ -29,6 +29,8 @@
 #include <oddf/design/NodeType.h>
 #include <oddf/utility/CollectionView.h>
 
+#include <oddf/simulator/common/backend/DataReference.h>
+
 #include <list>
 
 namespace oddf::simulator::common::backend {
@@ -51,11 +53,8 @@ private:
 
 	std::list<SimulatorBlockInput *> m_targets;
 
-	union {
-
-		ptrdiff_t m_storageReference;
-		void *m_storagePointer;
-	};
+	ptrdiff_t m_storageReference;
+	void *m_storagePointer;
 
 public:
 
@@ -68,6 +67,8 @@ public:
 	void operator=(SimulatorBlockOutput &&) = delete;
 
 	design::NodeType GetType() const;
+
+	DataReference GetReference() const;
 
 	// Returns the index of this output within the list of outputs of the owning block.
 	size_t GetIndex() const;

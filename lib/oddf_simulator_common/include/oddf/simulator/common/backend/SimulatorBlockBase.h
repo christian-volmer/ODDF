@@ -31,6 +31,7 @@
 
 #include <oddf/simulator/common/backend/ISimulatorElaborationContext.h>
 #include <oddf/simulator/common/backend/ISimulatorCodeGenerationContext.h>
+#include <oddf/simulator/common/backend/ISimulatorFinalisationContext.h>
 
 #include "SimulatorBlockInput.h"
 #include "SimulatorBlockOutput.h"
@@ -82,11 +83,14 @@ public:
 	// Disconnects all inputs and outputs from all other blocks.
 	void DisconnectAll();
 
-	// Elaborates the block. Default implementation does nothing.
-	virtual void Elaborate(ISimulatorElaborationContext &context);
+	// Elaborates the block. Implementation should check the number of inputs and outputs and their types.
+	virtual void Elaborate(ISimulatorElaborationContext &context) = 0;
 
 	// Generates the final code for this block. Default implementation throws.
 	virtual void GenerateCode(ISimulatorCodeGenerationContext &context);
+
+	// Finalises the block. Default implementation does nothing.
+	virtual void Finalise(ISimulatorFinalisationContext &context);
 
 	// Returns a descriptive string (similar to a resource path) that hints at the origin of this simulator block in the original design.
 	virtual std::string GetDesignPathHint() const = 0;

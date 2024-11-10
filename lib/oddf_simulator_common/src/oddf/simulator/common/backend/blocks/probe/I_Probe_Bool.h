@@ -24,21 +24,32 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
 
-namespace oddf::simulator::common::backend {
+#include <oddf/simulator/common/backend/SimulatorType.h>
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+namespace oddf::simulator::common::backend::blocks {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+struct I_Probe_Bool : public SimulatorInstructionBase {
 
-} // namespace oddf::simulator::common::backend
+private:
+
+	SimulatorType::Boolean const *m_input;
+
+	static size_t InstructionFunction(I_Probe_Bool &instruction)
+	{
+		// TODO: does a probe have to emit an instruction?
+		return sizeof(instruction);
+	}
+
+public:
+
+	I_Probe_Bool(ISimulatorCodeGenerationContext &context) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_input()
+	{
+		context.RegisterInput(0, m_input);
+	}
+};
+
+} // namespace oddf::simulator::common::backend::blocks

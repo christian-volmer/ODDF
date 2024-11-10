@@ -49,6 +49,8 @@ void SimulatorCore::TranslateDesign(design::IDesign const &design)
 
 	GenerateCode();
 
+	FinaliseTranslation();
+
 	/*
 
 	- Wie melden Blöcke an, dass sie die Knoten-Addresse außerhalb des normalen Execution-Flows benötigen?

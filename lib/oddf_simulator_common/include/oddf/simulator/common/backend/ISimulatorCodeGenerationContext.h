@@ -28,7 +28,7 @@
 
 #include "SimulatorInstructionBase.h"
 
-#include "SimulatorTypes.h"
+#include "SimulatorType.h"
 
 #include <type_traits>
 #include <cstdint>

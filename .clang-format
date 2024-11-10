@@ -20,9 +20,9 @@ SpaceAfterTemplateKeyword: false
 RequiresExpressionIndentation: OuterScope
 BreakBeforeConceptDeclarations: Always
 SpaceBeforeRangeBasedForLoopColon: true
-KeepEmptyLines:
-  AtEndOfFile: false
-  AtStartOfBlock: true
+# KeepEmptyLines:
+#  AtEndOfFile: false
+#  AtStartOfBlock: true
 AllowShortBlocksOnASingleLine: Never
 AlwaysBreakTemplateDeclarations: Yes
 Cpp11BracedListStyle: false

@@ -111,16 +111,16 @@ bool SimulatorBlockBase::HasConnections() const
 	return false;
 }
 
-void SimulatorBlockBase::Elaborate(ISimulatorElaborationContext & /* context */)
-{
-	// Default implementation does nothing.
-}
-
 void SimulatorBlockBase::GenerateCode(ISimulatorCodeGenerationContext & /* context */)
 {
 	// Blocks should either implement this function or remove themselves from the
 	// list of simulator blocks during elaboration.
 	throw Exception(ExceptionCode::NotImplemented);
+}
+
+void SimulatorBlockBase::Finalise(ISimulatorFinalisationContext & /* context */)
+{
+	// Default implementation does nothing.
 }
 
 } // namespace oddf::simulator::common::backend

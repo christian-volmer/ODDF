@@ -24,21 +24,27 @@
 
 */
 
-#include "SimulatorCore.h"
+#pragma once
 
-namespace oddf::simulator::common::backend {
+#include <oddf/Uid.h>
 
-SimulatorCore::SimulatorCore() :
-	m_blocks(),
-	m_simulatorBlockFactories(),
-	m_components(),
-	m_namedSimulatorObjects()
-{
-	RegisterDefaultBlockFactories();
-}
+namespace oddf {
 
-SimulatorCore::~SimulatorCore()
-{
-}
+class IObject {
 
-} // namespace oddf::simulator::common::backend
+public:
+
+	static constexpr Uid IID = { 0x8a54167e, 0x6e89, 0x4a1a, 0xb2, 0xd5, 0xfc, 0xa9, 0xaa, 0xb, 0xe6, 0xb };
+
+	virtual ~IObject() { }
+
+	virtual void *GetInterface(Uid const &iid) = 0;
+
+	template<typename T>
+	T &GetInterface()
+	{
+		return *static_cast<T *>(GetInterface(T::IID));
+	}
+};
+
+} // namespace oddf

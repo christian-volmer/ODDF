@@ -56,6 +56,8 @@ class IStep {
 
 public:
 
+	virtual ~IStep() { }
+
 	virtual void Step() = 0;
 	virtual void AsyncReset() = 0;
 };
