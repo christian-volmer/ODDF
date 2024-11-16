@@ -27,6 +27,7 @@
 #include "../../lib/oddf/src/dfx.h"
 
 #include <oddf/SimulatorCommon.h>
+#include <oddf/simulator/Signal.h>
 #include <oddf/simulator/Probe.h>
 
 namespace b = dfx::blocks;
@@ -37,15 +38,16 @@ int main()
 	using dfx::dynfix;
 	using dfx::ufix;
 
-    //
-    // Design
-    //
+	//
+	// Design
+	//
 
 	dfx::Design design;
 
-	b::Probe(!b::Constant(true));
+	bool temp = false;
+	b::Probe(!b::Signal(&temp));
 
-    //
+	//
 	// Simulation
 	//
 
@@ -54,7 +56,12 @@ int main()
 	simulator.TranslateDesign(design);
 
 	auto myProbe = sim::Probe<bool>(simulator, "myprobe");
+	auto mySignal = sim::Signal<bool>(simulator, "mysignal");
 
+	mySignal.SetValue(false);
+	std::cout << myProbe.GetValue() << "\n";
+
+	mySignal.SetValue(true);
 	std::cout << myProbe.GetValue() << "\n";
 
 	return 0;

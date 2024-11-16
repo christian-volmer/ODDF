@@ -26,6 +26,8 @@
 
 #include "SimulatorCore.h"
 
+#include <oddf/Exception.h>
+
 #include <cassert>
 
 namespace oddf::simulator::common::backend {
@@ -41,6 +43,14 @@ SimulatorCore::SimulatorCore() :
 }
 
 SimulatorCore::~SimulatorCore() = default;
+
+void SimulatorCore::RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object)
+{
+	if (m_namedSimulatorObjects.find(name) == m_namedSimulatorObjects.end())
+		m_namedSimulatorObjects.insert({ name, std::move(object) });
+	else
+		throw Exception(ExceptionCode::Fail, "RegisterNamedObject(): an object with that name already exists.");
+}
 
 void SimulatorCore::InvalidateComponentState(SimulatorComponent &component)
 {

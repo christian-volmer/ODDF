@@ -24,50 +24,47 @@
 
 */
 
-#include "../Probe.h"
-#include "ProbeAccessObject.h"
-#include "I_Probe_Bool.h"
+#include "../Signal.h"
+#include "SignalAccessObject.h"
+#include "I_Signal_Bool.h"
 
 #include <oddf/Exception.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
-ProbeMaster::ProbeMaster(design::blocks::backend::IDesignBlock const &designBlock) :
+SignalMaster::SignalMaster(design::blocks::backend::IDesignBlock const &designBlock) :
 	SimulatorBlockBase(designBlock)
 {
 }
 
-std::string ProbeMaster::GetDesignPathHint() const
+std::string SignalMaster::GetDesignPathHint() const
 {
 	return GetDesignBlockReference()->GetPath();
 }
 
-void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
+void SignalMaster::Elaborate(ISimulatorElaborationContext &)
 {
 	auto outputs = GetOutputsList();
 
-	if (outputs.GetSize() != 0)
+	if (outputs.GetSize() != 1)
+		throw Exception(ExceptionCode::Unsupported);
+
+	if (outputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
 		throw Exception(ExceptionCode::Unsupported);
 
 	auto inputs = GetInputsList();
 
-	if (inputs.GetSize() != 1)
-		throw Exception(ExceptionCode::Unsupported);
-
-	if (inputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
+	if (inputs.GetSize() != 0)
 		throw Exception(ExceptionCode::Unsupported);
 }
 
-void ProbeMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
+void SignalMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
-	context.EmitInstruction<I_Probe_Bool>();
-}
+	auto &signalAccessObject = context.CreateNamedObject<SignalAccessObject>("mysignal",
+		context.GetCurrentComponent(),
+		GetOutputsList().GetFirst().GetType());
 
-void ProbeMaster::Finalise(ISimulatorFinalisationContext &context)
-{
-	auto &driver = GetInputsList()[0].GetDriver();
-
-	context.CreateNamedObject<ProbeAccessObject>("myprobe", context.GetCurrentComponent(), driver);
+	context.EmitInstruction<I_Signal_Bool>(signalAccessObject);
 }
 
 } // namespace oddf::simulator::common::backend::blocks

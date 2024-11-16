@@ -43,7 +43,7 @@ void DataReference::Read(void *buffer, size_t count) const
 	if (count > m_size)
 		throw Exception(ExceptionCode::Bounds);
 
-	memcpy(buffer, m_pointer, count);
+	std::memcpy(buffer, m_pointer, count);
 }
 
 size_t DataReference::GetSize() const noexcept

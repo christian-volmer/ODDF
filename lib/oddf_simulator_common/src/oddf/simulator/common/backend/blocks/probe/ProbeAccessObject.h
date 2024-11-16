@@ -32,7 +32,7 @@
 
 namespace oddf::simulator::common::backend::blocks {
 
-class ProbeAccess : public virtual simulator::backend::IProbeAccess {
+class ProbeAccessObject : public virtual simulator::backend::IProbeAccess {
 
 public:
 
@@ -40,7 +40,7 @@ public:
 	design::NodeType m_nodeType;
 	DataReference m_dataReference;
 
-	ProbeAccess(ISimulatorComponent &component, SimulatorBlockOutput const &driver) :
+	ProbeAccessObject(ISimulatorComponent &component, SimulatorBlockOutput const &driver) :
 		m_component(component),
 		m_nodeType(driver.GetType()),
 		m_dataReference(driver.GetReference())
@@ -59,10 +59,10 @@ public:
 		return m_nodeType;
 	}
 
-	virtual void Read(void *buffer, size_t size) const override
+	virtual void Read(void *buffer, size_t count) const override
 	{
 		m_component.EnsureValidState();
-		m_dataReference.Read(buffer, size);
+		m_dataReference.Read(buffer, count);
 	}
 
 	virtual size_t GetSize() const noexcept override

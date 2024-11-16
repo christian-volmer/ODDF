@@ -92,6 +92,8 @@ public:
 	bool RegisterSimulatorBlockFactory(design::blocks::backend::DesignBlockClass const &designBlockClass,
 		std::unique_ptr<ISimulatorBlockFactory> &&simulatorBlockFactory);
 
+	void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object);
+
 	// Translates the given design so it can be simulated by this simulator instance.
 	void TranslateDesign(design::IDesign const &design);
 

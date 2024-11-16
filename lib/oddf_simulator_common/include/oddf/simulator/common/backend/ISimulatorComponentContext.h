@@ -26,15 +26,32 @@
 
 #pragma once
 
-#include "ISimulatorComponentContext.h"
+#include <oddf/IObject.h>
+#include "ISimulatorComponent.h"
+
+#include <memory>
 
 namespace oddf::simulator::common::backend {
 
-class ISimulatorFinalisationContext : public virtual ISimulatorComponentContext {
+class ISimulatorComponentContext {
 
 public:
 
-	virtual ~ISimulatorFinalisationContext() = default;
+	virtual ~ISimulatorComponentContext() = default;
+
+	virtual void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object) = 0;
+
+	template<typename T, typename... argTs>
+	T &CreateNamedObject(std::string name, argTs &&...args)
+	{
+		auto object = std::make_unique<T>(args...);
+		auto &objectReference = *object;
+		RegisterNamedObject(name, std::move(object));
+		return objectReference;
+	}
+
+	// Returns the component that is currently being finalised.
+	virtual ISimulatorComponent &GetCurrentComponent() noexcept = 0;
 };
 
 } // namespace oddf::simulator::common::backend

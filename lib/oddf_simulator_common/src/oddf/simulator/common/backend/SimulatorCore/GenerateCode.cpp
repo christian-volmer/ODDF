@@ -36,23 +36,23 @@ namespace oddf::simulator::common::backend {
 
 void SimulatorCore::GenerateCode()
 {
-	class CodeGenerationContext : public ISimulatorCodeGenerationContext {
+	class CodeGenerationContext : public virtual ISimulatorCodeGenerationContext {
 
 	private:
 
 		// No-Operation (NOP) instruction used to fulfil alignment requirements.
-		struct NopInstruction : public SimulatorInstructionBase {
+		struct I_NoOperation : public SimulatorInstructionBase {
 
 		private:
 
-			static size_t InstructionFunction(NopInstruction &instruction)
+			static size_t InstructionFunction(I_NoOperation &instruction)
 			{
 				return sizeof(instruction);
 			}
 
 		public:
 
-			NopInstruction(ISimulatorCodeGenerationContext &) :
+			I_NoOperation(ISimulatorCodeGenerationContext &) :
 				SimulatorInstructionBase(&InstructionFunction)
 			{
 			}
@@ -82,7 +82,7 @@ void SimulatorCore::GenerateCode()
 			auto misalignment = m_code.size() % alignment;
 			while (misalignment) {
 
-				EmitInstruction<NopInstruction>();
+				EmitInstruction<I_NoOperation>();
 				misalignment = m_code.size() % alignment;
 			}
 
@@ -203,6 +203,20 @@ void SimulatorCore::GenerateCode()
 				for (auto &input : block->m_internals->m_inputs)
 					*reinterpret_cast<void const **>(m_code.data() + input.m_inputPointerReference) = input.m_driver->m_storagePointer;
 			}
+		}
+
+		//
+		// ISimulatorComponentContext
+		//
+
+		virtual void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object) override
+		{
+			m_component.m_simulatorCore.RegisterNamedObject(name, std::move(object));
+		}
+
+		virtual ISimulatorComponent &GetCurrentComponent() noexcept override
+		{
+			return m_component;
 		}
 
 	public:

@@ -20,21 +20,31 @@
 
 /*
 
-    <no description>
+    Simulator support for the 'constant' design block.
 
 */
 
 #pragma once
 
-#include "ISimulatorComponentContext.h"
+#include <oddf/simulator/common/backend/SimulatorBlockBase.h>
 
-namespace oddf::simulator::common::backend {
+namespace oddf::simulator::common::backend::blocks {
 
-class ISimulatorFinalisationContext : public virtual ISimulatorComponentContext {
+//
+// SignalMaster
+//
+
+class SignalMaster : public SimulatorBlockBase {
 
 public:
 
-	virtual ~ISimulatorFinalisationContext() = default;
+	SignalMaster(design::blocks::backend::IDesignBlock const &designBlock);
+
+	virtual std::string GetDesignPathHint() const override;
+
+	virtual void Elaborate(ISimulatorElaborationContext &context) override;
+
+	virtual void GenerateCode(ISimulatorCodeGenerationContext &context) override;
 };
 
-} // namespace oddf::simulator::common::backend
+} // namespace oddf::simulator::common::backend::blocks

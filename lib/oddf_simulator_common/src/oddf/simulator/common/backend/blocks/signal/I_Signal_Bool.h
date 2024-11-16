@@ -26,15 +26,32 @@
 
 #pragma once
 
-#include "ISimulatorComponentContext.h"
+#include <oddf/simulator/common/backend/SimulatorType.h>
 
-namespace oddf::simulator::common::backend {
+namespace oddf::simulator::common::backend::blocks {
 
-class ISimulatorFinalisationContext : public virtual ISimulatorComponentContext {
+struct I_Signal_Bool : public SimulatorInstructionBase {
+
+private:
+
+	SignalAccessObject const *m_signalAccessObject;
+	SimulatorType::Boolean m_output;
+
+	static size_t InstructionFunction(I_Signal_Bool &instruction)
+	{
+		instruction.m_output = instruction.m_signalAccessObject->m_value;
+		return sizeof(instruction);
+	}
 
 public:
 
-	virtual ~ISimulatorFinalisationContext() = default;
+	I_Signal_Bool(ISimulatorCodeGenerationContext &context, SignalAccessObject const &signalAccessObject) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_signalAccessObject(&signalAccessObject),
+		m_output(0)
+	{
+		context.RegisterOutput(0, m_output);
+	}
 };
 
-} // namespace oddf::simulator::common::backend
+} // namespace oddf::simulator::common::backend::blocks

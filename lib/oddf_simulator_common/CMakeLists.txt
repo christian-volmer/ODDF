@@ -6,6 +6,7 @@ add_library(oddf_simulator_common
 	"src/oddf/simulator/common/backend/blocks/delay/DelayStartingPoint.cpp"
 	"src/oddf/simulator/common/backend/blocks/not/NotMaster.cpp"
 	"src/oddf/simulator/common/backend/blocks/probe/ProbeMaster.cpp"
+	"src/oddf/simulator/common/backend/blocks/signal/SignalMaster.cpp"
 	"src/oddf/simulator/common/backend/SimulatorCore/BuildComponents.cpp"
 	"src/oddf/simulator/common/backend/SimulatorCore/ElaborateBlocks.cpp"
 	"src/oddf/simulator/common/backend/SimulatorCore/FinaliseTranslation.cpp"

@@ -26,15 +26,38 @@
 
 #pragma once
 
-#include "ISimulatorComponentContext.h"
+#include "backend/ISignalAccess.h"
 
-namespace oddf::simulator::common::backend {
+namespace oddf::simulator {
 
-class ISimulatorFinalisationContext : public virtual ISimulatorComponentContext {
+template<typename accessT>
+class Signal;
+
+//
+// Signal<bool>
+//
+
+template<>
+class Signal<bool> {
+
+private:
+
+	backend::ISignalAccess &m_signalAccess;
 
 public:
 
-	virtual ~ISimulatorFinalisationContext() = default;
+	Signal(oddf::simulator::ISimulator &simulator, std::string const &name) :
+		m_signalAccess(simulator.GetSimulatorAccess().GetNamedObjectInterface<backend::ISignalAccess>(name))
+	{
+		if (m_signalAccess.GetType().GetTypeId() != design::NodeType::BOOLEAN)
+			throw Exception(ExceptionCode::Unsupported);
+	}
+
+	void SetValue(bool value)
+	{
+		std::uint8_t value_uint8 = value ? 1 : 0;
+		m_signalAccess.Write(&value_uint8, 1);
+	}
 };
 
-} // namespace oddf::simulator::common::backend
+} // namespace oddf::simulator

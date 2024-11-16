@@ -42,14 +42,12 @@ class Probe<bool> {
 
 private:
 
-	backend::ISimulatorAccess &m_simulatorAccess;
 	backend::IProbeAccess &m_probeAccess;
 
 public:
 
 	Probe(oddf::simulator::ISimulator &simulator, std::string const &name) :
-		m_simulatorAccess(simulator.GetSimulatorAccess()),
-		m_probeAccess(m_simulatorAccess.GetNamedObjectInterface<backend::IProbeAccess>(name))
+		m_probeAccess(simulator.GetSimulatorAccess().GetNamedObjectInterface<backend::IProbeAccess>(name))
 	{
 		if (m_probeAccess.GetType().GetTypeId() != design::NodeType::BOOLEAN)
 			throw Exception(ExceptionCode::Unsupported);
@@ -57,8 +55,8 @@ public:
 
 	bool GetValue()
 	{
-		std::uint8_t value;
-		m_probeAccess.Read(&value, sizeof(value));
+		std::uint8_t value {};
+		m_probeAccess.Read(&value, 1);
 		return value != 0;
 	}
 };

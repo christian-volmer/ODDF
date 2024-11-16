@@ -37,20 +37,18 @@ void SimulatorCore::FinaliseTranslation()
 
 	private:
 
-		SimulatorCore &m_simulatorCore;
-
 		// Reference to the component managed by this instance.
 		SimulatorComponent &m_component;
 
 		SimulatorBlockBase *m_currentBlock;
 
+		//
+		// ISimulatorComponentContext
+		//
+
 		virtual void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object) override
 		{
-			auto &objects = m_simulatorCore.m_namedSimulatorObjects;
-			if (objects.find(name) == objects.end())
-				objects.insert({ name, std::move(object) });
-			else
-				throw Exception(ExceptionCode::Fail, "RegisterNamedObject(): an object with that name already exists.");
+			m_component.m_simulatorCore.RegisterNamedObject(name, std::move(object));
 		}
 
 		virtual ISimulatorComponent &GetCurrentComponent() noexcept override
@@ -60,8 +58,7 @@ void SimulatorCore::FinaliseTranslation()
 
 	public:
 
-		FinalisationContext(SimulatorCore &simulatorCore, SimulatorComponent &component) :
-			m_simulatorCore(simulatorCore),
+		FinalisationContext(SimulatorComponent &component) :
 			m_component(component),
 			m_currentBlock()
 		{
@@ -87,7 +84,7 @@ void SimulatorCore::FinaliseTranslation()
 
 	for (auto &component : m_components) {
 
-		auto finalisationContext = FinalisationContext(*this, component);
+		auto finalisationContext = FinalisationContext(component);
 		finalisationContext.Finalise();
 
 		// Add the component to the set of invalid components.

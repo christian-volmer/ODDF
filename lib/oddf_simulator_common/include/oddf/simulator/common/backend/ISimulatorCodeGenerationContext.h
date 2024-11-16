@@ -30,12 +30,14 @@
 
 #include "SimulatorType.h"
 
+#include "ISimulatorComponentContext.h"
+
 #include <type_traits>
 #include <cstdint>
 
 namespace oddf::simulator::common::backend {
 
-class ISimulatorCodeGenerationContext {
+class ISimulatorCodeGenerationContext : public virtual ISimulatorComponentContext {
 
 protected:
 
@@ -43,7 +45,7 @@ protected:
 
 public:
 
-	virtual ~ISimulatorCodeGenerationContext() { }
+	virtual ~ISimulatorCodeGenerationContext() = default;
 
 	template<typename T, typename... argTs>
 	void EmitInstruction(argTs &&...args)

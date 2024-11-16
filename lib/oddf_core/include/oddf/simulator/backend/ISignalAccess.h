@@ -26,15 +26,25 @@
 
 #pragma once
 
-#include "ISimulatorComponentContext.h"
+#include <oddf/Uid.h>
+#include <oddf/IObject.h>
 
-namespace oddf::simulator::common::backend {
+#include <oddf/design/NodeType.h>
 
-class ISimulatorFinalisationContext : public virtual ISimulatorComponentContext {
+namespace oddf::simulator::backend {
+
+class ISignalAccess : public virtual oddf::IObject {
 
 public:
 
-	virtual ~ISimulatorFinalisationContext() = default;
+	static constexpr Uid IID = { 0x50bac9c2, 0x306c, 0x40b9, 0x9f, 0x2f, 0x84, 0x2b, 0x42, 0x27, 0xb9, 0x9 };
+
+	virtual ~ISignalAccess() { }
+
+	virtual design::NodeType GetType() const noexcept = 0;
+
+	virtual void Write(void const *buffer, size_t count) = 0;
+	virtual size_t GetSize() const noexcept = 0;
 };
 
-} // namespace oddf::simulator::common::backend
+} // namespace oddf::simulator::backend
