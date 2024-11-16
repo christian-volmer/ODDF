@@ -28,16 +28,11 @@
 #include "../SimulatorBlockInternals.h"
 
 #include <cassert>
-#include <iostream>
 
 namespace oddf::simulator::common::backend {
 
 void SimulatorCore::MapConnections(ISimulatorBlockMapping const &blockMapping)
 {
-	std::cout << "\n";
-	std::cout << "-- Mapping connections --\n";
-	std::cout << "\n";
-
 	for (auto &pBlock : m_blocks) {
 
 		assert(pBlock);

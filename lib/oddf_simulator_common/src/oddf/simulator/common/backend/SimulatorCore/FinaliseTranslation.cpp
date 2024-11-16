@@ -27,7 +27,6 @@
 #include "../SimulatorCore.h"
 #include "../SimulatorBlockInternals.h"
 
-#include <iostream>
 #include <cassert>
 
 namespace oddf::simulator::common::backend {
@@ -78,10 +77,6 @@ void SimulatorCore::FinaliseTranslation()
 			m_component.m_blocks.clear();
 		}
 	};
-
-	std::cout << "\n";
-	std::cout << "-- Finalising --\n";
-	std::cout << "\n";
 
 	for (auto &component : m_components) {
 

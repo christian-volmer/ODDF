@@ -27,7 +27,7 @@
 #include <oddf/Uid.h>
 
 #include <cinttypes>
-#include <iostream>
+#include <cstdio>
 
 namespace oddf {
 

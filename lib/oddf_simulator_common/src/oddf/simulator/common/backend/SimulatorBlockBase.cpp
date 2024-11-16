@@ -31,8 +31,6 @@
 
 #include <oddf/Exception.h>
 
-#include <iostream>
-
 namespace oddf::simulator::common::backend {
 
 SimulatorBlockBase::SimulatorBlockBase(design::blocks::backend::IDesignBlock const &designBlock) :

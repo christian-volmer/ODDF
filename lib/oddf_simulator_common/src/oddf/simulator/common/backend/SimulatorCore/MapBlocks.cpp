@@ -26,9 +26,10 @@
 
 #include "../SimulatorCore.h"
 
+#include <oddf/Exception.h>
+
 #include <unordered_map>
 #include <cassert>
-#include <iostream>
 
 namespace oddf::simulator::common::backend {
 
@@ -66,10 +67,6 @@ public:
 
 std::unique_ptr<ISimulatorBlockMapping const> SimulatorCore::MapBlocks(design::IDesign const &design)
 {
-	std::cout << "\n";
-	std::cout << "-- Mapping blocks --\n";
-	std::cout << "\n";
-
 	auto pBlockMapping = std::make_unique<BlockMapping>();
 
 	auto designBlocks = design.GetBlockCollection();
@@ -91,9 +88,12 @@ std::unique_ptr<ISimulatorBlockMapping const> SimulatorCore::MapBlocks(design::I
 		}
 		else {
 
-			std::cout << "WARNING: do not know how to handle design block '"
-					  << designBlock.GetPath().ToString()
-					  << "' of class '" << blockClass.ToString() << "'.\n";
+			throw Exception(ExceptionCode::Unsupported,
+				"Do not know how to handle design block '"
+					+ designBlock.GetPath().ToString()
+					+ "' of class '"
+					+ blockClass.ToString()
+					+ "'.");
 		}
 	}
 

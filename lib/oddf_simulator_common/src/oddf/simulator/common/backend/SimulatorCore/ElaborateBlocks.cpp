@@ -36,7 +36,6 @@
 #include <vector>
 #include <memory>
 #include <cassert>
-#include <iostream>
 
 namespace oddf::simulator::common::backend {
 
@@ -90,10 +89,6 @@ public:
 
 void SimulatorCore::ElaborateBlocks()
 {
-	std::cout << "\n";
-	std::cout << "-- Elaborating blocks --\n";
-	std::cout << "\n";
-
 	size_t current = 0;
 
 	do {

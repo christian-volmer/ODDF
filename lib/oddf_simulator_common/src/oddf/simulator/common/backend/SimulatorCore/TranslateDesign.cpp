@@ -27,16 +27,11 @@
 #include "../SimulatorCore.h"
 
 #include <cassert>
-#include <iostream>
 
 namespace oddf::simulator::common::backend {
 
 void SimulatorCore::TranslateDesign(design::IDesign const &design)
 {
-	std::cout << "\n";
-	std::cout << "--- Translating design ---\n";
-	std::cout << "\n";
-
 	{
 		auto blockMapping = MapBlocks(design);
 

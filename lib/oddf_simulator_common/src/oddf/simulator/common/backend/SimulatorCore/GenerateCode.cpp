@@ -30,17 +30,12 @@
 #include <oddf/Exception.h>
 
 #include <cassert>
-#include <iostream>
 #include <vector>
 
 namespace oddf::simulator::common::backend {
 
 void SimulatorCore::GenerateCode()
 {
-	std::cout << "\n";
-	std::cout << "-- Generating code --\n";
-	std::cout << "\n";
-
 	class CodeGenerationContext : public ISimulatorCodeGenerationContext {
 
 	private:
