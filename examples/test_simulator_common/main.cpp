@@ -27,7 +27,7 @@
 #include "../../lib/oddf/src/dfx.h"
 
 #include <oddf/SimulatorCommon.h>
-#include <oddf/simulator/ProbeAccess.h>
+#include <oddf/simulator/Probe.h>
 
 namespace b = dfx::blocks;
 
@@ -85,7 +85,7 @@ int main()
 
 	commonSimulator.TranslateDesign(design);
 
-	auto myProbe = oddf::simulator::ProbeAccess<bool>(commonSimulator, "myprobe");
+	auto myProbe = oddf::simulator::Probe<bool>(commonSimulator, "myprobe");
 
 	std::cout << myProbe.GetValue() << "\n";
 

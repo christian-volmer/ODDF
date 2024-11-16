@@ -29,6 +29,8 @@
 #include <oddf/Uid.h>
 #include <oddf/IObject.h>
 
+#include <oddf/design/NodeType.h>
+
 namespace oddf::simulator::backend {
 
 class IProbeAccess : public virtual oddf::IObject {
@@ -38,6 +40,8 @@ public:
 	static constexpr Uid IID = { 0x695f4116, 0x335e, 0x47ed, 0xa2, 0xf, 0xc8, 0x29, 0x94, 0x59, 0xe6, 0x8e };
 
 	virtual ~IProbeAccess() { }
+
+    virtual design::NodeType GetType() const noexcept = 0;
 
 	virtual void Read(void *buffer, size_t count) const = 0;
 	virtual size_t GetSize() const noexcept = 0;

@@ -52,6 +52,11 @@ public:
 			IObject>::GetInterface(this, iid);
 	}
 
+	virtual design::NodeType GetType() const noexcept override
+	{
+		return m_nodeType;
+	}
+
 	virtual void Read(void *buffer, size_t size) const override
 	{
 		m_dataReference.Read(buffer, size);

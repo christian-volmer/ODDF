@@ -30,8 +30,15 @@
 
 namespace oddf::simulator {
 
-template<typename T = void>
-class ProbeAccess {
+template<typename accessT>
+class Probe;
+
+//
+// Probe<bool>
+//
+
+template<>
+class Probe<bool> {
 
 private:
 
@@ -40,19 +47,20 @@ private:
 
 public:
 
-	ProbeAccess(oddf::simulator::ISimulator &simulator, std::string const &name) :
+	Probe(oddf::simulator::ISimulator &simulator, std::string const &name) :
 		m_simulatorAccess(simulator.GetSimulatorAccess()),
 		m_probeAccess(m_simulatorAccess.GetNamedObjectInterface<backend::IProbeAccess>(name))
 	{
+		if (m_probeAccess.GetType().GetTypeId() != design::NodeType::BOOLEAN)
+			throw Exception(ExceptionCode::Unsupported);
 	}
 
-	template<typename S = T>
-	S GetValue()
+	bool GetValue()
 	{
-		S value;
+		std::uint8_t value;
 		m_simulatorAccess.EnsureValid();
 		m_probeAccess.Read(&value, sizeof(value));
-		return value;
+		return value != 0;
 	}
 };
 
