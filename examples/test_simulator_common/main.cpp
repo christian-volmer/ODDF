@@ -30,62 +30,30 @@
 #include <oddf/simulator/Probe.h>
 
 namespace b = dfx::blocks;
+namespace sim = oddf::simulator;
 
 int main()
 {
 	using dfx::dynfix;
 	using dfx::ufix;
 
+    //
+    // Design
+    //
+
 	dfx::Design design;
-
-#if 0
-
-	using type = ufix<16>;
-	dfx::forward_node<type> current_value;
-
-	// The starting value of our counter
-	type starting_value = 0;
-
-	// The increment of our counter
-	type increment = 1;
-
-	type stopping_value = 10;
-
-	// The following creates a reset pulse at the beginning of the simulation
-	dfx::node<bool> reset = !b::Delay(b::Constant(true));
-
-	{
-		DFX_INSTANCE("I_counter", "Counter");
-
-		DFX_INPUT(reset);
-
-		current_value <<= b::Decide(
-			reset, starting_value,
-			b::Delay(b::Decide(
-				current_value < stopping_value, b::FloorCast<type>(current_value + increment),
-				current_value)));
-
-		DFX_OUTPUT(current_value);
-	}
-
-	dfx::debug::Logger.Log("reset", reset);
-	dfx::debug::Logger.Log("out", current_value);
-
-#endif
 
 	b::Probe(!b::Constant(true));
 
-	/*
-	    dfx::Simulator simulator(design);
-	    simulator.Run(15);
-	    dfx::debug::Logger.WriteTable(std::cout);
-	*/
+    //
+	// Simulation
+	//
 
-	oddf::simulator::common::Simulator commonSimulator;
+	sim::common::Simulator simulator;
 
-	commonSimulator.TranslateDesign(design);
+	simulator.TranslateDesign(design);
 
-	auto myProbe = oddf::simulator::Probe<bool>(commonSimulator, "myprobe");
+	auto myProbe = sim::Probe<bool>(simulator, "myprobe");
 
 	std::cout << myProbe.GetValue() << "\n";
 
