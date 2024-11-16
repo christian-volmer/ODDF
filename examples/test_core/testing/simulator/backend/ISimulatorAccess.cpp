@@ -77,10 +77,6 @@ public:
 	{
 	}
 
-	virtual void EnsureValid() override
-	{
-	}
-
 	virtual void *GetNamedObjectInterface(std::string const &name, Uid const &iid) const override
 	{
 		if (name == "ExistingObject") {

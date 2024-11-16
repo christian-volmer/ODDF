@@ -38,6 +38,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <set>
 
 namespace oddf::simulator::common::backend {
 
@@ -53,6 +54,9 @@ private:
 
 	// List of all simulator components. Components are independent lists of simulator operations that can execute in parallel.
 	std::list<SimulatorComponent> m_components;
+
+	// Set of all invalid simulator components
+	std::set<SimulatorComponent *> m_invalidComponents;
 
 	std::map<std::string, std::unique_ptr<IObject>> m_namedSimulatorObjects;
 
@@ -88,13 +92,21 @@ public:
 	bool RegisterSimulatorBlockFactory(design::blocks::backend::DesignBlockClass const &designBlockClass,
 		std::unique_ptr<ISimulatorBlockFactory> &&simulatorBlockFactory);
 
+	// Translates the given design so it can be simulated by this simulator instance.
 	void TranslateDesign(design::IDesign const &design);
+
+	// Marks the state of the specified component invalid.
+	void InvalidateComponentState(SimulatorComponent &component);
+
+	// Ensures the state of the specified component is valid by executing the component code if necessary.
+	void EnsureValidComponentState(SimulatorComponent &component);
+
+	// Ensures the states of all components are valid by executing component code as necessary.
+	void EnsureAllComponentStatesValid();
 
 	//
 	// simulator::backend::ISimulatorAccess members
 	//
-
-	virtual void EnsureValid() override;
 
 	virtual void *GetNamedObjectInterface(std::string const &name, Uid const &iid) const override;
 };

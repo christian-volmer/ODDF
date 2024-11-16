@@ -36,10 +36,12 @@ class ProbeAccess : public virtual simulator::backend::IProbeAccess {
 
 public:
 
+	ISimulatorComponent &m_component;
 	design::NodeType m_nodeType;
 	DataReference m_dataReference;
 
-	ProbeAccess(SimulatorBlockOutput const &driver) :
+	ProbeAccess(ISimulatorComponent &component, SimulatorBlockOutput const &driver) :
+		m_component(component),
 		m_nodeType(driver.GetType()),
 		m_dataReference(driver.GetReference())
 	{
@@ -59,6 +61,7 @@ public:
 
 	virtual void Read(void *buffer, size_t size) const override
 	{
+		m_component.EnsureValidState();
 		m_dataReference.Read(buffer, size);
 	}
 

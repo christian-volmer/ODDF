@@ -27,6 +27,7 @@
 #pragma once
 
 #include <oddf/simulator/common/backend/SimulatorBlockBase.h>
+#include <oddf/simulator/common/backend/ISimulatorComponent.h>
 
 #include <list>
 #include <vector>
@@ -39,16 +40,33 @@ namespace oddf::simulator::common::backend {
     blocks belonging to the component. All components of the execution graph
     are disjoint and can execute independently and therefore in parallel.
 */
-class SimulatorComponent {
+class SimulatorComponent : public ISimulatorComponent {
 
 public:
 
-	// Blocks in this component.
-	std::list<SimulatorBlockBase *> m_blocks;
+	// Reference to the underlying simulator core.
+	SimulatorCore &m_simulatorCore;
 
+	// The bytecode of the component.
 	std::vector<char> m_code;
 
-	SimulatorComponent();
+	// Indicates that the component state is invalid. Must not be modified except by members if `SimulatorCore`.
+	bool m_invalid;
+
+	// Blocks in this component. Will be cleared once code generation is done.
+	std::list<SimulatorBlockBase *> m_blocks;
+
+private:
+
+	// Ensures that the state of the component is valid and can safely be accessed.
+	virtual void EnsureValidState() override;
+
+	// Marks the state of the component as invalid.
+	virtual void InvalidateState() override;
+
+public:
+
+	SimulatorComponent(SimulatorCore &simulatorCore);
 	SimulatorComponent(SimulatorComponent const &) = delete;
 	void operator=(SimulatorComponent const &) = delete;
 
@@ -72,7 +90,8 @@ public:
 	// Returns the number of blocks in this component.
 	size_t GetSize() const;
 
-	void EnsureValid();
+	// Executes the component bytecode.
+	void Execute();
 };
 
 } // namespace oddf::simulator::common::backend

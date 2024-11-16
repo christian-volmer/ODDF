@@ -24,14 +24,21 @@
 
 */
 
-#include "../SimulatorCore.h"
+#pragma once
 
 namespace oddf::simulator::common::backend {
 
-void SimulatorCore::EnsureValid()
-{
-	for (auto &component : m_components)
-		component.EnsureValid();
-}
+class ISimulatorComponent {
+
+public:
+
+	virtual ~ISimulatorComponent() { }
+
+	// Ensures that the state of the component is valid and can safely be accessed.
+	virtual void EnsureValidState() = 0;
+
+	// Marks the state of the component as invalid.
+	virtual void InvalidateState() = 0;
+};
 
 } // namespace oddf::simulator::common::backend

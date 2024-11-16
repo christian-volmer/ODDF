@@ -37,8 +37,6 @@ public:
 
 	virtual ~ISimulatorAccess() { }
 
-	virtual void EnsureValid() = 0;
-
 	virtual void *GetNamedObjectInterface(std::string const &path, Uid const &iid) const = 0;
 
 	template<typename T>

@@ -67,7 +67,7 @@ void ProbeMaster::Finalise(ISimulatorFinalisationContext &context)
 {
 	auto &driver = GetInputsList()[0].GetDriver();
 
-	context.CreateNamedObject<ProbeAccess>("myprobe", driver);
+	context.CreateNamedObject<ProbeAccess>("myprobe", context.GetCurrentComponent(), driver);
 }
 
 } // namespace oddf::simulator::common::backend::blocks

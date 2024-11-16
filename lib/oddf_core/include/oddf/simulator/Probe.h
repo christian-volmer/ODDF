@@ -58,7 +58,6 @@ public:
 	bool GetValue()
 	{
 		std::uint8_t value;
-		m_simulatorAccess.EnsureValid();
 		m_probeAccess.Read(&value, sizeof(value));
 		return value != 0;
 	}

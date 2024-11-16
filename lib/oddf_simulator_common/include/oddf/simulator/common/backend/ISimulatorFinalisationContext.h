@@ -27,6 +27,7 @@
 #pragma once
 
 #include <oddf/IObject.h>
+#include "ISimulatorComponent.h"
 
 #include <memory>
 
@@ -48,6 +49,9 @@ public:
 		RegisterNamedObject(name, std::move(object));
 		return objectReference;
 	}
+
+	// Returns the component that is currently being finalised.
+	virtual ISimulatorComponent &GetCurrentComponent() noexcept = 0;
 };
 
 } // namespace oddf::simulator::common::backend

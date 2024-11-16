@@ -26,19 +26,46 @@
 
 #include "SimulatorCore.h"
 
+#include <cassert>
+
 namespace oddf::simulator::common::backend {
 
 SimulatorCore::SimulatorCore() :
 	m_blocks(),
 	m_simulatorBlockFactories(),
 	m_components(),
+	m_invalidComponents(),
 	m_namedSimulatorObjects()
 {
 	RegisterDefaultBlockFactories();
 }
 
-SimulatorCore::~SimulatorCore()
+SimulatorCore::~SimulatorCore() = default;
+
+void SimulatorCore::InvalidateComponentState(SimulatorComponent &component)
 {
+	if (!component.m_invalid) {
+
+		component.m_invalid = true;
+		m_invalidComponents.insert(&component);
+	}
+}
+
+void SimulatorCore::EnsureValidComponentState(SimulatorComponent & /* component */)
+{
+	EnsureAllComponentStatesValid();
+}
+
+void SimulatorCore::EnsureAllComponentStatesValid()
+{
+	for (auto *invalidComponent : m_invalidComponents) {
+
+		assert(invalidComponent->m_invalid);
+		invalidComponent->Execute();
+		invalidComponent->m_invalid = false;
+	}
+
+	m_invalidComponents.clear();
 }
 
 } // namespace oddf::simulator::common::backend

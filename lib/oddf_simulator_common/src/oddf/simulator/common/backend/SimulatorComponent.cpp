@@ -25,6 +25,7 @@
 */
 
 #include "SimulatorComponent.h"
+#include "SimulatorCore.h"
 #include "SimulatorBlockInternals.h"
 
 #include <algorithm>
@@ -32,10 +33,22 @@
 
 namespace oddf::simulator::common::backend {
 
-SimulatorComponent::SimulatorComponent() :
-	m_blocks(),
-	m_code()
+SimulatorComponent::SimulatorComponent(SimulatorCore &simulatorCore) :
+	m_simulatorCore(simulatorCore),
+	m_code(),
+	m_invalid(true),
+	m_blocks()
 {
+}
+
+void SimulatorComponent::EnsureValidState()
+{
+	m_simulatorCore.EnsureValidComponentState(*this);
+}
+
+void SimulatorComponent::InvalidateState()
+{
+	m_simulatorCore.InvalidateComponentState(*this);
 }
 
 void SimulatorComponent::AddBlock(SimulatorBlockBase &block)
@@ -91,7 +104,7 @@ bool SimulatorComponent::IsEmpty() const
 	return m_blocks.empty();
 }
 
-void SimulatorComponent::EnsureValid()
+void SimulatorComponent::Execute()
 {
 	char *position = m_code.data();
 	char *end = m_code.data() + m_code.size();

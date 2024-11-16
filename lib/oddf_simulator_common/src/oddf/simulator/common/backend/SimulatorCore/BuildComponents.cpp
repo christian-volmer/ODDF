@@ -50,6 +50,9 @@ void SimulatorCore::BuildComponents()
 
 	private:
 
+		// Reference to the simulator core.
+		SimulatorCore &m_simulatorCore;
+
 		// Reference to the list of components of the `SimulatorCore` class instance.
 		std::list<SimulatorComponent> &m_components;
 
@@ -71,7 +74,7 @@ void SimulatorCore::BuildComponents()
 			}
 			else {
 
-				component = &m_components.emplace_back();
+				component = &m_components.emplace_back(m_simulatorCore);
 			}
 
 			assert(component);
@@ -186,8 +189,9 @@ void SimulatorCore::BuildComponents()
 
 	public:
 
-		ComponentBuilder(std::list<SimulatorComponent> &components) :
-			m_components(components),
+		ComponentBuilder(SimulatorCore &simulatorCore) :
+			m_simulatorCore(simulatorCore),
+			m_components(simulatorCore.m_components),
 			m_releasedComponents(),
 			m_currentComponent()
 		{
@@ -210,10 +214,6 @@ void SimulatorCore::BuildComponents()
 		}
 	};
 
-	std::cout << "\n";
-	std::cout << "-- Building components --\n";
-	std::cout << "\n";
-
 	/*
 
 	    // Shuffle the blocks to debug our component generation algorithm.
@@ -225,7 +225,7 @@ void SimulatorCore::BuildComponents()
 
 	*/
 
-	auto componentBuilder = ComponentBuilder(m_components);
+	auto componentBuilder = ComponentBuilder(*this);
 	componentBuilder.BuildComponents(m_blocks);
 }
 

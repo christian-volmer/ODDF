@@ -53,6 +53,11 @@ void SimulatorCore::FinaliseTranslation()
 				throw Exception(ExceptionCode::Fail, "RegisterNamedObject(): an object with that name already exists.");
 		}
 
+		virtual ISimulatorComponent &GetCurrentComponent() noexcept override
+		{
+			return m_component;
+		}
+
 	public:
 
 		FinalisationContext(SimulatorCore &simulatorCore, SimulatorComponent &component) :
@@ -74,7 +79,9 @@ void SimulatorCore::FinaliseTranslation()
 				block->Finalise(*this);
 			}
 
-			m_component.m_blocks.clear();
+			// We do not need the list of component blocks anymore. Free it.
+			decltype(m_component.m_blocks) emptyBlocks;
+			std::swap(m_component.m_blocks, emptyBlocks);
 		}
 	};
 
@@ -82,9 +89,13 @@ void SimulatorCore::FinaliseTranslation()
 
 		auto finalisationContext = FinalisationContext(*this, component);
 		finalisationContext.Finalise();
+
+		// Add the component to the set of invalid components.
+		assert(component.m_invalid == true);
+		m_invalidComponents.insert(&component);
 	}
 
-	// We do not need the blocks anymore. Free them.
+	// We do not need the simulator blocks anymore. Free them.
 	decltype(m_blocks) emptyBlocks;
 	std::swap(m_blocks, emptyBlocks);
 }
