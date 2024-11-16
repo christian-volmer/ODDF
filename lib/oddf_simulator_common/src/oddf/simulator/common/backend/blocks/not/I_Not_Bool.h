@@ -39,7 +39,7 @@ private:
 
 	static size_t InstructionFunction(I_Not_Bool &instruction)
 	{
-		instruction.m_output = ~(*instruction.m_input);
+		instruction.m_output = (~(*instruction.m_input)) & 1;
 		return sizeof(instruction);
 	}
 

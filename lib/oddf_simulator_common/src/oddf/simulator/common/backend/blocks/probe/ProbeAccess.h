@@ -32,7 +32,7 @@
 
 namespace oddf::simulator::common::backend::blocks {
 
-class ProbeAccess : public simulator::backend::IProbeAccess, public IObject {
+class ProbeAccess : public virtual simulator::backend::IProbeAccess {
 
 public:
 

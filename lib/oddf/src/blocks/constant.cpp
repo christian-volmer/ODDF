@@ -1,31 +1,33 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Constant() returns a node connected to the specified constant value.
+    Constant() returns a node connected to the specified constant value.
 
 */
 
 #include "../global.h"
 #include "../generator/properties.h"
+
+#include <oddf/Exception.h>
 
 namespace dfx {
 namespace backend {
@@ -33,8 +35,8 @@ namespace blocks {
 
 template<typename T>
 constant_block<T>::constant_block() :
-BlockBase("constant"),
-outputs()
+	BlockBase("constant"),
+	outputs()
 {
 }
 
@@ -64,7 +66,54 @@ node<T> constant_block<T>::add_output(T const &constant)
 	return back.GetNode();
 }
 
-// properties for code generation
+template<typename T>
+void *constant_block<T>::GetInterface(oddf::Uid const &iid)
+{
+	if (iid == oddf::design::blocks::backend::IConstantBlock::IID)
+		return dynamic_cast<oddf::design::blocks::backend::IConstantBlock *>(this);
+	else
+		return backend::BlockBase::GetInterface(iid);
+}
+
+//
+// IConstantBlock for bool
+//
+
+template<>
+size_t constant_block<bool>::GetSize() const noexcept
+{
+	return 1;
+}
+
+template<>
+void constant_block<bool>::Read(void *buffer, size_t count) const
+{
+	if (count > GetSize())
+		throw oddf::Exception(oddf::ExceptionCode::Bounds);
+
+	if (count == 1)
+		*reinterpret_cast<char *>(buffer) = outputs.front().value;
+}
+
+//
+// IConstantBlock for other types have not been implemented yet.
+//
+
+template<typename T>
+void constant_block<T>::Read(void * /* buffer */, size_t /* count */) const
+{
+	throw oddf::Exception(oddf::ExceptionCode::NotImplemented);
+}
+
+template<typename T>
+size_t constant_block<T>::GetSize() const noexcept
+{
+	return 0;
+}
+
+//
+// Properties for code generation
+//
 
 template<typename T>
 void FillValuesProperty(dfx::generator::Properties &, std::list<backend::OutputPin<T>> const &)
@@ -95,14 +144,12 @@ void FillValuesProperty<dynfix>(dfx::generator::Properties &properties, std::lis
 	}
 }
 
-
 template<typename T>
 void constant_block<T>::GetProperties(dfx::generator::Properties &properties) const
 {
 	properties.SetInt("BusWidth", (int)outputs.size());
 	FillValuesProperty<T>(properties, outputs);
 }
-
 
 // explicit template implementations
 template class constant_block<bool>;
@@ -111,7 +158,6 @@ template class constant_block<std::int64_t>;
 template class constant_block<double>;
 template class constant_block<dynfix>;
 
-
-}
-}
-}
+} // namespace blocks
+} // namespace backend
+} // namespace dfx

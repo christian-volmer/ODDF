@@ -26,9 +26,12 @@
 
 #pragma once
 
+#include <oddf/Uid.h>
+#include <oddf/IObject.h>
+
 namespace oddf::simulator::backend {
 
-class IProbeAccess {
+class IProbeAccess : public virtual oddf::IObject {
 
 public:
 
@@ -36,7 +39,7 @@ public:
 
 	virtual ~IProbeAccess() { }
 
-	virtual void Read(void *buffer, size_t size) const = 0;
+	virtual void Read(void *buffer, size_t count) const = 0;
 	virtual size_t GetSize() const noexcept = 0;
 };
 

@@ -40,10 +40,21 @@ public:
 
 	virtual void *GetInterface(Uid const &iid) = 0;
 
+	void const *GetInterface(Uid const &iid) const
+	{
+		return const_cast<IObject *>(this)->GetInterface(iid);
+	}
+
 	template<typename T>
 	T &GetInterface()
 	{
 		return *static_cast<T *>(GetInterface(T::IID));
+	}
+
+	template<typename T>
+	T const &GetInterface() const
+	{
+		return *static_cast<T const *>(GetInterface(T::IID));
 	}
 };
 

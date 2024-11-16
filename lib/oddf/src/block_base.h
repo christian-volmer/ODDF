@@ -66,7 +66,7 @@ public:
 // BlockBase
 //
 
-class BlockBase : public oddf::design::blocks::backend::IDesignBlock {
+class BlockBase : public virtual oddf::design::blocks::backend::IDesignBlock {
 
 public:
 
@@ -159,19 +159,17 @@ public:
 	*/
 
 	//
+	// IObject interface implementation
+	//
+
+	virtual void *GetInterface(oddf::Uid const &iid) override;
+
+	//
 	// IDesignBlock interface implementation
 	//
 
-	virtual oddf::ResourcePath GetPath() const override
-	{
-		return oddf::ResourcePath(GetFullName());
-	}
-
-	virtual oddf::design::blocks::backend::DesignBlockClass GetClass() const override
-	{
-		return GetClassName();
-	}
-
+	virtual oddf::ResourcePath GetPath() const override;
+	virtual oddf::design::blocks::backend::DesignBlockClass GetClass() const override;
 	virtual oddf::utility::ListView<oddf::design::blocks::backend::IDesignBlockInput const &> GetInputsList() const override;
 	virtual oddf::utility::ListView<oddf::design::blocks::backend::IDesignBlockOutput const &> GetOutputsList() const override;
 };

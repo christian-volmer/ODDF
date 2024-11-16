@@ -1,30 +1,32 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Constant() returns a node connected to the specified constant value.
+    Constant() returns a node connected to the specified constant value.
 
 */
 
 #pragma once
+
+#include <oddf/design/blocks/backend/IConstantBlock.h>
 
 namespace dfx {
 
@@ -32,13 +34,13 @@ namespace generator {
 
 class Properties;
 
-}
+} // namespace generator
 
 namespace backend {
 namespace blocks {
 
 template<typename T>
-class constant_block : public backend::BlockBase {
+class constant_block : public backend::BlockBase, virtual oddf::design::blocks::backend::IConstantBlock {
 
 private:
 
@@ -50,14 +52,19 @@ private:
 
 	void GetProperties(dfx::generator::Properties &properties) const override;
 
+	virtual void Read(void *buffer, size_t count) const override;
+	virtual size_t GetSize() const noexcept override;
+
+	virtual void *GetInterface(oddf::Uid const &iid) override;
+
 public:
 
 	constant_block();
 	node<T> add_output(T const &constant);
 };
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace blocks {
 
@@ -73,7 +80,7 @@ template<typename T>
 inline bus<typename types::TypeTraits<T>::internalType> RepeatedConstant(T const &constant, int length)
 {
 	using internalType = typename types::TypeTraits<T>::internalType;
-	
+
 	bus<internalType> outputBus;
 
 	if (length > 0) {
@@ -132,6 +139,5 @@ inline bus<typename types::TypeTraits<typename std::iterator_traits<ForwardIt>::
 	return outputBus;
 }
 
-
-}
-}
+} // namespace blocks
+} // namespace dfx

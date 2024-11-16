@@ -28,6 +28,7 @@
 #include "I_Const_Bool.h"
 
 #include <oddf/Exception.h>
+#include <oddf/design/blocks/backend/IConstantBlock.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
@@ -59,7 +60,13 @@ void ConstantMaster::Elaborate(ISimulatorElaborationContext &)
 
 void ConstantMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
-	context.EmitInstruction<I_Const_Bool>();
+
+	auto &constantBlock = GetDesignBlockReference()->GetInterface<design::blocks::backend::IConstantBlock>();
+
+	std::uint8_t value = 0;
+	constantBlock.Read(&value, 1);
+
+	context.EmitInstruction<I_Const_Bool>(value != 0);
 }
 
 } // namespace oddf::simulator::common::backend::blocks

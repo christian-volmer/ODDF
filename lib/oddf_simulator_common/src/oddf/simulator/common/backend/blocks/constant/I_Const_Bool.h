@@ -43,9 +43,9 @@ private:
 
 public:
 
-	I_Const_Bool(ISimulatorCodeGenerationContext &context) :
+	I_Const_Bool(ISimulatorCodeGenerationContext &context, bool value) :
 		SimulatorInstructionBase(&InstructionFunction),
-		m_output(0)
+		m_output(value)
 	{
 		context.RegisterOutput(0, m_output);
 	}

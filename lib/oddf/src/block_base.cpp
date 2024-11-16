@@ -1,31 +1,33 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Implementation of class 'BlockBase', the base class of all blocks in
-	the design.
+    Implementation of class 'BlockBase', the base class of all blocks in
+    the design.
 
 */
 
 #include "global.h"
+
+#include <oddf/utility/GetInterfaceHelper.h>
 
 #include "node.h"
 #include "hierarchy.h"
@@ -36,11 +38,9 @@ namespace debug {
 
 extern std::string internalLastBlockName;
 
-}
+} // namespace debug
 
 namespace backend {
-
-
 
 //
 // BlockBase
@@ -132,7 +132,7 @@ std::string BlockBase::GetOutputPinDescription(int index, int &groupIndex, int &
 		if (GetOutputPins().size() == 1)
 			return "Out";
 		else
-			return "Out" +std::to_string(index);
+			return "Out" + std::to_string(index);
 	}
 
 	assert(false);
@@ -146,7 +146,6 @@ std::string BlockBase::GetOutputPinDescription(int index, int &groupIndex, int &
 void BlockBase::GetProperties(dfx::generator::Properties &) const
 {
 }
-
 
 IStep *BlockBase::GetStep()
 {
@@ -191,6 +190,31 @@ void BlockBase::SetDirty()
 		component->outdated = true;
 }
 
+//
+// IObject interface implementation
+//
+
+void *BlockBase::GetInterface(oddf::Uid const &iid)
+{
+	return oddf::utility::GetInterfaceHelper<
+		oddf::design::blocks::backend::IDesignBlock,
+		IObject>::GetInterface(this, iid);
+}
+
+//
+// IDesignBlock interface implementation
+//
+
+oddf::ResourcePath BlockBase::GetPath() const
+{
+	return oddf::ResourcePath(GetFullName());
+}
+
+oddf::design::blocks::backend::DesignBlockClass BlockBase::GetClass() const
+{
+	return GetClassName();
+}
+
 oddf::utility::ListView<oddf::design::blocks::backend::IDesignBlockInput const &> BlockBase::GetInputsList() const
 {
 	return oddf::utility::MakeListView<oddf::design::blocks::backend::IDesignBlockInput const &>(inputPins);
@@ -201,39 +225,37 @@ oddf::utility::ListView<oddf::design::blocks::backend::IDesignBlockOutput const 
 	return oddf::utility::MakeListView<oddf::design::blocks::backend::IDesignBlockOutput const &>(outputPins);
 }
 
-
-
 /*
 
 This is never used
 
 std::size_t BlockBase::GetHash() const
 {
-	std::size_t hash = 0;
+    std::size_t hash = 0;
 
-	hash_combine(hash, className);
-	hash_combine(hash, inputPins.size());
-	hash_combine(hash, outputPins.size());
+    hash_combine(hash, className);
+    hash_combine(hash, inputPins.size());
+    hash_combine(hash, outputPins.size());
 
-	std::string temp;
+    std::string temp;
 
-	for (auto *output : outputPins)
-		hash_combine(hash, output->GetType().GetHash());
+    for (auto *output : outputPins)
+        hash_combine(hash, output->GetType().GetHash());
 
-	for (auto *input : inputPins) {
+    for (auto *input : inputPins) {
 
-		auto driver = input->GetDrivingPin();
+        auto driver = input->GetDrivingPin();
 
-		if (driver)
-			hash_combine(hash, driver->GetType().GetHash());
-		else
-			hash_combine(hash, 0);
-	}
+        if (driver)
+            hash_combine(hash, driver->GetType().GetHash());
+        else
+            hash_combine(hash, 0);
+    }
 
-	return hash;
+    return hash;
 }
 
 */
 
-}
-}
+} // namespace backend
+} // namespace dfx

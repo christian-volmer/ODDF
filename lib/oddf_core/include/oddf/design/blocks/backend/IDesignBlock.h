@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <oddf/IObject.h>
 #include <oddf/utility/ListView.h>
 #include <oddf/ResourcePath.h>
 
@@ -41,7 +42,7 @@ namespace oddf::design::blocks::backend {
 /*
     Obtains information about a block in an ODDF design.
 */
-class IDesignBlock {
+class IDesignBlock : public virtual IObject {
 
 public:
 

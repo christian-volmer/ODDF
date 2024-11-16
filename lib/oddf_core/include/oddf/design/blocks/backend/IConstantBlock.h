@@ -26,34 +26,21 @@
 
 #pragma once
 
-#include "backend/IProbeAccess.h"
+#include <oddf/Uid.h>
+#include <oddf/IObject.h>
 
-namespace oddf::simulator {
+namespace oddf::design::blocks::backend {
 
-template<typename T = void>
-class ProbeAccess {
-
-private:
-
-	backend::ISimulatorAccess &m_simulatorAccess;
-	backend::IProbeAccess &m_probeAccess;
+class IConstantBlock : public virtual IObject {
 
 public:
 
-	ProbeAccess(oddf::simulator::ISimulator &simulator, std::string const &name) :
-		m_simulatorAccess(simulator.GetSimulatorAccess()),
-		m_probeAccess(m_simulatorAccess.GetNamedObjectInterface<backend::IProbeAccess>(name))
-	{
-	}
+	static constexpr Uid IID = { 0xde952010, 0x8672, 0x4886, 0x98, 0x33, 0xdb, 0xdc, 0x76, 0x3, 0xdb, 0x5b };
 
-	template<typename S = T>
-	S GetValue()
-	{
-		S value;
-		m_simulatorAccess.EnsureValid();
-		m_probeAccess.Read(&value, sizeof(value));
-		return value;
-	}
+	virtual ~IConstantBlock() { }
+
+	virtual void Read(void *buffer, size_t count) const = 0;
+	virtual size_t GetSize() const noexcept = 0;
 };
 
-} // namespace oddf::simulator
+} // namespace oddf::design::blocks::backend

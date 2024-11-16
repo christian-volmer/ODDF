@@ -81,13 +81,13 @@ int main()
 	    dfx::debug::Logger.WriteTable(std::cout);
 	*/
 
-	oddf::simulator::common::Simulator simulator2;
+	oddf::simulator::common::Simulator commonSimulator;
 
-	simulator2.TranslateDesign(design);
+	commonSimulator.TranslateDesign(design);
 
-	auto probeValue = oddf::simulator::ProbeAccess<bool>(simulator2, "myprobe");
+	auto myProbe = oddf::simulator::ProbeAccess<bool>(commonSimulator, "myprobe");
 
-	std::cout << probeValue.get() << "\n";
+	std::cout << myProbe.GetValue() << "\n";
 
 	return 0;
 }

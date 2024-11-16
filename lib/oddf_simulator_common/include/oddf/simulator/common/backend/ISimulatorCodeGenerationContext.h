@@ -45,11 +45,11 @@ public:
 
 	virtual ~ISimulatorCodeGenerationContext() { }
 
-	template<typename T>
-	void EmitInstruction()
+	template<typename T, typename... argTs>
+	void EmitInstruction(argTs &&...args)
 	{
 		auto *instruction = InternalEmitInstruction(sizeof(T), alignof(T));
-		new (instruction) T(*this);
+		new (instruction) T(*this, std::forward<argTs>(args)...);
 	}
 
 	virtual void RegisterInput(size_t index, SimulatorType::Boolean const *&inputPointerReference) = 0;
