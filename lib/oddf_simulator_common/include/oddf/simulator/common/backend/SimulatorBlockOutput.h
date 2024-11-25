@@ -70,6 +70,13 @@ public:
 
 	DataReference GetReference() const;
 
+	template<typename T>
+	T const *GetPointer() const
+	{
+		// Type `T` must be one of the types declared in class `SimulatorType`.
+		static_assert(false);
+	}
+
 	// Returns the index of this output within the list of outputs of the owning block.
 	size_t GetIndex() const;
 
@@ -88,5 +95,8 @@ public:
 	// Disconnects all targets driven by this output.
 	void DisconnectAll();
 };
+
+template<>
+SimulatorType::Boolean const *SimulatorBlockOutput::GetPointer<SimulatorType::Boolean>() const;
 
 } // namespace oddf::simulator::common::backend

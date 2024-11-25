@@ -60,7 +60,7 @@ void SignalMaster::Elaborate(ISimulatorElaborationContext &)
 
 void SignalMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
-	auto &signalAccessObject = context.CreateNamedObject<SignalAccessObject>("mysignal",
+	auto &signalAccessObject = context.ConstructGlobalObject<SignalAccessObject>("mysignal",
 		context.GetCurrentComponent(),
 		GetOutputsList().GetFirst().GetType());
 

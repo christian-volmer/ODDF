@@ -46,14 +46,24 @@ void SimulatorCore::FinaliseTranslation()
 		// ISimulatorComponentContext
 		//
 
-		virtual void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object) override
+		virtual void RegisterGlobalObject(std::string name, std::unique_ptr<IObject> &&object) override
 		{
-			m_component.m_simulatorCore.RegisterNamedObject(name, std::move(object));
+			m_component.m_simulatorCore.RegisterGlobalObject(name, std::move(object));
 		}
 
 		virtual ISimulatorComponent &GetCurrentComponent() noexcept override
 		{
 			return m_component;
+		}
+
+		virtual void RegisterComponentObject(Uid const &clsid, std::unique_ptr<IObject> &&object) override
+		{
+			m_component.RegisterComponentObject(clsid, std::move(object));
+		}
+
+		virtual void *GetComponentObject(Uid const &clsid, Uid const &iid) const override
+		{
+			return m_component.GetComponentObject(clsid, iid);
 		}
 
 	public:

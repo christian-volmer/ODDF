@@ -58,6 +58,12 @@ public:
 
 	void TranslateDesign(design::IDesign const &design);
 
+	void Run(size_t cycles);
+
+	//
+	// ISimulator
+	//
+
 	virtual simulator::backend::ISimulatorAccess &GetSimulatorAccess() override;
 };
 

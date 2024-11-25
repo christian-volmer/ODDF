@@ -24,20 +24,19 @@
 
 */
 
-#include "../Delay.h"
-#include "DelayObject.h"
+#include "../SimulatorCore.h"
 
-namespace oddf::simulator::common::backend::blocks {
+namespace oddf::simulator::common::backend {
 
-DelayEndpoint::DelayEndpoint(design::blocks::backend::IDesignBlock const *originalDesignBlock) :
-	SimulatorBlockBase(1, {}),
-	m_originalDesignBlock(originalDesignBlock)
+void SimulatorCore::Run(size_t cycles)
 {
+	EnsureAllComponentStatesValid();
+
+	for (size_t i = 0; i < cycles; ++i) {
+
+		for (auto &clockable : m_clockables)
+			clockable->Clock();
+	}
 }
 
-std::string DelayEndpoint::GetDesignPathHint() const
-{
-	return m_originalDesignBlock->GetPath() + ":Endpoint";
-}
-
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace oddf::simulator::common::backend

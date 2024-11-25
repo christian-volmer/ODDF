@@ -96,6 +96,15 @@ DataReference SimulatorBlockOutput::GetReference() const
 	return DataReference(m_storagePointer, size);
 }
 
+template<>
+SimulatorType::Boolean const *SimulatorBlockOutput::GetPointer<SimulatorType::Boolean>() const
+{
+	if (GetType().GetTypeId() == design::NodeType::BOOLEAN)
+		return reinterpret_cast<SimulatorType::Boolean const *>(m_storagePointer);
+	else
+		throw Exception(ExceptionCode::InvalidArgument, "Type argument `T` (SimulatorType::Boolean) does not match the type of the output.");
+}
+
 size_t SimulatorBlockOutput::GetIndex() const
 {
 	return m_index;

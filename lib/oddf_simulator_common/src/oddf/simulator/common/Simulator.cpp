@@ -50,6 +50,15 @@ void Simulator::TranslateDesign(design::IDesign const &design)
 	m_core->TranslateDesign(design);
 }
 
+void Simulator::Run(size_t cycles)
+{
+	m_core->Run(cycles);
+}
+
+//
+// ISimulator
+//
+
 simulator::backend::ISimulatorAccess &Simulator::GetSimulatorAccess()
 {
 	return *m_core;

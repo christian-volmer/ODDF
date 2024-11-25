@@ -28,6 +28,9 @@
 #include "SimulatorCore.h"
 #include "SimulatorBlockInternals.h"
 
+#include <oddf/Exception.h>
+#include <oddf/simulator/common/backend/IClockable.h>
+
 #include <algorithm>
 #include <cassert>
 
@@ -37,7 +40,8 @@ SimulatorComponent::SimulatorComponent(SimulatorCore &simulatorCore) :
 	m_simulatorCore(simulatorCore),
 	m_code(),
 	m_invalid(true),
-	m_blocks()
+	m_blocks(),
+	m_componentObjects()
 {
 }
 
@@ -49,6 +53,38 @@ void SimulatorComponent::EnsureValidState()
 void SimulatorComponent::InvalidateState()
 {
 	m_simulatorCore.InvalidateComponentState(*this);
+}
+
+void SimulatorComponent::RegisterComponentObject(Uid const &clsid, std::unique_ptr<IObject> &&object)
+{
+	if (m_componentObjects.find(clsid) == m_componentObjects.end()) {
+
+		// Try if we can obtain an IClockable
+		try {
+
+			IClockable &pClockable = object->GetInterface<IClockable>();
+			m_simulatorCore.RegisterClockable(pClockable);
+		}
+		catch (Exception &e) {
+
+			if (e.GetCode() != ExceptionCode::NoInterface)
+				throw;
+		}
+
+		m_componentObjects.insert({ clsid, std::move(object) });
+	}
+	else
+		throw Exception(ExceptionCode::Fail, "RegisterComponentObject(): an object with that class id already exists.");
+}
+
+void *SimulatorComponent::GetComponentObject(Uid const &clsid, Uid const &iid) const
+{
+	auto objectIt = m_componentObjects.find(clsid);
+
+	if (objectIt == m_componentObjects.end())
+		throw Exception(ExceptionCode::NoResource);
+	else
+		return objectIt->second.get()->GetInterface(iid);
 }
 
 void SimulatorComponent::AddBlock(SimulatorBlockBase &block)

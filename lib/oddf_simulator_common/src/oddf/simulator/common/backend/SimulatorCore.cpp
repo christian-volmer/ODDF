@@ -37,19 +37,36 @@ SimulatorCore::SimulatorCore() :
 	m_simulatorBlockFactories(),
 	m_components(),
 	m_invalidComponents(),
-	m_namedSimulatorObjects()
+	m_namedSimulatorObjects(),
+	m_clockables()
 {
 	RegisterDefaultBlockFactories();
 }
 
 SimulatorCore::~SimulatorCore() = default;
 
-void SimulatorCore::RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object)
+void SimulatorCore::RegisterGlobalObject(std::string name, std::unique_ptr<IObject> &&object)
 {
 	if (m_namedSimulatorObjects.find(name) == m_namedSimulatorObjects.end())
 		m_namedSimulatorObjects.insert({ name, std::move(object) });
 	else
-		throw Exception(ExceptionCode::Fail, "RegisterNamedObject(): an object with that name already exists.");
+		throw Exception(ExceptionCode::Fail, "RegisterGlobalObject(): an object with that name already exists.");
+}
+
+void SimulatorCore::RegisterClockable(IClockable &clockable)
+{
+	assert(m_clockables.find(&clockable) == m_clockables.end());
+	m_clockables.insert(&clockable);
+}
+
+void *SimulatorCore::GetNamedObjectInterface(std::string const &name, Uid const &iid) const
+{
+	auto objectIt = m_namedSimulatorObjects.find(name);
+
+	if (objectIt == m_namedSimulatorObjects.end())
+		throw Exception(ExceptionCode::NoResource);
+	else
+		return objectIt->second.get()->GetInterface(iid);
 }
 
 void SimulatorCore::InvalidateComponentState(SimulatorComponent &component)

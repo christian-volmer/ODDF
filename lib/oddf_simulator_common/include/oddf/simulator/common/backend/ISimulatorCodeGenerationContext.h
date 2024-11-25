@@ -50,6 +50,7 @@ public:
 	template<typename T, typename... argTs>
 	void EmitInstruction(argTs &&...args)
 	{
+		static_assert(std::is_trivially_copyable_v<T>);
 		auto *instruction = InternalEmitInstruction(sizeof(T), alignof(T));
 		new (instruction) T(*this, std::forward<argTs>(args)...);
 	}

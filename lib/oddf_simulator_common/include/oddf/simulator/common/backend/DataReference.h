@@ -39,6 +39,7 @@ private:
 
 public:
 
+	DataReference();
 	DataReference(void const *pointer, size_t size);
 
 	size_t GetSize() const noexcept;

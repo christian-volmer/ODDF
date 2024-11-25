@@ -20,24 +20,31 @@
 
 /*
 
-    <no description>
+    Simulator support for the 'temp' design block. As its name implies, this is
+    a temporary block that does not take part in the simulation and that must
+    not be connected to any other blocks in the design.
 
 */
 
-#include "../SimulatorCore.h"
+#pragma once
 
-#include <oddf/Exception.h>
+#include <oddf/simulator/common/backend/SimulatorBlockBase.h>
 
-namespace oddf::simulator::common::backend {
+namespace oddf::simulator::common::backend::blocks {
 
-void *SimulatorCore::GetNamedObjectInterface(std::string const &name, Uid const &iid) const
-{
-	auto objectIt = m_namedSimulatorObjects.find(name);
+//
+// TempMaster
+//
 
-	if (objectIt == m_namedSimulatorObjects.end())
-		throw Exception(ExceptionCode::NoResource);
-	else
-		return objectIt->second.get()->GetInterface(iid);
-}
+class TempMaster : public SimulatorBlockBase {
 
-} // namespace oddf::simulator::common::backend
+public:
+
+	TempMaster(design::blocks::backend::IDesignBlock const &designBlock);
+
+	virtual std::string GetDesignPathHint() const override;
+
+	virtual void Elaborate(ISimulatorElaborationContext &context) override;
+};
+
+} // namespace oddf::simulator::common::backend::blocks

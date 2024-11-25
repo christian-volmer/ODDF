@@ -30,6 +30,7 @@
 #include "SimulatorComponent.h"
 
 #include <oddf/simulator/common/backend/ISimulatorBlockFactory.h>
+#include <oddf/simulator/common/backend/IClockable.h>
 #include <oddf/simulator/backend/ISimulatorAccess.h>
 
 #include <oddf/design/IDesign.h>
@@ -59,6 +60,8 @@ private:
 	std::set<SimulatorComponent *> m_invalidComponents;
 
 	std::map<std::string, std::unique_ptr<IObject>> m_namedSimulatorObjects;
+
+	std::set<IClockable *> m_clockables;
 
 	// Registers simulator block factories for all standard ODDF design blocks.
 	void RegisterDefaultBlockFactories();
@@ -92,10 +95,14 @@ public:
 	bool RegisterSimulatorBlockFactory(design::blocks::backend::DesignBlockClass const &designBlockClass,
 		std::unique_ptr<ISimulatorBlockFactory> &&simulatorBlockFactory);
 
-	void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object);
+	void RegisterClockable(IClockable &clockable);
+
+	void RegisterGlobalObject(std::string name, std::unique_ptr<IObject> &&object);
 
 	// Translates the given design so it can be simulated by this simulator instance.
 	void TranslateDesign(design::IDesign const &design);
+
+	void Run(size_t cycles);
 
 	// Marks the state of the specified component invalid.
 	void InvalidateComponentState(SimulatorComponent &component);

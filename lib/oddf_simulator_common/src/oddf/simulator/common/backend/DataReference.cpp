@@ -32,6 +32,12 @@
 
 namespace oddf::simulator::common::backend {
 
+DataReference::DataReference() :
+	m_pointer(nullptr),
+	m_size(0)
+{
+}
+
 DataReference::DataReference(void const *pointer, size_t size) :
 	m_pointer(pointer),
 	m_size(size)

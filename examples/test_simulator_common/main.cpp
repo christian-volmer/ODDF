@@ -44,8 +44,12 @@ int main()
 
 	dfx::Design design;
 
-	bool temp = false;
-	b::Probe(!b::Signal(&temp));
+	/* bool temp = false;
+	    b::Probe(!b::Delay(b::Signal(&temp)));*/
+
+	dfx::forward_node<bool> x;
+	b::Probe(x);
+	x <<= b::Delay(!x);
 
 	//
 	// Simulation
@@ -56,12 +60,27 @@ int main()
 	simulator.TranslateDesign(design);
 
 	auto myProbe = sim::Probe<bool>(simulator, "myprobe");
-	auto mySignal = sim::Signal<bool>(simulator, "mysignal");
+	// auto mySignal = sim::Signal<bool>(simulator, "mysignal");
 
-	mySignal.SetValue(false);
+	simulator.Run(1);
 	std::cout << myProbe.GetValue() << "\n";
 
-	mySignal.SetValue(true);
+	simulator.Run(1);
+	std::cout << myProbe.GetValue() << "\n";
+
+	simulator.Run(1);
+	std::cout << myProbe.GetValue() << "\n";
+
+	// mySignal.SetValue(true);
+	std::cout << myProbe.GetValue() << "\n";
+
+	simulator.Run(1);
+	std::cout << myProbe.GetValue() << "\n";
+
+	simulator.Run(1);
+	std::cout << myProbe.GetValue() << "\n";
+
+	simulator.Run(1);
 	std::cout << myProbe.GetValue() << "\n";
 
 	return 0;

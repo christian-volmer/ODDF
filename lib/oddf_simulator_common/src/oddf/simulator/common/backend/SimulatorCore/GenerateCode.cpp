@@ -200,8 +200,11 @@ void SimulatorCore::GenerateCode()
 		{
 			for (auto *block : m_component.m_blocks) {
 
-				for (auto &input : block->m_internals->m_inputs)
-					*reinterpret_cast<void const **>(m_code.data() + input.m_inputPointerReference) = input.m_driver->m_storagePointer;
+				for (auto &input : block->m_internals->m_inputs) {
+
+					if (input.m_inputPointerReference)
+						*reinterpret_cast<void const **>(m_code.data() + input.m_inputPointerReference) = input.m_driver->m_storagePointer;
+				}
 			}
 		}
 
@@ -209,14 +212,24 @@ void SimulatorCore::GenerateCode()
 		// ISimulatorComponentContext
 		//
 
-		virtual void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object) override
+		virtual void RegisterGlobalObject(std::string name, std::unique_ptr<IObject> &&object) override
 		{
-			m_component.m_simulatorCore.RegisterNamedObject(name, std::move(object));
+			m_component.m_simulatorCore.RegisterGlobalObject(name, std::move(object));
 		}
 
 		virtual ISimulatorComponent &GetCurrentComponent() noexcept override
 		{
 			return m_component;
+		}
+
+		virtual void RegisterComponentObject(Uid const &clsid, std::unique_ptr<IObject> &&object) override
+		{
+			m_component.RegisterComponentObject(clsid, std::move(object));
+		}
+
+		virtual void *GetComponentObject(Uid const &clsid, Uid const &iid) const override
+		{
+			return m_component.GetComponentObject(clsid, iid);
 		}
 
 	public:
@@ -240,9 +253,12 @@ void SimulatorCore::GenerateCode()
 
 				m_currentBlock->GenerateCode(*this);
 
-				for (auto const &input : m_currentBlock->m_internals->m_inputs)
-					if (!input.m_inputPointerReference)
-						throw Exception(ExceptionCode::Unexpected, "Block failed to register at least one of its inputs.");
+				if (m_currentInstruction) {
+
+					for (auto const &input : m_currentBlock->m_internals->m_inputs)
+						if (!input.m_inputPointerReference)
+							throw Exception(ExceptionCode::Unexpected, "Block failed to register at least one of its inputs.");
+				}
 
 				for (auto const &output : m_currentBlock->m_internals->m_outputs)
 					if (!output.m_storageReference)

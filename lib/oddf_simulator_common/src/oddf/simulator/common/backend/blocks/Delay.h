@@ -20,13 +20,15 @@
 
 /*
 
-    Simulator support for the 'constant' design block.
+    Simulator support for the 'delay' design block.
 
 */
 
 #pragma once
 
 #include <oddf/simulator/common/backend/SimulatorBlockBase.h>
+
+#include "delay/DelayObject.h"
 
 namespace oddf::simulator::common::backend::blocks {
 
@@ -43,28 +45,6 @@ public:
 	virtual std::string GetDesignPathHint() const override;
 
 	virtual void Elaborate(ISimulatorElaborationContext &context) override;
-};
-
-//
-// DelayStartingPoint
-//
-
-class DelayStartingPoint : public SimulatorBlockBase {
-
-private:
-
-	design::blocks::backend::IDesignBlock const *m_originalDesignBlock;
-
-public:
-
-	DelayStartingPoint(design::blocks::backend::IDesignBlock const *originalDesignBlock);
-
-	DelayStartingPoint(DelayStartingPoint const &) = delete;
-	void operator=(DelayStartingPoint const &) = delete;
-
-	virtual std::string GetDesignPathHint() const override;
-
-	virtual void Elaborate(ISimulatorElaborationContext &) override { }
 };
 
 //
@@ -86,7 +66,34 @@ public:
 
 	virtual std::string GetDesignPathHint() const override;
 
-	virtual void Elaborate(ISimulatorElaborationContext &) override {};
+	virtual void Elaborate(ISimulatorElaborationContext &) override { }
+	virtual void GenerateCode(ISimulatorCodeGenerationContext &) override { }
+};
+
+//
+// DelayStartingPoint
+//
+
+class DelayStartingPoint : public SimulatorBlockBase {
+
+private:
+
+	design::blocks::backend::IDesignBlock const *m_originalDesignBlock;
+	DelayEndpoint const &m_endpoint;
+	DelayState<SimulatorType::Boolean> *m_pState;
+
+public:
+
+	DelayStartingPoint(design::blocks::backend::IDesignBlock const *originalDesignBlock, design::NodeType const &type, DelayEndpoint const &endpoint);
+
+	DelayStartingPoint(DelayStartingPoint const &) = delete;
+	void operator=(DelayStartingPoint const &) = delete;
+
+	virtual std::string GetDesignPathHint() const override;
+
+	virtual void Elaborate(ISimulatorElaborationContext &) override { }
+	virtual void GenerateCode(ISimulatorCodeGenerationContext &) override;
+	virtual void Finalise(ISimulatorFinalisationContext &context) override;
 };
 
 } // namespace oddf::simulator::common::backend::blocks

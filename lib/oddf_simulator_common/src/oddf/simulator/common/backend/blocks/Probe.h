@@ -44,7 +44,7 @@ public:
 
 	virtual void Elaborate(ISimulatorElaborationContext &context) override;
 
-	virtual void GenerateCode(ISimulatorCodeGenerationContext &context) override;
+	virtual void GenerateCode(ISimulatorCodeGenerationContext &) override { }
 
 	virtual void Finalise(ISimulatorFinalisationContext &context) override;
 };

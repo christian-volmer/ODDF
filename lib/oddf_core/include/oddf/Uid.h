@@ -77,6 +77,11 @@ public:
 		return m_data != other.m_data;
 	}
 
+	constexpr bool operator<(Uid const &other) const
+	{
+		return m_data < other.m_data;
+	}
+
 	// Returns a string representation of the form {AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}
 	std::string ToString() const;
 };

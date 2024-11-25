@@ -29,8 +29,12 @@
 #include <oddf/simulator/common/backend/SimulatorBlockBase.h>
 #include <oddf/simulator/common/backend/ISimulatorComponent.h>
 
+#include <oddf/IObject.h>
+
+#include <memory>
 #include <list>
 #include <vector>
+#include <map>
 
 namespace oddf::simulator::common::backend {
 
@@ -57,6 +61,8 @@ public:
 	std::list<SimulatorBlockBase *> m_blocks;
 
 private:
+
+	std::map<Uid, std::unique_ptr<IObject>> m_componentObjects;
 
 	// Ensures that the state of the component is valid and can safely be accessed.
 	virtual void EnsureValidState() override;
@@ -92,6 +98,9 @@ public:
 
 	// Executes the component bytecode.
 	void Execute();
+
+	void RegisterComponentObject(Uid const &clsid, std::unique_ptr<IObject> &&object);
+	void *GetComponentObject(Uid const &clsid, Uid const &iid) const;
 };
 
 } // namespace oddf::simulator::common::backend

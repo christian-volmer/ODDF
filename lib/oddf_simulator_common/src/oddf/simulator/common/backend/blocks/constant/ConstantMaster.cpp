@@ -60,7 +60,6 @@ void ConstantMaster::Elaborate(ISimulatorElaborationContext &)
 
 void ConstantMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
-
 	auto &constantBlock = GetDesignBlockReference()->GetInterface<design::blocks::backend::IConstantBlock>();
 
 	std::uint8_t value = 0;

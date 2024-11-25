@@ -24,20 +24,25 @@
 
 */
 
-#include "../Delay.h"
-#include "DelayObject.h"
+#include "Temp.h"
+
+#include <oddf/Exception.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
-DelayEndpoint::DelayEndpoint(design::blocks::backend::IDesignBlock const *originalDesignBlock) :
-	SimulatorBlockBase(1, {}),
-	m_originalDesignBlock(originalDesignBlock)
+TempMaster::TempMaster(design::blocks::backend::IDesignBlock const &designBlock) :
+	SimulatorBlockBase(designBlock)
 {
 }
 
-std::string DelayEndpoint::GetDesignPathHint() const
+std::string TempMaster::GetDesignPathHint() const
 {
-	return m_originalDesignBlock->GetPath() + ":Endpoint";
+	return GetDesignBlockReference()->GetPath();
+}
+
+void TempMaster::Elaborate(ISimulatorElaborationContext &context)
+{
+	context.RemoveThisBlock();
 }
 
 } // namespace oddf::simulator::common::backend::blocks

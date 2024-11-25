@@ -42,12 +42,12 @@ public:
 	virtual void RemoveThisBlock() = 0;
 
 	template<typename T, typename... argsTs>
-	T *AddSimulatorBlock(argsTs &&...args)
+	T &AddSimulatorBlock(argsTs &&...args)
 	{
-		auto up = std::make_unique<T>(std::forward<argsTs>(args)...);
-		T *p = up.get();
-		AddSimulatorBlock(std::move(up));
-		return p;
+		auto uptr = std::make_unique<T>(std::forward<argsTs>(args)...);
+		T *p = uptr.get();
+		AddSimulatorBlock(std::move(uptr));
+		return *p;
 	}
 };
 

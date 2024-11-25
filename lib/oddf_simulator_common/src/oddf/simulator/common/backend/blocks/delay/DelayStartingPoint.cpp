@@ -26,17 +26,36 @@
 
 #include "../Delay.h"
 
+#include "I_DelayStartingPoint_Bool.h"
+#include "DelayObject.h"
+
 namespace oddf::simulator::common::backend::blocks {
 
-DelayStartingPoint::DelayStartingPoint(design::blocks::backend::IDesignBlock const *originalDesignBlock) :
-	SimulatorBlockBase(0, { design::NodeType::Boolean() }),
-	m_originalDesignBlock(originalDesignBlock)
+DelayStartingPoint::DelayStartingPoint(design::blocks::backend::IDesignBlock const *originalDesignBlock, design::NodeType const &type, DelayEndpoint const &endpoint) :
+	SimulatorBlockBase(0, { type }),
+	m_originalDesignBlock(originalDesignBlock),
+	m_endpoint(endpoint),
+	m_pState()
 {
 }
 
 std::string DelayStartingPoint::GetDesignPathHint() const
 {
 	return m_originalDesignBlock->GetPath() + ":StartingPoint";
+}
+
+void DelayStartingPoint::GenerateCode(ISimulatorCodeGenerationContext &context)
+{
+	auto &delayObject = context.GetOrConstructComponentObject<DelayObject>(context.GetCurrentComponent());
+
+	m_pState = delayObject.AddState<SimulatorType::Boolean>();
+
+	context.EmitInstruction<I_DelayStartingPoint_Bool>(&m_pState->m_value);
+}
+
+void DelayStartingPoint::Finalise(ISimulatorFinalisationContext &)
+{
+	m_pState->m_pSource = m_endpoint.GetInputsList()[0].GetDriver().GetPointer<SimulatorType::Boolean>();
 }
 
 } // namespace oddf::simulator::common::backend::blocks

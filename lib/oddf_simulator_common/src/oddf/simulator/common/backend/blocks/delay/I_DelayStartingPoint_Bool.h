@@ -24,20 +24,34 @@
 
 */
 
-#include "../Delay.h"
-#include "DelayObject.h"
+#pragma once
+
+#include <oddf/simulator/common/backend/SimulatorType.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
-DelayEndpoint::DelayEndpoint(design::blocks::backend::IDesignBlock const *originalDesignBlock) :
-	SimulatorBlockBase(1, {}),
-	m_originalDesignBlock(originalDesignBlock)
-{
-}
+struct I_DelayStartingPoint_Bool : public SimulatorInstructionBase {
 
-std::string DelayEndpoint::GetDesignPathHint() const
-{
-	return m_originalDesignBlock->GetPath() + ":Endpoint";
-}
+private:
+
+	SimulatorType::Boolean const *m_pStateValue;
+	SimulatorType::Boolean m_output;
+
+	static size_t InstructionFunction(I_DelayStartingPoint_Bool &instruction)
+	{
+		instruction.m_output = *instruction.m_pStateValue;
+		return sizeof(instruction);
+	}
+
+public:
+
+	I_DelayStartingPoint_Bool(ISimulatorCodeGenerationContext &context, SimulatorType::Boolean const *pState) :
+		SimulatorInstructionBase(&InstructionFunction),
+		m_pStateValue(pState),
+		m_output(0)
+	{
+		context.RegisterOutput(0, m_output);
+	}
+};
 
 } // namespace oddf::simulator::common::backend::blocks

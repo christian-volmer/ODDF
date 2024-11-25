@@ -33,6 +33,7 @@
 #include "../blocks/Not.h"
 #include "../blocks/Probe.h"
 #include "../blocks/Signal.h"
+#include "../blocks/Temp.h"
 
 namespace oddf::simulator::common::backend {
 
@@ -45,6 +46,7 @@ void SimulatorCore::RegisterDefaultBlockFactories()
 	RegisterSimulatorBlockFactory(DesignBlockClass("not"), MakeSimulatorBlockFactory<blocks::NotMaster>());
 	RegisterSimulatorBlockFactory(DesignBlockClass("probe"), MakeSimulatorBlockFactory<blocks::ProbeMaster>());
 	RegisterSimulatorBlockFactory(DesignBlockClass("signal"), MakeSimulatorBlockFactory<blocks::SignalMaster>());
+	RegisterSimulatorBlockFactory(DesignBlockClass("temporary"), MakeSimulatorBlockFactory<blocks::TempMaster>());
 }
 
 } // namespace oddf::simulator::common::backend

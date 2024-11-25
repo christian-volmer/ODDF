@@ -74,10 +74,33 @@ void DelayMaster::Elaborate(ISimulatorElaborationContext &context)
 	// TODO: check configuration of the delay block (i.e., number of inputs/outputs, their types etc.)
 
 	//
+	// The new endpoint of the delay
+	//
+
+	/*
+	    TODO: we need to put this into some sort of simulator helper function.
+
+	    e.g. ReconnectInput(fromInput, toInput);
+	*/
+
+	auto &endpoint = context.AddSimulatorBlock<DelayEndpoint>(GetDesignBlockReference());
+
+	auto &masterInput = inputs.GetFirst();
+
+	if (masterInput.IsConnected()) {
+
+		auto &inputDriver = masterInput.GetDriver();
+		auto &endpointInput = endpoint.GetInputsList().GetFirst();
+
+		masterInput.Disconnect();
+		endpointInput.ConnectTo(inputDriver);
+	}
+
+	//
 	// The new starting point of the delay
 	//
 
-	auto startingPoint = context.AddSimulatorBlock<DelayStartingPoint>(GetDesignBlockReference());
+	auto &startingPoint = context.AddSimulatorBlock<DelayStartingPoint>(GetDesignBlockReference(), design::NodeType::Boolean(), endpoint);
 
 	/*
 	    TODO: we need to put this into some sort of simulator helper function
@@ -96,36 +119,13 @@ void DelayMaster::Elaborate(ISimulatorElaborationContext &context)
 	*/
 
 	auto masterOutputTargets = outputs.GetFirst().GetTargetsCollection();
-	auto &startingPointOutput = startingPoint->GetOutputsList().GetFirst();
+	auto &startingPointOutput = startingPoint.GetOutputsList().GetFirst();
 
 	while (!masterOutputTargets.IsEmpty()) {
 
 		auto &outputTarget = masterOutputTargets.GetFirst();
 		outputTarget.Disconnect();
 		outputTarget.ConnectTo(startingPointOutput);
-	}
-
-	//
-	// The new endpoint of the delay
-	//
-
-	/*
-	    TODO: we need to put this into some sort of simulator helper function.
-
-	    e.g. ReconnectInput(fromInput, toInput);
-	*/
-
-	auto endpoint = context.AddSimulatorBlock<DelayEndpoint>(GetDesignBlockReference());
-
-	auto &masterInput = inputs.GetFirst();
-
-	if (masterInput.IsConnected()) {
-
-		auto &inputDriver = masterInput.GetDriver();
-		auto &endpointInput = endpoint->GetInputsList().GetFirst();
-
-		masterInput.Disconnect();
-		endpointInput.ConnectTo(inputDriver);
 	}
 
 	context.RemoveThisBlock();

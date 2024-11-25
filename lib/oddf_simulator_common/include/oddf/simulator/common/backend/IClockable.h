@@ -26,30 +26,20 @@
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorType.h>
+#include <oddf/IObject.h>
 
-namespace oddf::simulator::common::backend::blocks {
+namespace oddf::simulator::common::backend {
 
-struct I_Probe_Bool : public SimulatorInstructionBase {
-
-private:
-
-	SimulatorType::Boolean const *m_input;
-
-	static size_t InstructionFunction(I_Probe_Bool &instruction)
-	{
-		// TODO: does a probe have to emit an instruction?
-		return sizeof(instruction);
-	}
+class IClockable : public virtual IObject {
 
 public:
 
-	I_Probe_Bool(ISimulatorCodeGenerationContext &context) :
-		SimulatorInstructionBase(&InstructionFunction),
-		m_input()
-	{
-		context.RegisterInput(0, m_input);
-	}
+	static constexpr Uid IID = { 0xb10444ec, 0x414e, 0x4417, 0xaa, 0x37, 0x22, 0xca, 0xc, 0x58, 0xf0, 0x27 };
+
+	virtual ~IClockable() = default;
+
+	// Called by the simulator to simulate a clock cycle.
+	virtual void Clock() = 0;
 };
 
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace oddf::simulator::common::backend

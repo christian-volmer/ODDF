@@ -27,6 +27,7 @@
 #pragma once
 
 #include <oddf/IObject.h>
+#include <oddf/Exception.h>
 #include "ISimulatorComponent.h"
 
 #include <memory>
@@ -39,15 +40,47 @@ public:
 
 	virtual ~ISimulatorComponentContext() = default;
 
-	virtual void RegisterNamedObject(std::string name, std::unique_ptr<IObject> &&object) = 0;
+	// Registers the given object as a global object with the simulator under the given name.
+	virtual void RegisterGlobalObject(std::string name, std::unique_ptr<IObject> &&object) = 0;
+
+	// Constructs an object of type `T` and registers it as a global object with the simulator under the given name.
+	template<typename T, typename... argTs>
+	T &ConstructGlobalObject(std::string name, argTs &&...args)
+	{
+		auto object = std::make_unique<T>(std::forward<argTs>(args)...);
+		auto &objectReference = *object;
+		RegisterGlobalObject(name, std::move(object));
+		return objectReference;
+	}
+
+	virtual void RegisterComponentObject(Uid const &clsid, std::unique_ptr<IObject> &&object) = 0;
+	virtual void *GetComponentObject(Uid const &clsid, Uid const &iid) const = 0;
 
 	template<typename T, typename... argTs>
-	T &CreateNamedObject(std::string name, argTs &&...args)
+	T &GetOrConstructComponentObject(argTs &&...args)
 	{
-		auto object = std::make_unique<T>(args...);
-		auto &objectReference = *object;
-		RegisterNamedObject(name, std::move(object));
-		return objectReference;
+		IObject *pObject = nullptr;
+		try {
+
+			pObject = static_cast<IObject *>(GetComponentObject(T::CLSID, IObject::IID));
+		}
+		catch (Exception &e) {
+
+			if (e.GetCode() == ExceptionCode::NoResource) {
+
+				auto upNewObject = std::make_unique<T>(std::forward<argTs>(args)...);
+				auto &rNewObject = *upNewObject;
+				RegisterComponentObject(T::CLSID, std::move(upNewObject));
+				return rNewObject;
+			}
+
+			throw;
+		}
+
+		// It is assumed that all calls to this function use the same type `T`.
+		// We can therefore assume that any previously registered object is of
+		// type `T` and the following cast will be valid.
+		return *dynamic_cast<T *>(pObject);
 	}
 
 	// Returns the component that is currently being finalised.

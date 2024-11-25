@@ -26,7 +26,6 @@
 
 #include "../Probe.h"
 #include "ProbeAccessObject.h"
-#include "I_Probe_Bool.h"
 
 #include <oddf/Exception.h>
 
@@ -58,16 +57,11 @@ void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
 		throw Exception(ExceptionCode::Unsupported);
 }
 
-void ProbeMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
-{
-	context.EmitInstruction<I_Probe_Bool>();
-}
-
 void ProbeMaster::Finalise(ISimulatorFinalisationContext &context)
 {
 	auto &driver = GetInputsList()[0].GetDriver();
 
-	context.CreateNamedObject<ProbeAccessObject>("myprobe", context.GetCurrentComponent(), driver);
+	context.ConstructGlobalObject<ProbeAccessObject>("myprobe", context.GetCurrentComponent(), driver);
 }
 
 } // namespace oddf::simulator::common::backend::blocks
