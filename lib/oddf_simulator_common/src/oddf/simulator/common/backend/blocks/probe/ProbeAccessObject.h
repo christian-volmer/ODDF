@@ -28,24 +28,38 @@
 
 #include <oddf/utility/GetInterfaceHelper.h>
 #include <oddf/simulator/backend/IProbeAccess.h>
-#include <oddf/simulator/common/backend/DataReference.h>
+
+#include <type_traits>
+#include <cstring>
 
 namespace oddf::simulator::common::backend::blocks {
 
+template<typename simulatorT>
 class ProbeAccessObject : public virtual simulator::backend::IProbeAccess {
+
+	/*
+	    The current implementation has been tested for `Boolean` and will probably
+	    work for `Integer` and `Real`, too. Need to implement correct handling of the
+	    dynamic size for bit-vector and fixed-point.
+
+	*/
+	static_assert(std::is_same_v<simulatorT, SimulatorType::Boolean>);
 
 public:
 
 	ISimulatorComponent &m_component;
 	design::NodeType m_nodeType;
-	DataReference m_dataReference;
+	simulatorT const *m_probedOutputPointer;
 
 	ProbeAccessObject(ISimulatorComponent &component, SimulatorBlockOutput const &driver) :
 		m_component(component),
 		m_nodeType(driver.GetType()),
-		m_dataReference(driver.GetReference())
+		m_probedOutputPointer(driver.GetPointer<simulatorT>())
 	{
 	}
+
+	ProbeAccessObject(ProbeAccessObject<simulatorT> const &) = delete;
+	void operator=(ProbeAccessObject<simulatorT> const &) = delete;
 
 	virtual void *GetInterface(Uid const &iid) override
 	{
@@ -61,13 +75,16 @@ public:
 
 	virtual void Read(void *buffer, size_t count) const override
 	{
+		if (count != GetSize())
+			throw Exception(ExceptionCode::InvalidArgument, "Parameter `count` must be equal to the value returned by `GetSize()`.");
+
 		m_component.EnsureValidState();
-		m_dataReference.Read(buffer, count);
+		std::memcpy(buffer, m_probedOutputPointer, count);
 	}
 
 	virtual size_t GetSize() const noexcept override
 	{
-		return m_dataReference.GetSize();
+		return sizeof(simulatorT);
 	}
 };
 

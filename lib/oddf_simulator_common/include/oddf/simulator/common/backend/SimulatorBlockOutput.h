@@ -29,8 +29,6 @@
 #include <oddf/design/NodeType.h>
 #include <oddf/utility/CollectionView.h>
 
-#include <oddf/simulator/common/backend/DataReference.h>
-
 #include <list>
 
 namespace oddf::simulator::common::backend {
@@ -67,8 +65,6 @@ public:
 	void operator=(SimulatorBlockOutput &&) = delete;
 
 	design::NodeType GetType() const;
-
-	DataReference GetReference() const;
 
 	template<typename T>
 	T const *GetPointer() const

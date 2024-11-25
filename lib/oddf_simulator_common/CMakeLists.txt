@@ -18,7 +18,6 @@ add_library(oddf_simulator_common
 	"src/oddf/simulator/common/backend/SimulatorCore/RegisterSimulatorBlockFactory.cpp"
 	"src/oddf/simulator/common/backend/SimulatorCore/Run.cpp"
 	"src/oddf/simulator/common/backend/SimulatorCore/TranslateDesign.cpp"
-	"src/oddf/simulator/common/backend/DataReference.cpp"
 	"src/oddf/simulator/common/backend/SimulatorBlockBase.cpp"
 	"src/oddf/simulator/common/backend/SimulatorBlockInput.cpp"
 	"src/oddf/simulator/common/backend/SimulatorBlockOutput.cpp"

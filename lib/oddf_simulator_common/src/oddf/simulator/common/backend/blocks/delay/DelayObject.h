@@ -30,7 +30,6 @@
 #include <oddf/simulator/common/backend/SimulatorType.h>
 #include <oddf/simulator/common/backend/IClockable.h>
 #include <oddf/simulator/common/backend/ISimulatorComponent.h>
-#include <oddf/simulator/common/backend/DataReference.h>
 
 #include <list>
 

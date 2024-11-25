@@ -42,6 +42,9 @@ std::string TempMaster::GetDesignPathHint() const
 
 void TempMaster::Elaborate(ISimulatorElaborationContext &context)
 {
+	if (HasConnections())
+		throw Exception(ExceptionCode::Fail, "The simulator encountered a temporary design block that is still connected to other blocks in the design. Did you forget to assign a `forward_node`?");
+
 	context.RemoveThisBlock();
 }
 
