@@ -27,34 +27,49 @@
 #include "ISimulatorAccess.h"
 
 #include <oddf/simulator/backend/ISimulatorAccess.h>
+#include <oddf/Iid.h>
 
 #include "../../Expect.h"
 
 #include <memory>
 
-namespace oddf::testing::simulator::backend {
+namespace oddf {
+
+namespace testing::simulator::backend {
 
 class ITestObjectInterface {
 
 public:
 
-	static constexpr Uid IID = { 0x5ece6339, 0x1045, 0x46ec, 0x8f, 0x68, 0x94, 0x2f, 0xe6, 0x55, 0xaf, 0x56 };
-
 	virtual int ReturnsEleven() const = 0;
 
-	virtual ~ITestObjectInterface() { }
+	virtual ~ITestObjectInterface() = default;
 };
 
 class IWrongInterface {
 
 public:
 
-	static constexpr Uid IID = { 0xabd6f4a2, 0xa611, 0x4f8f, 0xb6, 0xb8, 0xae, 0x2b, 0x5d, 0x8b, 0x84, 0x51 };
-
-	virtual ~IWrongInterface() { }
+	virtual ~IWrongInterface() = default;
 };
 
-class TestSimulatorObject : public ITestObjectInterface {
+} // namespace testing::simulator::backend
+
+template<>
+struct Iid<testing::simulator::backend::ITestObjectInterface> {
+
+	static constexpr Uid value = { 0x5ece6339, 0x1045, 0x46ec, 0x8f, 0x68, 0x94, 0x2f, 0xe6, 0x55, 0xaf, 0x56 };
+};
+
+template<>
+struct Iid<testing::simulator::backend::IWrongInterface> {
+
+	static constexpr Uid value = { 0xabd6f4a2, 0xa611, 0x4f8f, 0xb6, 0xb8, 0xae, 0x2b, 0x5d, 0x8b, 0x84, 0x51 };
+};
+
+namespace testing::simulator::backend {
+
+class TestSimulatorObject : public virtual ITestObjectInterface {
 
 public:
 
@@ -64,7 +79,7 @@ public:
 	}
 };
 
-class TestSimulatorAccess : public oddf::simulator::backend::ISimulatorAccess {
+class TestSimulatorAccess : public virtual oddf::simulator::backend::ISimulatorAccess {
 
 private:
 
@@ -81,7 +96,7 @@ public:
 	{
 		if (name == "ExistingObject") {
 
-			if (iid == ITestObjectInterface::IID)
+			if (iid == Iid<ITestObjectInterface>::value)
 				return dynamic_cast<void *>(m_simulatorObject.get());
 			else
 				throw Exception(ExceptionCode::NoInterface);
@@ -110,4 +125,5 @@ void Test_ISimulatorAccess()
 	});
 }
 
-} // namespace oddf::testing::simulator::backend
+} // namespace testing::simulator::backend
+} // namespace oddf

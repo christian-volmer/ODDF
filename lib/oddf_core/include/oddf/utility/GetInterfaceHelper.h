@@ -26,7 +26,8 @@
 
 #pragma once
 
-#include <oddf/Exception.h>
+#include "../Exception.h"
+#include "../Iid.h"
 
 namespace oddf::utility {
 
@@ -49,7 +50,7 @@ struct GetInterfaceHelper<firstInterfaceT, restInterfaceTs...> {
 	template<typename objectT>
 	static void *GetInterface(objectT *object, Uid const &iid)
 	{
-		if (firstInterfaceT::IID == iid)
+		if (Iid<firstInterfaceT>::value == iid)
 			return dynamic_cast<firstInterfaceT *>(object);
 		else
 			return GetInterfaceHelper<restInterfaceTs...>::GetInterface(object, iid);

@@ -27,6 +27,7 @@
 #pragma once
 
 #include <oddf/IObject.h>
+#include <oddf/Clsid.h>
 #include <oddf/Exception.h>
 #include "ISimulatorComponent.h"
 
@@ -62,7 +63,7 @@ public:
 		IObject *pObject = nullptr;
 		try {
 
-			pObject = static_cast<IObject *>(GetComponentObject(T::CLSID, IObject::IID));
+			pObject = static_cast<IObject *>(GetComponentObject(Clsid<T>::value, Iid<IObject>::value));
 		}
 		catch (Exception &e) {
 
@@ -70,7 +71,7 @@ public:
 
 				auto upNewObject = std::make_unique<T>(std::forward<argTs>(args)...);
 				auto &rNewObject = *upNewObject;
-				RegisterComponentObject(T::CLSID, std::move(upNewObject));
+				RegisterComponentObject(Clsid<T>::value, std::move(upNewObject));
 				return rNewObject;
 			}
 

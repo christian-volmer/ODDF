@@ -27,40 +27,20 @@
 #pragma once
 
 #include "Uid.h"
-#include "Iid.h"
 
 namespace oddf {
 
-class IObject {
+/*
+    CLSID = class identifier.
 
-public:
+    Classes must add specialisation with member
 
-	virtual ~IObject() = default;
+        static constexpr Uid value = { .... };
+*/
+template<typename interfaceT>
+struct Clsid {
 
-	virtual void *GetInterface(Uid const &iid) = 0;
-
-	void const *GetInterface(Uid const &iid) const
-	{
-		return const_cast<IObject *>(this)->GetInterface(iid);
-	}
-
-	template<typename T>
-	T &GetInterface()
-	{
-		return *static_cast<T *>(GetInterface(Iid<T>::value));
-	}
-
-	template<typename T>
-	T const &GetInterface() const
-	{
-		return *static_cast<T const *>(GetInterface(Iid<T>::value));
-	}
-};
-
-template<>
-struct Iid<IObject> {
-
-	static constexpr Uid value = { 0x8a54167e, 0x6e89, 0x4a1a, 0xb2, 0xd5, 0xfc, 0xa9, 0xaa, 0xb, 0xe6, 0xb };
+	// static constexpr Uid value = { .... };
 };
 
 } // namespace oddf

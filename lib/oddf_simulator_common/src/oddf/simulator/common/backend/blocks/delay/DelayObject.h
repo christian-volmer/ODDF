@@ -26,14 +26,17 @@
 
 #pragma once
 
-#include <oddf/utility/GetInterfaceHelper.h>
 #include <oddf/simulator/common/backend/SimulatorType.h>
 #include <oddf/simulator/common/backend/IClockable.h>
 #include <oddf/simulator/common/backend/ISimulatorComponent.h>
+#include <oddf/utility/GetInterfaceHelper.h>
+#include <oddf/Clsid.h>
 
 #include <list>
 
-namespace oddf::simulator::common::backend::blocks {
+namespace oddf {
+
+namespace simulator::common::backend::blocks {
 
 template<typename T>
 struct DelayState;
@@ -57,8 +60,6 @@ private:
 	std::list<DelayState<SimulatorType::Boolean>> m_booleanStates;
 
 public:
-
-	static constexpr Uid CLSID = { 0x17fb33b1, 0x928f, 0x44af, 0xb9, 0x30, 0xff, 0xec, 0xb8, 0x44, 0x1f, 0xb2 };
 
 	DelayObject(ISimulatorComponent &component) :
 		m_component(component),
@@ -97,4 +98,12 @@ inline DelayState<SimulatorType::Boolean> *DelayObject::AddState<SimulatorType::
 	return &m_booleanStates.emplace_back();
 }
 
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace simulator::common::backend::blocks
+
+template<>
+struct Clsid<simulator::common::backend::blocks::DelayObject> {
+
+	static constexpr Uid value = { 0x17fb33b1, 0x928f, 0x44af, 0xb9, 0x30, 0xff, 0xec, 0xb8, 0x44, 0x1f, 0xb2 };
+};
+
+} // namespace oddf

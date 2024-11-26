@@ -31,15 +31,13 @@
 
 #include <oddf/design/NodeType.h>
 
-namespace oddf::simulator::backend {
+namespace oddf {
+
+namespace simulator::backend {
 
 class ISignalAccess : public virtual oddf::IObject {
 
 public:
-
-	static constexpr Uid IID = { 0x50bac9c2, 0x306c, 0x40b9, 0x9f, 0x2f, 0x84, 0x2b, 0x42, 0x27, 0xb9, 0x9 };
-
-	virtual ~ISignalAccess() { }
 
 	virtual design::NodeType GetType() const noexcept = 0;
 
@@ -47,4 +45,12 @@ public:
 	virtual size_t GetSize() const noexcept = 0;
 };
 
-} // namespace oddf::simulator::backend
+} // namespace simulator::backend
+
+template<>
+struct Iid<simulator::backend::ISignalAccess> {
+
+	static constexpr Uid value = { 0x50bac9c2, 0x306c, 0x40b9, 0x9f, 0x2f, 0x84, 0x2b, 0x42, 0x27, 0xb9, 0x9 };
+};
+
+} // namespace oddf

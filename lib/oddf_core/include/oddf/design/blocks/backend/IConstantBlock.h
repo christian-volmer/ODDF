@@ -29,18 +29,24 @@
 #include <oddf/Uid.h>
 #include <oddf/IObject.h>
 
-namespace oddf::design::blocks::backend {
+namespace oddf {
+
+namespace design::blocks::backend {
 
 class IConstantBlock : public virtual IObject {
 
 public:
 
-	static constexpr Uid IID = { 0xde952010, 0x8672, 0x4886, 0x98, 0x33, 0xdb, 0xdc, 0x76, 0x3, 0xdb, 0x5b };
-
-	virtual ~IConstantBlock() { }
-
 	virtual void Read(void *buffer, size_t count) const = 0;
 	virtual size_t GetSize() const noexcept = 0;
 };
 
-} // namespace oddf::design::blocks::backend
+} // namespace design::blocks::backend
+
+template<>
+struct Iid<design::blocks::backend::IConstantBlock> {
+
+	static constexpr Uid value = { 0xde952010, 0x8672, 0x4886, 0x98, 0x33, 0xdb, 0xdc, 0x76, 0x3, 0xdb, 0x5b };
+};
+
+} // namespace oddf

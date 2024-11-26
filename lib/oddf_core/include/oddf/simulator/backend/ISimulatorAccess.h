@@ -27,6 +27,7 @@
 #pragma once
 
 #include <oddf/Uid.h>
+#include <oddf/Iid.h>
 #include <string>
 
 namespace oddf::simulator::backend {
@@ -42,7 +43,7 @@ public:
 	template<typename T>
 	T &GetNamedObjectInterface(std::string const &path) const
 	{
-		return *static_cast<T *>(GetNamedObjectInterface(path, T::IID));
+		return *static_cast<T *>(GetNamedObjectInterface(path, Iid<T>::value));
 	}
 };
 

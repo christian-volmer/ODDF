@@ -37,7 +37,9 @@
 
 #include <string>
 
-namespace oddf::design::blocks::backend {
+namespace oddf {
+
+namespace design::blocks::backend {
 
 /*
     Obtains information about a block in an ODDF design.
@@ -45,8 +47,6 @@ namespace oddf::design::blocks::backend {
 class IDesignBlock : public virtual IObject {
 
 public:
-
-	virtual ~IDesignBlock() { }
 
 	// Gets the `ResourcePath` that identifies the block within the design.
 	virtual ResourcePath GetPath() const = 0;
@@ -61,4 +61,12 @@ public:
 	virtual utility::ListView<IDesignBlockOutput const &> GetOutputsList() const = 0;
 };
 
-} // namespace oddf::design::blocks::backend
+} // namespace design::blocks::backend
+
+template<>
+struct Iid<design::blocks::backend::IDesignBlock> {
+
+	static constexpr Uid value = { 0x4de1f419, 0xc41e, 0x4f07, 0x9f, 0x2f, 0xfd, 0x23, 0x63, 0xed, 0xa1, 0x77 };
+};
+
+} // namespace oddf

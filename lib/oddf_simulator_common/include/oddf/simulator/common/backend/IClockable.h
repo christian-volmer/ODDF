@@ -28,18 +28,24 @@
 
 #include <oddf/IObject.h>
 
-namespace oddf::simulator::common::backend {
+namespace oddf {
+
+namespace simulator::common::backend {
 
 class IClockable : public virtual IObject {
 
 public:
 
-	static constexpr Uid IID = { 0xb10444ec, 0x414e, 0x4417, 0xaa, 0x37, 0x22, 0xca, 0xc, 0x58, 0xf0, 0x27 };
-
-	virtual ~IClockable() = default;
-
 	// Called by the simulator to simulate a clock cycle.
 	virtual void Clock() = 0;
 };
 
-} // namespace oddf::simulator::common::backend
+} // namespace simulator::common::backend
+
+template<>
+struct Iid<simulator::common::backend::IClockable> {
+
+	static constexpr Uid value = { 0xb10444ec, 0x414e, 0x4417, 0xaa, 0x37, 0x22, 0xca, 0xc, 0x58, 0xf0, 0x27 };
+};
+
+} // namespace oddf

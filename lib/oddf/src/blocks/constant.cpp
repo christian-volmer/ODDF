@@ -69,7 +69,7 @@ node<T> constant_block<T>::add_output(T const &constant)
 template<typename T>
 void *constant_block<T>::GetInterface(oddf::Uid const &iid)
 {
-	if (iid == oddf::design::blocks::backend::IConstantBlock::IID)
+	if (iid == oddf::Iid<oddf::design::blocks::backend::IConstantBlock>::value)
 		return dynamic_cast<oddf::design::blocks::backend::IConstantBlock *>(this);
 	else
 		return backend::BlockBase::GetInterface(iid);
