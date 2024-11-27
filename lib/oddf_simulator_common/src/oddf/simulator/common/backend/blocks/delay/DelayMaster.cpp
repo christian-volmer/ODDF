@@ -71,62 +71,11 @@ void DelayMaster::Elaborate(ISimulatorElaborationContext &context)
 
 	*/
 
-	// TODO: check configuration of the delay block (i.e., number of inputs/outputs, their types etc.)
-
-	//
-	// The new endpoint of the delay
-	//
-
-	/*
-	    TODO: we need to put this into some sort of simulator helper function.
-
-	    e.g. ReconnectInput(fromInput, toInput);
-	*/
-
 	auto &endpoint = context.AddSimulatorBlock<DelayEndpoint>(GetDesignBlockReference());
-
-	auto &masterInput = inputs.GetFirst();
-
-	if (masterInput.IsConnected()) {
-
-		auto &inputDriver = masterInput.GetDriver();
-		auto &endpointInput = endpoint.GetInputsList().GetFirst();
-
-		masterInput.Disconnect();
-		endpointInput.ConnectTo(inputDriver);
-	}
-
-	//
-	// The new starting point of the delay
-	//
-
 	auto &startingPoint = context.AddSimulatorBlock<DelayStartingPoint>(GetDesignBlockReference(), design::NodeType::Boolean(), endpoint);
 
-	/*
-	    TODO: we need to put this into some sort of simulator helper function
-	    that also checks that the type of the driver does not change.
-
-	    e.g. ReconnectOutput(fromOutput, toOutput);
-
-	    #####
-	    Vielleicht sollte diese Funktion Teil von `ISimulatorElaborationContext`
-	    sein. Vielleicht brauchen die Simulator-Objekte dann keinen
-	    Schreibzugriff auf die Inputs und Outputs. Das würde vermeiden, dass
-	    die Blöcke aus Versehen strukturell am Design etwas kaputt machen
-	    können.
-	    #####
-
-	*/
-
-	auto masterOutputTargets = outputs.GetFirst().GetTargetsCollection();
-	auto &startingPointOutput = startingPoint.GetOutputsList().GetFirst();
-
-	while (!masterOutputTargets.IsEmpty()) {
-
-		auto &outputTarget = masterOutputTargets.GetFirst();
-		outputTarget.Disconnect();
-		outputTarget.ConnectTo(startingPointOutput);
-	}
+	context.TransferConnectivity(inputs[0], endpoint.GetInputsList()[0]);
+	context.TransferConnectivity(outputs[0], startingPoint.GetOutputsList()[0]);
 
 	context.RemoveThisBlock();
 }

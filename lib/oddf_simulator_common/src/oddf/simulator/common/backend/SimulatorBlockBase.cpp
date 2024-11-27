@@ -57,7 +57,7 @@ utility::ListView<SimulatorBlockInput const &> SimulatorBlockBase::GetInputsList
 	return utility::MakeListView<SimulatorBlockInput const &>(m_internals->m_inputs);
 }
 
-utility::ListView<SimulatorBlockInput &> SimulatorBlockBase::GetInputsList()
+utility::ListView<SimulatorBlockInput &> SimulatorBlockBase::GetInputsListMutable()
 {
 	return utility::MakeListView<SimulatorBlockInput &>(m_internals->m_inputs);
 }
@@ -67,7 +67,7 @@ utility::ListView<SimulatorBlockOutput const &> SimulatorBlockBase::GetOutputsLi
 	return utility::MakeListView<SimulatorBlockOutput const &>(m_internals->m_outputs);
 }
 
-utility::ListView<SimulatorBlockOutput &> SimulatorBlockBase::GetOutputsList()
+utility::ListView<SimulatorBlockOutput &> SimulatorBlockBase::GetOutputsListMutable()
 {
 	return utility::MakeListView<SimulatorBlockOutput &>(m_internals->m_outputs);
 }
@@ -75,7 +75,7 @@ utility::ListView<SimulatorBlockOutput &> SimulatorBlockBase::GetOutputsList()
 void SimulatorBlockBase::DisconnectAll()
 {
 	// Disconnect all inputs
-	auto inputsEnumerator = GetInputsList().GetEnumerator();
+	auto inputsEnumerator = GetInputsListMutable().GetEnumerator();
 	for (inputsEnumerator.Reset(); inputsEnumerator.MoveNext();) {
 
 		auto &input = inputsEnumerator.GetCurrent();
@@ -84,7 +84,7 @@ void SimulatorBlockBase::DisconnectAll()
 	}
 
 	// Disconnect all outputs
-	auto outputsEnumerator = GetOutputsList().GetEnumerator();
+	auto outputsEnumerator = GetOutputsListMutable().GetEnumerator();
 	for (outputsEnumerator.Reset(); outputsEnumerator.MoveNext();) {
 
 		auto &output = outputsEnumerator.GetCurrent();

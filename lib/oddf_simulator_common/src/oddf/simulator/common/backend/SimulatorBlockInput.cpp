@@ -68,7 +68,7 @@ SimulatorBlockBase const &SimulatorBlockInput::GetOwningBlock() const
 	return m_owningBlock;
 }
 
-SimulatorBlockBase &SimulatorBlockInput::GetOwningBlock()
+SimulatorBlockBase &SimulatorBlockInput::GetOwningBlockMutable() const
 {
 	return m_owningBlock;
 }

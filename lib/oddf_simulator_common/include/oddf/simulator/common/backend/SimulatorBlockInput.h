@@ -49,6 +49,9 @@ private:
 	// Relative address where the instruction stores a pointer to the storage of the driver
 	ptrdiff_t m_inputPointerReference;
 
+	// Returns the simulator block that owns this input.
+	SimulatorBlockBase &GetOwningBlockMutable() const;
+
 public:
 
 	SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index);
@@ -62,9 +65,6 @@ public:
 
 	// Returns the simulator block that owns this input.
 	SimulatorBlockBase const &GetOwningBlock() const;
-
-	// Returns the simulator block that owns this input.
-	SimulatorBlockBase &GetOwningBlock();
 
 	// Returns whether this inupt is connected to a driving output of another block.
 	bool IsConnected() const;

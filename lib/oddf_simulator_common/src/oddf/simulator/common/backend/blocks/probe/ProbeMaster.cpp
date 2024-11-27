@@ -59,9 +59,10 @@ void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
 
 void ProbeMaster::Finalise(ISimulatorFinalisationContext &context)
 {
-	auto &driver = GetInputsList()[0].GetDriver();
-
-	context.ConstructGlobalObject<ProbeAccessObject<SimulatorType::Boolean>>("myprobe", context.GetCurrentComponent(), driver);
+	context.ConstructGlobalObject<ProbeAccessObject<SimulatorType::Boolean>>(
+		"myprobe",
+		context.GetCurrentComponent(),
+		GetInputsList()[0].GetDriver());
 }
 
 } // namespace oddf::simulator::common::backend::blocks

@@ -97,14 +97,14 @@ void SimulatorCore::BuildComponents()
 		{
 			std::set<SimulatorBlockBase *> drivingBlocks;
 
-			auto inputsEnumerator = block.GetInputsList().GetEnumerator();
+			auto inputsEnumerator = block.GetInputsListMutable().GetEnumerator();
 
 			for (inputsEnumerator.Reset(); inputsEnumerator.MoveNext();) {
 
 				auto &input = inputsEnumerator.GetCurrent();
 
 				if (input.IsConnected())
-					drivingBlocks.insert(&input.GetDriver().GetOwningBlock());
+					drivingBlocks.insert(&input.GetDriver().GetOwningBlockMutable());
 			}
 
 			return drivingBlocks;

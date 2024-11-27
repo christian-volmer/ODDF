@@ -39,56 +39,83 @@
 
 namespace oddf::simulator::common::backend {
 
-namespace {
-
-/*
-    Implementation of the `ISimulatorElaborationContext` interface, which
-    becomes passed to the `Elaborate()` member function of the simulator blocks
-    during the elaboration phase.
-*/
-class ElaborationContext : public ISimulatorElaborationContext {
-
-public:
-
-	// Pointer to the `unique_ptr` to the simulator block under elaboration. Used by member function `RemoveThisBlock()`.
-	std::unique_ptr<SimulatorBlockBase> *m_currentBlockUniquePtr;
-
-	// Vector of blocks created during elaboration. Becomes copied to the simulator block list.
-	std::vector<std::unique_ptr<SimulatorBlockBase>> m_newBlocks;
-
-	ElaborationContext() :
-		m_currentBlockUniquePtr(nullptr),
-		m_newBlocks()
-	{
-	}
-
-	ElaborationContext(ElaborationContext const &) = delete;
-	void operator=(ElaborationContext const &) = delete;
-
-	// Registers `block` to be moved to the simulator block list.
-	void AddSimulatorBlock(std::unique_ptr<SimulatorBlockBase> &&block) override
-	{
-		assert(block);
-		m_newBlocks.push_back(std::move(block));
-	}
-
-	// Removes the block that is currently under elaboration.
-	void RemoveThisBlock() override
-	{
-		if (!*m_currentBlockUniquePtr)
-			throw oddf::Exception(oddf::ExceptionCode::IllegalMethodCall, "ISimulatorElaborationContext::RemoveThisBlock(): the block has already been removed. Was this function accidently called twice?");
-
-		if ((*m_currentBlockUniquePtr)->HasConnections())
-			throw oddf::Exception(oddf::ExceptionCode::IllegalMethodCall, "ISimulatorElaborationContext::RemoveThisBlock(): block cannot be removed if it has connections to other blocks.");
-
-		m_currentBlockUniquePtr->reset();
-	}
-};
-
-} // namespace
-
 void SimulatorCore::ElaborateBlocks()
 {
+	/*
+	    Implementation of the `ISimulatorElaborationContext` interface, which
+	    becomes passed to the `Elaborate()` member function of the simulator blocks
+	    during the elaboration phase.
+	*/
+	class ElaborationContext : public ISimulatorElaborationContext {
+
+	public:
+
+		// Pointer to the `unique_ptr` to the simulator block under elaboration. Used by member function `RemoveThisBlock()`.
+		std::unique_ptr<SimulatorBlockBase> *m_currentBlockUniquePtr;
+
+		// Vector of blocks created during elaboration. Becomes copied to the simulator block list.
+		std::vector<std::unique_ptr<SimulatorBlockBase>> m_newBlocks;
+
+		ElaborationContext() :
+			m_currentBlockUniquePtr(nullptr),
+			m_newBlocks()
+		{
+		}
+
+		ElaborationContext(ElaborationContext const &) = delete;
+		void operator=(ElaborationContext const &) = delete;
+
+		// Registers `block` to be moved to the simulator block list.
+		void AddSimulatorBlock(std::unique_ptr<SimulatorBlockBase> &&block) override
+		{
+			assert(block);
+			m_newBlocks.push_back(std::move(block));
+		}
+
+		// Removes the block that is currently under elaboration.
+		void RemoveThisBlock() override
+		{
+			if (!*m_currentBlockUniquePtr)
+				throw oddf::Exception(oddf::ExceptionCode::IllegalMethodCall, "ISimulatorElaborationContext::RemoveThisBlock(): the block has already been removed. Was this function accidently called twice?");
+
+			if ((*m_currentBlockUniquePtr)->HasConnections())
+				throw oddf::Exception(oddf::ExceptionCode::IllegalMethodCall, "ISimulatorElaborationContext::RemoveThisBlock(): block cannot be removed if it has connections to other blocks.");
+
+			m_currentBlockUniquePtr->reset();
+		}
+
+		virtual void TransferConnectivity(SimulatorBlockInput const &fromInput, SimulatorBlockInput const &toInput) override
+		{
+			auto &fromMutable = fromInput.GetOwningBlockMutable().GetInputsListMutable()[fromInput.GetIndex()];
+			auto &toMutable = toInput.GetOwningBlockMutable().GetInputsListMutable()[toInput.GetIndex()];
+
+			if (fromInput.IsConnected()) {
+
+				auto &inputDriver = fromMutable.GetDriver();
+				fromMutable.Disconnect();
+				toMutable.ConnectTo(inputDriver);
+			}
+		}
+
+		virtual void TransferConnectivity(SimulatorBlockOutput const &fromOutput, SimulatorBlockOutput const &toOutput) override
+		{
+			if (fromOutput.GetType() != toOutput.GetType())
+				throw Exception(ExceptionCode::InvalidArgument, "TransferConnectivity(): outputs must have identical types.");
+
+			auto &fromMutable = fromOutput.GetOwningBlockMutable().GetOutputsListMutable()[fromOutput.GetIndex()];
+			auto &toMutable = toOutput.GetOwningBlockMutable().GetOutputsListMutable()[toOutput.GetIndex()];
+
+			auto targets = fromMutable.GetTargetsCollection();
+
+			while (!targets.IsEmpty()) {
+
+				auto &target = targets.GetFirst();
+				target.Disconnect();
+				target.ConnectTo(toMutable);
+			}
+		}
+	};
+
 	size_t current = 0;
 
 	do {

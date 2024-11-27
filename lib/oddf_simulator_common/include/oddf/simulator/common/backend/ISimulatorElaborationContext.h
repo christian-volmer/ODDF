@@ -31,6 +31,8 @@
 namespace oddf::simulator::common::backend {
 
 class SimulatorBlockBase;
+class SimulatorBlockInput;
+class SimulatorBlockOutput;
 
 class ISimulatorElaborationContext {
 
@@ -40,6 +42,13 @@ public:
 
 	virtual void AddSimulatorBlock(std::unique_ptr<SimulatorBlockBase> &&block) = 0;
 	virtual void RemoveThisBlock() = 0;
+
+	// Disconnects `fromInput` and connects its former driver to `toInput`.
+	virtual void TransferConnectivity(SimulatorBlockInput const &fromInput, SimulatorBlockInput const &toInput) = 0;
+
+	// Reconnects all inputs driven by `fromOutput` to `toOutput`. Throws
+	// unless the two outputs have identical types.
+	virtual void TransferConnectivity(SimulatorBlockOutput const &fromOutput, SimulatorBlockOutput const &toOutput) = 0;
 
 	template<typename T, typename... argsTs>
 	T &AddSimulatorBlock(argsTs &&...args)

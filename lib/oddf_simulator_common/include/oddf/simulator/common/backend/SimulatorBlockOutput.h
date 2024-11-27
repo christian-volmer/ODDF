@@ -54,6 +54,9 @@ private:
 	ptrdiff_t m_storageReference;
 	void *m_storagePointer;
 
+	// Returns the simulator block that owns this output.
+	SimulatorBlockBase &GetOwningBlockMutable() const;
+
 public:
 
 	SimulatorBlockOutput(SimulatorBlockBase &owningBlock, design::NodeType const &nodeType, size_t index);
@@ -78,9 +81,6 @@ public:
 
 	// Returns the simulator block that owns this output.
 	SimulatorBlockBase const &GetOwningBlock() const;
-
-	// Returns the simulator block that owns this output.
-	SimulatorBlockBase &GetOwningBlock();
 
 	// Returns a CollectionView into the collection of inputs driven by this block.
 	utility::CollectionView<SimulatorBlockInput const &> GetTargetsCollection() const;
