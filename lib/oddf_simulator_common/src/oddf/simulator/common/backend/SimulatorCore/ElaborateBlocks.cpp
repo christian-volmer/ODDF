@@ -87,6 +87,9 @@ void SimulatorCore::ElaborateBlocks()
 
 		virtual void TransferConnectivity(SimulatorBlockInput const &fromInput, SimulatorBlockInput const &toInput) override
 		{
+			if (&fromInput == &toInput)
+				return;
+
 			auto &fromMutable = fromInput.m_owningBlock.m_internals->m_inputs[fromInput.GetIndex()];
 			auto &toMutable = toInput.m_owningBlock.m_internals->m_inputs[toInput.GetIndex()];
 
@@ -100,6 +103,9 @@ void SimulatorCore::ElaborateBlocks()
 
 		virtual void TransferConnectivity(SimulatorBlockOutput const &fromOutput, SimulatorBlockOutput const &toOutput) override
 		{
+			if (&fromOutput == &toOutput)
+				return;
+
 			if (fromOutput.GetType() != toOutput.GetType())
 				throw Exception(ExceptionCode::InvalidArgument, "TransferConnectivity(): outputs must have identical types.");
 
