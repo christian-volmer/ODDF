@@ -30,6 +30,7 @@
 */
 
 #include "../SimulatorCore.h"
+#include "../SimulatorBlockInternals.h"
 
 #include <oddf/Exception.h>
 
@@ -43,8 +44,8 @@ void SimulatorCore::ElaborateBlocks()
 {
 	/*
 	    Implementation of the `ISimulatorElaborationContext` interface, which
-	    becomes passed to the `Elaborate()` member function of the simulator blocks
-	    during the elaboration phase.
+	    becomes passed to the `Elaborate()` member function of the simulator
+	    blocks during the elaboration phase.
 	*/
 	class ElaborationContext : public ISimulatorElaborationContext {
 
@@ -86,12 +87,12 @@ void SimulatorCore::ElaborateBlocks()
 
 		virtual void TransferConnectivity(SimulatorBlockInput const &fromInput, SimulatorBlockInput const &toInput) override
 		{
-			auto &fromMutable = fromInput.GetOwningBlockMutable().GetInputsListMutable()[fromInput.GetIndex()];
-			auto &toMutable = toInput.GetOwningBlockMutable().GetInputsListMutable()[toInput.GetIndex()];
+			auto &fromMutable = fromInput.m_owningBlock.m_internals->m_inputs[fromInput.GetIndex()];
+			auto &toMutable = toInput.m_owningBlock.m_internals->m_inputs[toInput.GetIndex()];
 
 			if (fromInput.IsConnected()) {
 
-				auto &inputDriver = fromMutable.GetDriver();
+				auto &inputDriver = *fromMutable.m_driver;
 				fromMutable.Disconnect();
 				toMutable.ConnectTo(inputDriver);
 			}
@@ -102,16 +103,15 @@ void SimulatorCore::ElaborateBlocks()
 			if (fromOutput.GetType() != toOutput.GetType())
 				throw Exception(ExceptionCode::InvalidArgument, "TransferConnectivity(): outputs must have identical types.");
 
-			auto &fromMutable = fromOutput.GetOwningBlockMutable().GetOutputsListMutable()[fromOutput.GetIndex()];
-			auto &toMutable = toOutput.GetOwningBlockMutable().GetOutputsListMutable()[toOutput.GetIndex()];
+			auto &toMutable = toOutput.m_owningBlock.m_internals->m_outputs[toOutput.GetIndex()];
 
-			auto targets = fromMutable.GetTargetsCollection();
+			auto &targets = fromOutput.m_targets;
 
-			while (!targets.IsEmpty()) {
+			while (!targets.empty()) {
 
-				auto &target = targets.GetFirst();
-				target.Disconnect();
-				target.ConnectTo(toMutable);
+				auto *target = targets.front();
+				target->Disconnect();
+				target->ConnectTo(toMutable);
 			}
 		}
 	};

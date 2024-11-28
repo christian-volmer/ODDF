@@ -52,7 +52,7 @@ SimulatorBlockOutput::SimulatorBlockOutput(SimulatorBlockOutput &&other) :
 	throw oddf::Exception(oddf::ExceptionCode::Unexpected);
 }
 
-design::NodeType SimulatorBlockOutput::GetType() const
+design::NodeType SimulatorBlockOutput::GetType() const noexcept
 {
 	return m_nodeType;
 }
@@ -66,17 +66,12 @@ SimulatorType::Boolean const *SimulatorBlockOutput::GetPointer<SimulatorType::Bo
 		throw Exception(ExceptionCode::InvalidArgument, "Type argument `T` (SimulatorType::Boolean) does not match the type of the output.");
 }
 
-size_t SimulatorBlockOutput::GetIndex() const
+size_t SimulatorBlockOutput::GetIndex() const noexcept
 {
 	return m_index;
 }
 
-SimulatorBlockBase const &SimulatorBlockOutput::GetOwningBlock() const
-{
-	return m_owningBlock;
-}
-
-SimulatorBlockBase &SimulatorBlockOutput::GetOwningBlockMutable() const
+SimulatorBlockBase const &SimulatorBlockOutput::GetOwningBlock() const noexcept
 {
 	return m_owningBlock;
 }
@@ -86,17 +81,9 @@ utility::CollectionView<SimulatorBlockInput const &> SimulatorBlockOutput::GetTa
 	return utility::MakeCollectionView<SimulatorBlockInput const &>(m_targets);
 }
 
-utility::CollectionView<SimulatorBlockInput &> SimulatorBlockOutput::GetTargetsCollection()
+bool SimulatorBlockOutput::HasConnections() const noexcept
 {
-	return utility::MakeCollectionView<SimulatorBlockInput &>(m_targets);
-}
-
-void SimulatorBlockOutput::DisconnectAll()
-{
-	auto targets = GetTargetsCollection();
-
-	while (!targets.IsEmpty())
-		targets.GetFirst().Disconnect();
+	return !m_targets.empty();
 }
 
 } // namespace oddf::simulator::common::backend

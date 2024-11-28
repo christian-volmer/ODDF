@@ -58,35 +58,22 @@ design::NodeType SimulatorBlockInput::GetType() const
 		throw Exception(ExceptionCode::IllegalMethodCall, "SimulatorBlockInput::GetType(): The input has no driver.");
 }
 
-size_t SimulatorBlockInput::GetIndex() const
+size_t SimulatorBlockInput::GetIndex() const noexcept
 {
 	return m_index;
 }
 
-SimulatorBlockBase const &SimulatorBlockInput::GetOwningBlock() const
+SimulatorBlockBase const &SimulatorBlockInput::GetOwningBlock() const noexcept
 {
 	return m_owningBlock;
 }
 
-SimulatorBlockBase &SimulatorBlockInput::GetOwningBlockMutable() const
-{
-	return m_owningBlock;
-}
-
-bool SimulatorBlockInput::IsConnected() const
+bool SimulatorBlockInput::IsConnected() const noexcept
 {
 	return m_driver != nullptr;
 }
 
 SimulatorBlockOutput const &SimulatorBlockInput::GetDriver() const
-{
-	if (!IsConnected())
-		throw Exception(ExceptionCode::IllegalMethodCall);
-
-	return *m_driver;
-}
-
-SimulatorBlockOutput &SimulatorBlockInput::GetDriver()
 {
 	if (!IsConnected())
 		throw Exception(ExceptionCode::IllegalMethodCall);

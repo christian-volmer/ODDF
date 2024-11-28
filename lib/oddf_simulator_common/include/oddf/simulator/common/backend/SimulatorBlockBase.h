@@ -44,25 +44,10 @@
 
 namespace oddf::simulator::common::backend {
 
-class SimulatorCore;
-
 /*
     Base class to all simulator blocks.
 */
 class SimulatorBlockBase {
-
-private:
-
-	friend SimulatorCore;
-
-	// Returns a ListView into the list of inputs of this block.
-	utility::ListView<SimulatorBlockInput &> GetInputsListMutable();
-
-	// Returns a ListView into the list of outputs of this block.
-	utility::ListView<SimulatorBlockOutput &> GetOutputsListMutable();
-
-	// Disconnects all inputs and outputs from all other blocks.
-	void DisconnectAll();
 
 public:
 
@@ -87,7 +72,7 @@ public:
 	utility::ListView<SimulatorBlockOutput const &> GetOutputsList() const;
 
 	// Returns whether the block has connections to other block.
-	bool HasConnections() const;
+	bool HasConnections() const noexcept;
 
 	// Elaborates the block. Implementation should check the number of inputs and outputs and their types.
 	virtual void Elaborate(ISimulatorElaborationContext &context) = 0;

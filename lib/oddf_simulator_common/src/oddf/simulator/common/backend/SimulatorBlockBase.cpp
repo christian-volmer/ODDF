@@ -57,53 +57,19 @@ utility::ListView<SimulatorBlockInput const &> SimulatorBlockBase::GetInputsList
 	return utility::MakeListView<SimulatorBlockInput const &>(m_internals->m_inputs);
 }
 
-utility::ListView<SimulatorBlockInput &> SimulatorBlockBase::GetInputsListMutable()
-{
-	return utility::MakeListView<SimulatorBlockInput &>(m_internals->m_inputs);
-}
-
 utility::ListView<SimulatorBlockOutput const &> SimulatorBlockBase::GetOutputsList() const
 {
 	return utility::MakeListView<SimulatorBlockOutput const &>(m_internals->m_outputs);
 }
 
-utility::ListView<SimulatorBlockOutput &> SimulatorBlockBase::GetOutputsListMutable()
+bool SimulatorBlockBase::HasConnections() const noexcept
 {
-	return utility::MakeListView<SimulatorBlockOutput &>(m_internals->m_outputs);
-}
-
-void SimulatorBlockBase::DisconnectAll()
-{
-	// Disconnect all inputs
-	auto inputsEnumerator = GetInputsListMutable().GetEnumerator();
-	for (inputsEnumerator.Reset(); inputsEnumerator.MoveNext();) {
-
-		auto &input = inputsEnumerator.GetCurrent();
+	for (auto const &input : m_internals->m_inputs)
 		if (input.IsConnected())
-			input.Disconnect();
-	}
-
-	// Disconnect all outputs
-	auto outputsEnumerator = GetOutputsListMutable().GetEnumerator();
-	for (outputsEnumerator.Reset(); outputsEnumerator.MoveNext();) {
-
-		auto &output = outputsEnumerator.GetCurrent();
-		output.DisconnectAll();
-	}
-}
-
-bool SimulatorBlockBase::HasConnections() const
-{
-	// Check if inputs are connected
-	auto inputsEnumerator = GetInputsList().GetEnumerator();
-	for (inputsEnumerator.Reset(); inputsEnumerator.MoveNext();)
-		if (inputsEnumerator.GetCurrent().IsConnected())
 			return true;
 
-	// Disconnect all outputs
-	auto outputsEnumerator = GetOutputsList().GetEnumerator();
-	for (outputsEnumerator.Reset(); outputsEnumerator.MoveNext();)
-		if (!outputsEnumerator.GetCurrent().GetTargetsCollection().IsEmpty())
+	for (auto const &output : m_internals->m_outputs)
+		if (output.HasConnections())
 			return true;
 
 	return false;

@@ -54,9 +54,6 @@ private:
 	ptrdiff_t m_storageReference;
 	void *m_storagePointer;
 
-	// Returns the simulator block that owns this output.
-	SimulatorBlockBase &GetOwningBlockMutable() const;
-
 public:
 
 	SimulatorBlockOutput(SimulatorBlockBase &owningBlock, design::NodeType const &nodeType, size_t index);
@@ -67,7 +64,7 @@ public:
 	SimulatorBlockOutput(SimulatorBlockOutput &&);
 	void operator=(SimulatorBlockOutput &&) = delete;
 
-	design::NodeType GetType() const;
+	design::NodeType GetType() const noexcept;
 
 	template<typename T>
 	T const *GetPointer() const
@@ -77,19 +74,16 @@ public:
 	}
 
 	// Returns the index of this output within the list of outputs of the owning block.
-	size_t GetIndex() const;
+	size_t GetIndex() const noexcept;
 
 	// Returns the simulator block that owns this output.
-	SimulatorBlockBase const &GetOwningBlock() const;
+	SimulatorBlockBase const &GetOwningBlock() const noexcept;
 
 	// Returns a CollectionView into the collection of inputs driven by this block.
 	utility::CollectionView<SimulatorBlockInput const &> GetTargetsCollection() const;
 
-	// Returns a CollectionView into the collection of inputs driven by this block.
-	utility::CollectionView<SimulatorBlockInput &> GetTargetsCollection();
-
-	// Disconnects all targets driven by this output.
-	void DisconnectAll();
+	// Returns whether the output drives any inputs.
+	bool HasConnections() const noexcept;
 };
 
 template<>

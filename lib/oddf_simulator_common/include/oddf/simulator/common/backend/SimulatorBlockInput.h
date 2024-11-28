@@ -49,37 +49,35 @@ private:
 	// Relative address where the instruction stores a pointer to the storage of the driver
 	ptrdiff_t m_inputPointerReference;
 
-	// Returns the simulator block that owns this input.
-	SimulatorBlockBase &GetOwningBlockMutable() const;
-
-public:
-
-	SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index);
-	SimulatorBlockInput(SimulatorBlockInput const &) = delete;
-	SimulatorBlockInput(SimulatorBlockInput &&);
-
-	design::NodeType GetType() const;
-
-	// Returns the index of this output within the list of outputs of the owning block.
-	size_t GetIndex() const;
-
-	// Returns the simulator block that owns this input.
-	SimulatorBlockBase const &GetOwningBlock() const;
-
-	// Returns whether this inupt is connected to a driving output of another block.
-	bool IsConnected() const;
-
-	// If connected, returns a reference to the output of the driving block. Throws otherwise.
-	SimulatorBlockOutput const &GetDriver() const;
-
-	// If connected, returns a reference to the output of the driving block. Throws otherwise.
-	SimulatorBlockOutput &GetDriver();
-
 	// If not connected, connects this input to the given output. Throws if already connected.
 	void ConnectTo(SimulatorBlockOutput &output);
 
 	// If connected, disconnects the input from the driving output. Throws if unconnected.
 	void Disconnect();
+
+public:
+
+	SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index);
+
+	SimulatorBlockInput(SimulatorBlockInput const &) = delete;
+	void operator=(SimulatorBlockInput const &) = delete;
+
+	SimulatorBlockInput(SimulatorBlockInput &&);
+	void operator=(SimulatorBlockInput &&) = delete;
+
+	design::NodeType GetType() const;
+
+	// Returns the index of this output within the list of outputs of the owning block.
+	size_t GetIndex() const noexcept;
+
+	// Returns the simulator block that owns this input.
+	SimulatorBlockBase const &GetOwningBlock() const noexcept;
+
+	// Returns whether this inupt is connected to a driving output of another block.
+	bool IsConnected() const noexcept;
+
+	// If connected, returns a reference to the output of the driving block. Throws otherwise.
+	SimulatorBlockOutput const &GetDriver() const;
 };
 
 } // namespace oddf::simulator::common::backend
