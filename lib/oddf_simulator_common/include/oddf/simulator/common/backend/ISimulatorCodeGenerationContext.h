@@ -28,7 +28,7 @@
 
 #include "SimulatorInstructionBase.h"
 
-#include "SimulatorType.h"
+#include "Types.h"
 
 #include "ISimulatorComponentContext.h"
 
@@ -55,15 +55,9 @@ public:
 		new (instruction) T(*this, std::forward<argTs>(args)...);
 	}
 
-	virtual void RegisterInput(size_t index, SimulatorType::Boolean const *&inputPointerReference) = 0;
-	virtual void RegisterInput(size_t index, SimulatorType::Integer const *&inputPointerReference) = 0;
-	virtual void RegisterInput(size_t index, SimulatorType::Real const *&inputPointerReference) = 0;
-	virtual void RegisterInput(size_t index, SimulatorType::InternalElement const *&inputPointerReference, size_t count) = 0;
+	virtual void RegisterInput(size_t index, types::Boolean const *&inputPointerReference) = 0;
 
-	virtual void RegisterOutput(size_t index, SimulatorType::Boolean &outputReference) = 0;
-	virtual void RegisterOutput(size_t index, SimulatorType::Integer &outputReference) = 0;
-	virtual void RegisterOutput(size_t index, SimulatorType::Real &outputReference) = 0;
-	virtual void RegisterOutput(size_t index, SimulatorType::InternalElement &outputReference, size_t count) = 0;
+	virtual void RegisterOutput(size_t index, types::Boolean &outputReference) = 0;
 };
 
 } // namespace oddf::simulator::common::backend

@@ -117,27 +117,10 @@ void SimulatorCore::GenerateCode()
 			return inputs[index].GetDriver().GetType();
 		}
 
-		virtual void RegisterInput(size_t index, SimulatorType::Boolean const *&inputPointerReference) override
+		virtual void RegisterInput(size_t index, types::Boolean const *&inputPointerReference) override
 		{
 			if (InternalRegisterInput(index, reinterpret_cast<void const **>(&inputPointerReference)).GetTypeId() != design::NodeType::BOOLEAN)
 				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Boolean const *) must match the type of the simulator block input (NodeType::BOOLEAN).");
-		}
-
-		virtual void RegisterInput(size_t index, SimulatorType::Integer const *&inputPointerReference) override
-		{
-			if (InternalRegisterInput(index, reinterpret_cast<void const **>(&inputPointerReference)).GetTypeId() != design::NodeType::INTEGER)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Integer const *) must match the type of the simulator block input (NodeType::INTEGER).");
-		}
-
-		virtual void RegisterInput(size_t index, SimulatorType::Real const *&inputPointerReference) override
-		{
-			if (InternalRegisterInput(index, reinterpret_cast<void const **>(&inputPointerReference)).GetTypeId() != design::NodeType::REAL)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Real const *) must match the type of the simulator block input (NodeType::REAL).");
-		}
-
-		virtual void RegisterInput(size_t, SimulatorType::InternalElement const *&, size_t) override
-		{
-			throw Exception(ExceptionCode::NotImplemented);
 		}
 
 		//
@@ -164,27 +147,10 @@ void SimulatorCore::GenerateCode()
 			return outputs[index].GetType();
 		}
 
-		virtual void RegisterOutput(size_t index, SimulatorType::Boolean &outputReference) override
+		virtual void RegisterOutput(size_t index, types::Boolean &outputReference) override
 		{
 			if (InternalRegisterOutput(index, reinterpret_cast<void *>(&outputReference)).GetTypeId() != design::NodeType::BOOLEAN)
 				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Boolean) must match the type of the simulator block output (NodeType::BOOLEAN).");
-		}
-
-		virtual void RegisterOutput(size_t index, SimulatorType::Integer &outputReference) override
-		{
-			if (InternalRegisterOutput(index, reinterpret_cast<void *>(&outputReference)).GetTypeId() != design::NodeType::INTEGER)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Integer) must match the type of the simulator block output (NodeType::INTEGER).");
-		}
-
-		virtual void RegisterOutput(size_t index, SimulatorType::Real &outputReference) override
-		{
-			if (InternalRegisterOutput(index, reinterpret_cast<void *>(&outputReference)).GetTypeId() != design::NodeType::REAL)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Real) must match the type of the simulator block output (NodeType::REAL).");
-		}
-
-		virtual void RegisterOutput(size_t, SimulatorType::InternalElement &, size_t) override
-		{
-			throw Exception(ExceptionCode::NotImplemented);
 		}
 
 		void TranslateOutputReferences()

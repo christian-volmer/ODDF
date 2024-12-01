@@ -26,20 +26,4 @@
 
 #pragma once
 
-#include <cstdint>
-
-namespace oddf::simulator::common::backend {
-
-struct SimulatorType {
-
-	using Boolean = std::uint8_t;
-	using Integer = std::int64_t;
-	using Real = double;
-
-	using InternalElement = std::uint32_t;
-
-	using BitVectorElement = InternalElement;
-	using FixedPointElement = InternalElement;
-};
-
-} // namespace oddf::simulator::common::backend
+#include "types/Boolean.h"

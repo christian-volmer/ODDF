@@ -87,6 +87,6 @@ public:
 };
 
 template<>
-SimulatorType::Boolean const *SimulatorBlockOutput::GetPointer<SimulatorType::Boolean>() const;
+types::Boolean const *SimulatorBlockOutput::GetPointer<types::Boolean>() const;
 
 } // namespace oddf::simulator::common::backend

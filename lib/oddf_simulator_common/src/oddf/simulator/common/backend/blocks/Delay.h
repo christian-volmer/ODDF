@@ -80,7 +80,7 @@ private:
 
 	design::blocks::backend::IDesignBlock const *m_originalDesignBlock;
 	DelayEndpoint const &m_endpoint;
-	DelayState<SimulatorType::Boolean> *m_pState;
+	DelayState<types::Boolean> *m_pState;
 
 public:
 

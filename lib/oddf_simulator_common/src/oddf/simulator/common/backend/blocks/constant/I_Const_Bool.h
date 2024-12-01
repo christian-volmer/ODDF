@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorType.h>
+#include <oddf/simulator/common/backend/Types.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
@@ -34,7 +34,7 @@ struct I_Const_Bool : public SimulatorInstructionBase {
 
 private:
 
-	SimulatorType::Boolean m_output;
+	types::Boolean m_output;
 
 	static size_t InstructionFunction(I_Const_Bool &instruction)
 	{
@@ -45,8 +45,9 @@ public:
 
 	I_Const_Bool(ISimulatorCodeGenerationContext &context, bool value) :
 		SimulatorInstructionBase(&InstructionFunction),
-		m_output(value)
+		m_output()
 	{
+		m_output.m_value = value;
 		context.RegisterOutput(0, m_output);
 	}
 };

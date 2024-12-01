@@ -43,7 +43,7 @@ class ProbeAccessObject : public virtual simulator::backend::IProbeAccess {
 	    dynamic size for bit-vector and fixed-point.
 
 	*/
-	static_assert(std::is_same_v<simulatorT, SimulatorType::Boolean>);
+	static_assert(std::is_same_v<simulatorT, types::Boolean>);
 
 public:
 

@@ -59,7 +59,7 @@ void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
 
 void ProbeMaster::Finalise(ISimulatorFinalisationContext &context)
 {
-	context.ConstructGlobalObject<ProbeAccessObject<SimulatorType::Boolean>>(
+	context.ConstructGlobalObject<ProbeAccessObject<types::Boolean>>(
 		"myprobe",
 		context.GetCurrentComponent(),
 		GetInputsList()[0].GetDriver());

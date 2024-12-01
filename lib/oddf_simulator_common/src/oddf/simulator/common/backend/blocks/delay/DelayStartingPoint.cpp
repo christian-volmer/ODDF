@@ -48,14 +48,14 @@ void DelayStartingPoint::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
 	auto &delayObject = context.GetOrConstructComponentObject<DelayObject>(context.GetCurrentComponent());
 
-	m_pState = delayObject.AddState<SimulatorType::Boolean>();
+	m_pState = delayObject.AddState<types::Boolean>();
 
 	context.EmitInstruction<I_DelayStartingPoint_Bool>(&m_pState->m_value);
 }
 
 void DelayStartingPoint::Finalise(ISimulatorFinalisationContext &)
 {
-	m_pState->m_pSource = m_endpoint.GetInputsList()[0].GetDriver().GetPointer<SimulatorType::Boolean>();
+	m_pState->m_pSource = m_endpoint.GetInputsList()[0].GetDriver().GetPointer<types::Boolean>();
 }
 
 } // namespace oddf::simulator::common::backend::blocks

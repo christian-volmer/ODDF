@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorType.h>
+#include <oddf/simulator/common/backend/Types.h>
 #include <oddf/simulator/common/backend/IClockable.h>
 #include <oddf/simulator/common/backend/ISimulatorComponent.h>
 #include <oddf/utility/GetInterfaceHelper.h>
@@ -42,13 +42,13 @@ template<typename T>
 struct DelayState;
 
 template<>
-struct DelayState<SimulatorType::Boolean> {
+struct DelayState<types::Boolean> {
 
-	SimulatorType::Boolean const *m_pSource;
-	SimulatorType::Boolean m_value;
+	types::Boolean const *m_pSource;
+	types::Boolean::ValueType m_value;
 
 	DelayState() :
-		m_pSource(), m_value(0) { }
+		m_pSource(), m_value() { }
 };
 
 class DelayObject : public virtual IClockable {
@@ -57,7 +57,7 @@ private:
 
 	ISimulatorComponent &m_component;
 
-	std::list<DelayState<SimulatorType::Boolean>> m_booleanStates;
+	std::list<DelayState<types::Boolean>> m_booleanStates;
 
 public:
 
@@ -68,7 +68,7 @@ public:
 	}
 
 	template<typename T>
-	DelayState<SimulatorType::Boolean> *AddState();
+	DelayState<types::Boolean> *AddState();
 
 	//
 	// IObject
@@ -86,14 +86,14 @@ public:
 	virtual void Clock() override
 	{
 		for (auto &state : m_booleanStates)
-			state.m_value = *state.m_pSource;
+			state.m_value = state.m_pSource->m_value;
 
 		m_component.InvalidateState();
 	}
 };
 
 template<>
-inline DelayState<SimulatorType::Boolean> *DelayObject::AddState<SimulatorType::Boolean>()
+inline DelayState<types::Boolean> *DelayObject::AddState<types::Boolean>()
 {
 	return &m_booleanStates.emplace_back();
 }

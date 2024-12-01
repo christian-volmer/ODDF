@@ -26,32 +26,21 @@
 
 #pragma once
 
-#include <oddf/simulator/common/backend/Types.h>
+#include <cstdint>
 
-namespace oddf::simulator::common::backend::blocks {
+namespace oddf::simulator::common::backend::types {
 
-struct I_Not_Bool : public SimulatorInstructionBase {
+struct Boolean {
 
-private:
+	using ValueType = std::uint8_t;
 
-	types::Boolean const *m_input;
-	types::Boolean m_output;
+	ValueType m_value;
 
-	static size_t InstructionFunction(I_Not_Bool &instruction)
-	{
-		instruction.m_output.m_value = (~(instruction.m_input->m_value)) & 1;
-		return sizeof(instruction);
-	}
+	Boolean() :
+		m_value() {};
 
-public:
-
-	I_Not_Bool(ISimulatorCodeGenerationContext &context) :
-		SimulatorInstructionBase(&InstructionFunction),
-		m_input(), m_output()
-	{
-		context.RegisterInput(0, m_input);
-		context.RegisterOutput(0, m_output);
-	}
+	Boolean(Boolean const &) = default;
+	void operator=(Boolean const &) = delete;
 };
 
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace oddf::simulator::common::backend::types

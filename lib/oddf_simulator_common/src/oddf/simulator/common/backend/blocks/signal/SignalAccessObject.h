@@ -40,12 +40,12 @@ public:
 
 	ISimulatorComponent &m_component;
 	design::NodeType m_nodeType;
-	SimulatorType::Boolean m_value;
+	types::Boolean::ValueType m_value;
 
 	SignalAccessObject(ISimulatorComponent &component, design::NodeType const &nodeType) :
 		m_component(component),
 		m_nodeType(nodeType),
-		m_value(0)
+		m_value()
 	{
 	}
 
@@ -68,9 +68,11 @@ public:
 
 		if (count == 1) {
 
-			SimulatorType::Boolean newValue {};
+			std::uint8_t newValue = 0;
+
 			std::memcpy(&newValue, buffer, 1);
-			newValue = static_cast<SimulatorType::Boolean>(newValue != 0);
+
+			newValue = newValue != 0;
 
 			if (newValue != m_value) {
 

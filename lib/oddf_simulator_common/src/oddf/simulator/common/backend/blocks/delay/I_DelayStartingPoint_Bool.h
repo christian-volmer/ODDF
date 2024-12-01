@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorType.h>
+#include <oddf/simulator/common/backend/Types.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
@@ -34,21 +34,21 @@ struct I_DelayStartingPoint_Bool : public SimulatorInstructionBase {
 
 private:
 
-	SimulatorType::Boolean const *m_pStateValue;
-	SimulatorType::Boolean m_output;
+	types::Boolean::ValueType const *m_pStateValue;
+	types::Boolean m_output;
 
 	static size_t InstructionFunction(I_DelayStartingPoint_Bool &instruction)
 	{
-		instruction.m_output = *instruction.m_pStateValue;
+		instruction.m_output.m_value = *instruction.m_pStateValue;
 		return sizeof(instruction);
 	}
 
 public:
 
-	I_DelayStartingPoint_Bool(ISimulatorCodeGenerationContext &context, SimulatorType::Boolean const *pState) :
+	I_DelayStartingPoint_Bool(ISimulatorCodeGenerationContext &context, types::Boolean::ValueType const *pState) :
 		SimulatorInstructionBase(&InstructionFunction),
 		m_pStateValue(pState),
-		m_output(0)
+		m_output()
 	{
 		context.RegisterOutput(0, m_output);
 	}
