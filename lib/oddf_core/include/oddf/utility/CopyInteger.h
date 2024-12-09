@@ -20,14 +20,19 @@
 
 /*
 
-    <no description>
+    Functions for copying data from one memory location to another
+    under the assumption that the data represents a signed or
+    unsigned integer value.
 
 */
 
 #pragma once
 
-#include "types/Boolean.h"
-#include "types/FixedPointElement.h"
+#include <cstddef>
 
-#include "types/GetRequiredByteSize.h"
-#include "types/GetStoredByteSize.h"
+namespace oddf::utility {
+
+void CopySignedInteger(void *destination, size_t destinationSize, void const *source, size_t sourceSize);
+void CopyUnsignedInteger(void *destination, size_t destinationSize, void const *source, size_t sourceSize);
+
+} // namespace oddf::utility

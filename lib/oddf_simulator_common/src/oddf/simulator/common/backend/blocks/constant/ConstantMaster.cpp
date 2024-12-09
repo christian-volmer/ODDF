@@ -26,6 +26,7 @@
 
 #include "../Constant.h"
 #include "I_Const_Bool.h"
+#include "I_Const_FixedPoint.h"
 
 #include <oddf/Exception.h>
 #include <oddf/design/blocks/backend/IConstantBlock.h>
@@ -49,12 +50,15 @@ void ConstantMaster::Elaborate(ISimulatorElaborationContext &)
 	if (outputs.GetSize() != 1)
 		throw Exception(ExceptionCode::Unsupported);
 
-	if (outputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
-		throw Exception(ExceptionCode::Unsupported);
-
 	auto inputs = GetInputsList();
 
 	if (inputs.GetSize() != 0)
+		throw Exception(ExceptionCode::Unsupported);
+
+	auto typeId = outputs[0].GetType().GetTypeId();
+
+	if (!((typeId == design::NodeType::BOOLEAN)
+			|| (typeId == design::NodeType::FIXED_POINT)))
 		throw Exception(ExceptionCode::Unsupported);
 }
 
@@ -62,10 +66,27 @@ void ConstantMaster::GenerateCode(ISimulatorCodeGenerationContext &context)
 {
 	auto &constantBlock = GetDesignBlockReference()->GetInterface<design::blocks::backend::IConstantBlock>();
 
-	std::uint8_t value = 0;
-	constantBlock.Read(&value, 1);
+	auto outputType = GetOutputsList()[0].GetType();
+	switch (outputType.GetTypeId()) {
 
-	context.EmitInstruction<I_Const_Bool>(value != 0);
+		case design::NodeType::BOOLEAN: {
+
+			context.EmitInstruction<I_Const_Bool>(constantBlock);
+			break;
+		}
+
+		case design::NodeType::FIXED_POINT: {
+
+			size_t elementCount = types::FixedPointElement::RequiredElementCount(outputType);
+
+			context.EmitInstructionVariadic<I_Const_FixedPoint>(
+				I_Const_FixedPoint::GetVariadicMember(), elementCount, constantBlock, elementCount);
+			break;
+		}
+
+		default:
+			throw Exception(ExceptionCode::NotImplemented);
+	}
 }
 
 } // namespace oddf::simulator::common::backend::blocks

@@ -20,27 +20,57 @@
 
 /*
 
-    Probe() allows a normal C++ variable to probe the value of the
-    provided node during simulation.
+    Implementation of the Probe() block for the common simulator backend.
 
 */
 
-#pragma once
+#include "../global.h"
 
 namespace dfx {
+namespace backend {
 namespace blocks {
 
-#define DECLARE_PROBE_FUNCTION(_type_) \
-	_type_ const *Probe(node<_type_> const &theNode);
+class probe_block_dynfix : public BlockBase {
 
-DECLARE_PROBE_FUNCTION(bool)
-DECLARE_PROBE_FUNCTION(double)
-DECLARE_PROBE_FUNCTION(std::int32_t)
-DECLARE_PROBE_FUNCTION(std::int64_t)
+private:
 
-#undef DECLARE_PROBE_FUNCTION
+	InputPin<dynfix> input;
 
-void Probe(node<dynfix> const &theNode);
+	source_blocks_t GetSourceBlocks() const override
+	{
+		return source_blocks_t({ input.GetDrivingBlock() });
+	}
+
+	bool CanEvaluate() const override
+	{
+		return false;
+	}
+
+	void Evaluate() override
+	{
+	}
+
+public:
+
+	probe_block_dynfix(node<dynfix> const &theNode) :
+		BlockBase("probe"),
+		input(this, theNode)
+	{
+	}
+
+	probe_block_dynfix(probe_block_dynfix const &) = delete;
+	void operator=(probe_block_dynfix const &) = delete;
+};
+
+} // namespace blocks
+} // namespace backend
+
+namespace blocks {
+
+void Probe(node<dynfix> const &theNode)
+{
+	Design::GetCurrent().NewBlock<backend::blocks::probe_block_dynfix>(theNode);
+}
 
 } // namespace blocks
 } // namespace dfx

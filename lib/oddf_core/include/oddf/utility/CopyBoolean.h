@@ -20,27 +20,23 @@
 
 /*
 
-    Probe() allows a normal C++ variable to probe the value of the
-    provided node during simulation.
+    Function for copying data from one memory location to another under
+    the assumption that the data represents a boolean value.
 
 */
 
 #pragma once
 
-namespace dfx {
-namespace blocks {
+#include <cstddef>
 
-#define DECLARE_PROBE_FUNCTION(_type_) \
-	_type_ const *Probe(node<_type_> const &theNode);
+namespace oddf::utility {
 
-DECLARE_PROBE_FUNCTION(bool)
-DECLARE_PROBE_FUNCTION(double)
-DECLARE_PROBE_FUNCTION(std::int32_t)
-DECLARE_PROBE_FUNCTION(std::int64_t)
+// Copies a boolean value from the memory region of size `sourceSize` pointed
+// to by `source` to the memory region of size `destinationSize` pointed to by
+// `destination`. A non-zero byte anywhere within the source memory region
+// signifies the value `true`. The first byte in the destination region is set
+// to 0x01 to represent the value `true` and set to 0x00 to represent the value
+// `false`. All but the first destination bytes are set to 0x00.
+void CopyBoolean(void *destination, size_t destinationSize, void const *source, size_t sourceSize);
 
-#undef DECLARE_PROBE_FUNCTION
-
-void Probe(node<dynfix> const &theNode);
-
-} // namespace blocks
-} // namespace dfx
+} // namespace oddf::utility

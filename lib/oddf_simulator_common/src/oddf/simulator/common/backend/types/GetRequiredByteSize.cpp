@@ -24,10 +24,27 @@
 
 */
 
-#pragma once
+#include <oddf/simulator/common/backend/types/GetRequiredByteSize.h>
 
-#include "types/Boolean.h"
-#include "types/FixedPointElement.h"
+namespace oddf::simulator::common::backend::types {
 
-#include "types/GetRequiredByteSize.h"
-#include "types/GetStoredByteSize.h"
+size_t GetRequiredByteSize(design::NodeType const &nodeType)
+{
+	switch (nodeType.GetTypeId()) {
+
+		case design::NodeType::BOOLEAN:
+			return 1;
+
+		case design::NodeType::FIXED_POINT:
+			return (nodeType.GetWordWidth() + 7) / 8;
+
+		case design::NodeType::INTEGER:
+		case design::NodeType::BIT_VECTOR:
+		case design::NodeType::REAL:
+			throw Exception(ExceptionCode::NotImplemented);
+	}
+
+	throw Exception(ExceptionCode::Unexpected);
+}
+
+} // namespace oddf::simulator::common::backend::types

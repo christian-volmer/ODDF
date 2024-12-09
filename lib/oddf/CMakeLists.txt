@@ -31,6 +31,7 @@ add_library(oddf
 	src/blocks/operators_unary_dynfix.cpp
 	src/blocks/power_of_two.cpp
 	src/blocks/probe.cpp
+	src/blocks/probe_dynfix.cpp
 	src/blocks/random.cpp
 	src/blocks/reinterpret_cast.cpp
 	src/blocks/replace.cpp

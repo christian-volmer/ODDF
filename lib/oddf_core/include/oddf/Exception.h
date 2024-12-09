@@ -64,7 +64,10 @@ enum class ExceptionCode : std::uint32_t {
 	NoResource,
 
 	// The requested operation is not supported.
-	Unsupported
+	Unsupported,
+
+	// The result of an operation exceeds the range of representable values of the target type.
+	Overflow
 };
 
 /*

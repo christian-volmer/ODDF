@@ -53,16 +53,40 @@ void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
 	if (inputs.GetSize() != 1)
 		throw Exception(ExceptionCode::Unsupported);
 
-	if (inputs[0].GetType().GetTypeId() != design::NodeType::BOOLEAN)
+	auto typeId = inputs[0].GetType().GetTypeId();
+
+	if (!((typeId == design::NodeType::BOOLEAN)
+			|| (typeId == design::NodeType::FIXED_POINT)))
 		throw Exception(ExceptionCode::Unsupported);
 }
 
 void ProbeMaster::Finalise(ISimulatorFinalisationContext &context)
 {
-	context.ConstructGlobalObject<ProbeAccessObject<types::Boolean>>(
-		"myprobe",
-		context.GetCurrentComponent(),
-		GetInputsList()[0].GetDriver());
+	auto const &input = GetInputsList()[0];
+	switch (input.GetType().GetTypeId()) {
+
+		case design::NodeType::BOOLEAN: {
+
+			context.ConstructGlobalObject<ProbeAccessObject<types::Boolean>>(
+				"myprobe",
+				context.GetCurrentComponent(),
+				input.GetDriver());
+			break;
+		}
+
+		case design::NodeType::FIXED_POINT: {
+
+			context.ConstructGlobalObject<ProbeAccessObject<types::FixedPointElement>>(
+				"myprobe",
+				context.GetCurrentComponent(),
+				input.GetDriver(),
+				types::FixedPointElement::RequiredElementCount(input.GetType()));
+			break;
+		}
+
+		default:
+			throw Exception(ExceptionCode::NotImplemented);
+	}
 }
 
 } // namespace oddf::simulator::common::backend::blocks

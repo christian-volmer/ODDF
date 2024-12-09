@@ -55,9 +55,49 @@ public:
 
 	bool GetValue()
 	{
-		std::uint8_t value {};
-		m_probeAccess.Read(&value, 1);
+		std::uint8_t value;
+		m_probeAccess.Read(&value, sizeof(value));
 		return value != 0;
+	}
+};
+
+//
+// Probe<int>
+//
+
+template<>
+class Probe<int> {
+
+private:
+
+	backend::IProbeAccess &m_probeAccess;
+	design::NodeType const m_type;
+
+public:
+
+	Probe(oddf::simulator::ISimulator &simulator, std::string const &name) :
+		m_probeAccess(simulator.GetSimulatorAccess().GetNamedObjectInterface<backend::IProbeAccess>(name)),
+		m_type(m_probeAccess.GetType())
+	{
+		switch (m_type.GetTypeId()) {
+
+			case design::NodeType::BOOLEAN:
+			case design::NodeType::FIXED_POINT:
+				break;
+
+			default:
+				throw Exception(ExceptionCode::Unsupported);
+		}
+	}
+
+	int GetValue()
+	{
+		int value {};
+		if (m_type.GetFraction() != 0)
+			throw Exception(ExceptionCode::NotImplemented);
+
+		m_probeAccess.Read(&value, sizeof(value));
+		return value;
 	}
 };
 

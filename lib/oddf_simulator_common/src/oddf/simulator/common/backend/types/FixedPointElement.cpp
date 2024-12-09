@@ -24,10 +24,19 @@
 
 */
 
-#pragma once
+#include <oddf/simulator/common/backend/types/FixedPointElement.h>
 
-#include "types/Boolean.h"
-#include "types/FixedPointElement.h"
+#include <oddf/Exception.h>
 
-#include "types/GetRequiredByteSize.h"
-#include "types/GetStoredByteSize.h"
+namespace oddf::simulator::common::backend::types {
+
+size_t FixedPointElement::RequiredElementCount(design::NodeType const &nodeType)
+{
+	if (nodeType.GetTypeId() != design::NodeType::FIXED_POINT)
+		throw Exception(ExceptionCode::InvalidArgument);
+
+	auto wordWidth = nodeType.GetWordWidth();
+	return (wordWidth + (8 * sizeof(ElementType)) - 1) / (8 * sizeof(ElementType));
+}
+
+} // namespace oddf::simulator::common::backend::types

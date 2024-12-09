@@ -127,7 +127,7 @@ void SimulatorCore::GenerateCode()
 		// Output registration
 		//
 
-		design::NodeType InternalRegisterOutput(size_t index, void *outputPointer)
+		design::NodeType InternalRegisterOutput(size_t index, void *storagePointer, size_t storageSize)
 		{
 			if (!m_currentInstruction)
 				throw Exception(ExceptionCode::IllegalMethodCall, "EmitInstruction() must be called before calling this function.");
@@ -140,17 +140,25 @@ void SimulatorCore::GenerateCode()
 			if (outputs[index].m_storageReference)
 				throw Exception(ExceptionCode::IllegalMethodCall, "Function was already called on this output. Cannot call it a second time.");
 
-			outputs[index].m_storageReference = reinterpret_cast<char const *>(outputPointer) - m_code.data();
+			outputs[index].m_storageReference = reinterpret_cast<char const *>(storagePointer) - m_code.data();
 
-			// TODO: check that 'outputPointer' is within the memory bounds of 'm_currentInstruction'
+			// TODO: check that 'storagePointer' and 'storageSize' are within the memory bounds of 'm_currentInstruction'
 
 			return outputs[index].GetType();
 		}
 
 		virtual void RegisterOutput(size_t index, types::Boolean &outputReference) override
 		{
-			if (InternalRegisterOutput(index, reinterpret_cast<void *>(&outputReference)).GetTypeId() != design::NodeType::BOOLEAN)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Boolean) must match the type of the simulator block output (NodeType::BOOLEAN).");
+			auto type = InternalRegisterOutput(index, &outputReference, sizeof(types::Boolean));
+			if (type.GetTypeId() != design::NodeType::BOOLEAN)
+				throw Exception(ExceptionCode::InvalidArgument, "Type of the specified output does not match the provided storage (types::Boolean).");
+		}
+
+		virtual void RegisterOutput(size_t index, types::FixedPointElement *outputReference, size_t elementCount) override
+		{
+			auto type = InternalRegisterOutput(index, outputReference, sizeof(types::FixedPointElement) * elementCount);
+			if (types::FixedPointElement::RequiredElementCount(type) != elementCount)
+				throw Exception(ExceptionCode::InvalidArgument, "Type of the specified output does not match the provided storage (types::FixedPointElement and 'elementCount').");
 		}
 
 		void TranslateOutputReferences()

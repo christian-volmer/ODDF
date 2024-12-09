@@ -55,23 +55,24 @@ public:
 
 	NodeType();
 
-	static NodeType Undefined();
-	static NodeType Boolean();
-	static NodeType Integer();
-	static NodeType Real();
+	static NodeType Undefined() noexcept;
+	static NodeType Boolean() noexcept;
+	static NodeType Integer() noexcept;
+	static NodeType Real() noexcept;
 	static NodeType BitVector(int size);
 	static NodeType FixedPoint(bool signedness, int size, int fraction);
 
 	std::string ToString() const;
 
-	TypeId GetTypeId() const;
-	int GetWordWidth() const;
-	int GetFraction() const;
+	TypeId GetTypeId() const noexcept;
+	int IsSigned() const noexcept;
+	int GetWordWidth() const noexcept;
+	int GetFraction() const noexcept;
 
-	bool IsDefined() const;
+	bool IsDefined() const noexcept;
 
-	bool operator==(NodeType const &other) const;
-	bool operator!=(NodeType const &other) const;
+	bool operator==(NodeType const &other) const noexcept;
+	bool operator!=(NodeType const &other) const noexcept;
 };
 
 } // namespace oddf::design

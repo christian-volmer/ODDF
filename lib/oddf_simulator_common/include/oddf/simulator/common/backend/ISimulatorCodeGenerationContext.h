@@ -47,17 +47,32 @@ public:
 
 	virtual ~ISimulatorCodeGenerationContext() = default;
 
-	template<typename T, typename... argTs>
+	template<typename classT, typename... argTs>
 	void EmitInstruction(argTs &&...args)
 	{
-		static_assert(std::is_trivially_copyable_v<T>);
-		auto *instruction = InternalEmitInstruction(sizeof(T), alignof(T));
-		new (instruction) T(*this, std::forward<argTs>(args)...);
+		auto *instruction = InternalEmitInstruction(sizeof(classT), alignof(classT));
+		new (instruction) classT(*this, std::forward<argTs>(args)...);
+	}
+
+	template<typename classT, typename memberT, typename... argTs>
+	void EmitInstructionVariadic(memberT (classT::*variaticMember)[1], size_t count, argTs &&...args)
+	{
+		alignas(classT) char tempStorage[sizeof(classT)];
+		size_t offset = reinterpret_cast<char const *>(&(reinterpret_cast<classT const *>(&tempStorage)->*variaticMember)) - tempStorage;
+
+		size_t size = offset + count * sizeof(memberT);
+
+		// Round up to the next multiple of alignof(classT)
+		size = ((size + alignof(classT) - 1) / alignof(classT)) * alignof(classT);
+
+		auto *instruction = InternalEmitInstruction(size, alignof(classT));
+		new (instruction) classT(*this, std::forward<argTs>(args)...);
 	}
 
 	virtual void RegisterInput(size_t index, types::Boolean const *&inputPointerReference) = 0;
 
 	virtual void RegisterOutput(size_t index, types::Boolean &outputReference) = 0;
+	virtual void RegisterOutput(size_t index, types::FixedPointElement *outputReference, size_t elementCount) = 0;
 };
 
 } // namespace oddf::simulator::common::backend

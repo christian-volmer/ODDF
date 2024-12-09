@@ -26,8 +26,13 @@
 
 #pragma once
 
-#include "types/Boolean.h"
-#include "types/FixedPointElement.h"
+#include <oddf/Exception.h>
+#include <oddf/design/NodeType.h>
 
-#include "types/GetRequiredByteSize.h"
-#include "types/GetStoredByteSize.h"
+namespace oddf::simulator::common::backend::types {
+
+// Returns the number of bytes used by the simulator to store a value
+// of the given type.
+size_t GetStoredByteSize(design::NodeType const &nodeType);
+
+} // namespace oddf::simulator::common::backend::types

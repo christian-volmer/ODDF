@@ -31,27 +31,31 @@
 
 namespace oddf::simulator::common::backend::blocks {
 
-struct I_Const_Bool : public SimulatorInstructionBase {
+struct I_Const_FixedPoint : public SimulatorInstructionBase {
 
 private:
 
-	types::Boolean m_output;
+	types::FixedPointElement m_output[1];
 
-	static size_t InstructionFunction(I_Const_Bool &instruction)
+	static size_t InstructionFunction(I_Const_FixedPoint &instruction)
 	{
 		return sizeof(instruction);
 	}
 
 public:
 
-	I_Const_Bool(ISimulatorCodeGenerationContext &context, design::blocks::backend::IConstantBlock const &constantBlock) :
+	static auto GetVariadicMember()
+	{	
+		return &I_Const_FixedPoint::m_output;
+	}
+
+	I_Const_FixedPoint(ISimulatorCodeGenerationContext &context, design::blocks::backend::IConstantBlock const &constantBlock, size_t elementCount) :
 		SimulatorInstructionBase(&InstructionFunction),
 		m_output()
 	{
-		constantBlock.Read(&m_output.m_value, sizeof(m_output.m_value));
-		m_output.m_value = m_output.m_value != 0;
+		constantBlock.Read(&m_output, sizeof(m_output) * elementCount);
 
-		context.RegisterOutput(0, m_output);
+		context.RegisterOutput(0, m_output, elementCount);
 	}
 };
 

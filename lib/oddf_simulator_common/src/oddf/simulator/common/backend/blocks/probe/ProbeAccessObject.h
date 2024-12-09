@@ -29,6 +29,11 @@
 #include <oddf/utility/GetInterfaceHelper.h>
 #include <oddf/simulator/backend/IProbeAccess.h>
 
+#include <oddf/utility/CopyBoolean.h>
+#include <oddf/utility/CopyInteger.h>
+
+#include <oddf/simulator/common/backend/Types.h>
+
 #include <type_traits>
 #include <cstring>
 
@@ -43,7 +48,8 @@ class ProbeAccessObject : public virtual simulator::backend::IProbeAccess {
 	    dynamic size for bit-vector and fixed-point.
 
 	*/
-	static_assert(std::is_same_v<simulatorT, types::Boolean>);
+	static_assert(std::is_same_v<simulatorT, types::Boolean>
+		|| std::is_same_v<simulatorT, types::FixedPointElement>);
 
 public:
 
@@ -55,6 +61,13 @@ public:
 		m_component(component),
 		m_nodeType(driver.GetType()),
 		m_probedOutputPointer(driver.GetPointer<simulatorT>())
+	{
+	}
+
+	ProbeAccessObject(ISimulatorComponent &component, SimulatorBlockOutput const &driver, size_t elementCount) :
+		m_component(component),
+		m_nodeType(driver.GetType()),
+		m_probedOutputPointer(driver.GetPointer<simulatorT>(elementCount))
 	{
 	}
 
@@ -73,19 +86,26 @@ public:
 		return m_nodeType;
 	}
 
-	virtual void Read(void *buffer, size_t count) const override
-	{
-		if (count != GetSize())
-			throw Exception(ExceptionCode::InvalidArgument, "Parameter `count` must be equal to the value returned by `GetSize()`.");
-
-		m_component.EnsureValidState();
-		std::memcpy(buffer, m_probedOutputPointer, count);
-	}
+	virtual void Read(void *buffer, size_t count) const override;
 
 	virtual size_t GetSize() const noexcept override
 	{
-		return sizeof(simulatorT);
+		return types::GetRequiredByteSize(m_nodeType);
 	}
 };
+
+template<>
+inline void ProbeAccessObject<types::Boolean>::Read(void *buffer, size_t count) const
+{
+	m_component.EnsureValidState();
+	utility::CopyBoolean(buffer, count, m_probedOutputPointer, types::GetStoredByteSize(m_nodeType));
+}
+
+template<>
+inline void ProbeAccessObject<types::FixedPointElement>::Read(void *buffer, size_t count) const
+{
+	m_component.EnsureValidState();
+	utility::CopyUnsignedInteger(buffer, count, m_probedOutputPointer, types::GetStoredByteSize(m_nodeType));
+}
 
 } // namespace oddf::simulator::common::backend::blocks

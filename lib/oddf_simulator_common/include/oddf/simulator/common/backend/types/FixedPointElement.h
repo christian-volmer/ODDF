@@ -26,8 +26,26 @@
 
 #pragma once
 
-#include "types/Boolean.h"
-#include "types/FixedPointElement.h"
+#include <oddf/design/NodeType.h>
 
-#include "types/GetRequiredByteSize.h"
-#include "types/GetStoredByteSize.h"
+#include <cstdint>
+
+namespace oddf::simulator::common::backend::types {
+
+struct FixedPointElement {
+
+	using ElementType = std::uint8_t;
+
+	ElementType m_value;
+
+	FixedPointElement() :
+		m_value() {};
+
+	FixedPointElement(FixedPointElement const &) = delete;
+	void operator=(FixedPointElement const &) = delete;
+
+	// Returns the number of elements required to store values of the given node type.
+	static size_t RequiredElementCount(design::NodeType const &nodeType);
+};
+
+} // namespace oddf::simulator::common::backend::types

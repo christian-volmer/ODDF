@@ -45,22 +45,22 @@ NodeType::NodeType() :
 {
 }
 
-NodeType NodeType::Undefined()
+NodeType NodeType::Undefined() noexcept
 {
 	return NodeType();
 }
 
-NodeType NodeType::Boolean()
+NodeType NodeType::Boolean() noexcept
 {
 	return NodeType(BOOLEAN);
 }
 
-NodeType NodeType::Integer()
+NodeType NodeType::Integer() noexcept
 {
 	return NodeType(INTEGER);
 }
 
-NodeType NodeType::Real()
+NodeType NodeType::Real() noexcept
 {
 	return NodeType(REAL);
 }
@@ -115,27 +115,35 @@ std::string NodeType::ToString() const
 	}
 }
 
-NodeType::TypeId NodeType::GetTypeId() const
+NodeType::TypeId NodeType::GetTypeId() const noexcept
 {
 	return m_type;
 }
 
-int NodeType::GetWordWidth() const
+int NodeType::GetWordWidth() const noexcept
 {
-	return m_param1;
+	if (m_param1 >= 0)
+		return m_param1;
+	else
+		return -m_param1;
 }
 
-int NodeType::GetFraction() const
+int NodeType::IsSigned() const noexcept
+{
+	return m_param1 < 0;
+}
+
+int NodeType::GetFraction() const noexcept
 {
 	return m_param2;
 }
 
-bool NodeType::IsDefined() const
+bool NodeType::IsDefined() const noexcept
 {
 	return m_type != UNDEFINED;
 }
 
-bool NodeType::operator==(NodeType const &other) const
+bool NodeType::operator==(NodeType const &other) const noexcept
 {
 	switch (m_type) {
 
@@ -157,7 +165,7 @@ bool NodeType::operator==(NodeType const &other) const
 	}
 }
 
-bool NodeType::operator!=(NodeType const &other) const
+bool NodeType::operator!=(NodeType const &other) const noexcept
 {
 	return !(*this == other);
 }

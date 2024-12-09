@@ -29,6 +29,8 @@
 #include <oddf/design/NodeType.h>
 #include <oddf/utility/CollectionView.h>
 
+#include "Types.h"
+
 #include <list>
 
 namespace oddf::simulator::common::backend {
@@ -69,8 +71,13 @@ public:
 	template<typename T>
 	T const *GetPointer() const
 	{
-		// Type `T` must be one of the types declared in class `SimulatorType`.
-		static_assert(false);
+		static_assert(false, "Type `T` must be one of types::Boolean, types::Integer, or types::Real");
+	}
+
+	template<typename T>
+	T const *GetPointer(size_t /* elementCount */) const
+	{
+		static_assert(false, "Type `T` must be one of types::FixedPointElement or types::BitVectorElement");
 	}
 
 	// Returns the index of this output within the list of outputs of the owning block.
@@ -88,5 +95,8 @@ public:
 
 template<>
 types::Boolean const *SimulatorBlockOutput::GetPointer<types::Boolean>() const;
+
+template<>
+types::FixedPointElement const *SimulatorBlockOutput::GetPointer<types::FixedPointElement>(size_t elementCount) const;
 
 } // namespace oddf::simulator::common::backend

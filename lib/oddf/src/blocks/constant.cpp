@@ -27,6 +27,8 @@
 #include "../global.h"
 #include "../generator/properties.h"
 
+#include <oddf/utility/CopyBoolean.h>
+#include <oddf/utility/CopyInteger.h>
 #include <oddf/Exception.h>
 
 namespace dfx {
@@ -88,11 +90,29 @@ size_t constant_block<bool>::GetSize() const noexcept
 template<>
 void constant_block<bool>::Read(void *buffer, size_t count) const
 {
-	if (count > GetSize())
-		throw oddf::Exception(oddf::ExceptionCode::Bounds);
+	std::uint8_t value = outputs.front().value ? 1 : 0;
+	oddf::utility::CopyBoolean(buffer, count, &value, sizeof(value));
+}
 
-	if (count == 1)
-		*reinterpret_cast<char *>(buffer) = outputs.front().value;
+//
+// IConstantBlock for dynfix
+//
+
+template<>
+size_t constant_block<dynfix>::GetSize() const noexcept
+{
+	auto wordWidth = outputs.front().GetNodeType().GetWordWidth();
+	return (wordWidth + 7) / 8;
+}
+
+template<>
+void constant_block<dynfix>::Read(void *buffer, size_t count) const
+{
+	auto const &output = outputs.front();
+	if (output.GetNodeType().IsSigned())
+		oddf::utility::CopySignedInteger(buffer, count, &outputs.front().value.data, sizeof(dynfix::data));
+	else
+		oddf::utility::CopyUnsignedInteger(buffer, count, &outputs.front().value.data, sizeof(dynfix::data));
 }
 
 //
@@ -100,15 +120,15 @@ void constant_block<bool>::Read(void *buffer, size_t count) const
 //
 
 template<typename T>
-void constant_block<T>::Read(void * /* buffer */, size_t /* count */) const
-{
-	throw oddf::Exception(oddf::ExceptionCode::NotImplemented);
-}
-
-template<typename T>
 size_t constant_block<T>::GetSize() const noexcept
 {
 	return 0;
+}
+
+template<typename T>
+void constant_block<T>::Read(void * /* buffer */, size_t /* count */) const
+{
+	throw oddf::Exception(oddf::ExceptionCode::NotImplemented);
 }
 
 //
