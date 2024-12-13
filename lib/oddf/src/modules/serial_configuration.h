@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Implementations of the configuration::IBuilder and
-	configuration::IController interfaces. Provides access through a
-	serial interface similar to AMBA/APB.
+    Implementations of the configuration::IBuilder and
+    configuration::IController interfaces. Provides access through a
+    serial interface similar to AMBA/APB.
 
 */
 
@@ -33,16 +33,15 @@
 namespace dfx {
 namespace modules {
 
-
 //
-// SerialConfigurationBuilder 
+// SerialConfigurationBuilder
 //
 
 class SerialConfigurationBuilder : public configuration::IBuilder {
 
 public:
 
-	struct {
+	struct InputsType {
 
 		inout::input_node<bool> ClearAll;
 		inout::input_node<configuration::AddressT> Address;
@@ -52,12 +51,18 @@ public:
 		inout::input_node<bool> ReadAcknowledge;
 		inout::input_node<configuration::DataT> ReadData;
 
+		InputsType() :
+			ClearAll(), Address(), WriteEnable(), WriteData(), ReadRequest(), ReadAcknowledge(), ReadData() { }
+
 	} Inputs;
 
-	struct {
+	struct OutputsType {
 
 		inout::output_node<bool> ReadAcknowledge;
 		inout::output_node<dynfix> ReadData;
+
+		OutputsType() :
+			ReadAcknowledge(), ReadData() { }
 
 	} Outputs;
 
@@ -75,6 +80,10 @@ private:
 
 		dfx::HierarchyLevel *hierarchyLevel;
 		int baseAddress;
+
+		Level() :
+			ClearAll(), Address(), WriteEnable(), WriteData(), ReadRequest(), ReadAcknowledge(), ReadData(),
+			hierarchyLevel(), baseAddress() { }
 	};
 
 	configuration::Namespace &configNamespace;
@@ -92,12 +101,14 @@ private:
 
 public:
 
-	SerialConfigurationBuilder(configuration::Namespace &theNamespace);
-	SerialConfigurationBuilder(configuration::Namespace &theNamespace, int &masterNextAddress, Level &forkFrom);
-
 	SerialConfigurationBuilder() = delete;
+	~SerialConfigurationBuilder() = default;
+
 	SerialConfigurationBuilder(SerialConfigurationBuilder const &) = delete;
 	void operator=(SerialConfigurationBuilder const &) = delete;
+
+	SerialConfigurationBuilder(configuration::Namespace &theNamespace);
+	SerialConfigurationBuilder(configuration::Namespace &theNamespace, int &masterNextAddress, Level &forkFrom);
 
 	void Finalise();
 
@@ -121,9 +132,7 @@ private:
 
 	configuration::Namespace &GetNamespace() override;
 	int GetCurrentAddress() override;
-
 };
-
 
 //
 // SerialConfigurationController
@@ -133,20 +142,26 @@ class SerialConfigurationController : public configuration::IController {
 
 public:
 
-	struct {
+	struct InputsType {
 
 		inout::input_node<bool> ReadAcknowledge;
 		inout::input_node<configuration::DataT> ReadData;
 
+		InputsType() :
+			ReadAcknowledge(), ReadData() { }
+
 	} Inputs;
 
-	struct {
+	struct OutputsType {
 
 		inout::output_node<bool> ClearAll;
 		inout::output_node<dynfix> Address;
 		inout::output_node<bool> WriteEnable;
 		inout::output_node<dynfix> WriteData;
 		inout::output_node<bool> ReadRequest;
+
+		OutputsType() :
+			ClearAll(), Address(), WriteEnable(), WriteData(), ReadRequest() { }
 
 	} Outputs;
 
@@ -167,7 +182,14 @@ private:
 
 public:
 
+	SerialConfigurationController() = delete;
+	~SerialConfigurationController() = default;
+
+	SerialConfigurationController(SerialConfigurationController const &) = delete;
+	void operator=(SerialConfigurationController const &) = delete;
+
 	SerialConfigurationController(int theTimeOut);
+
 	void AttachSimulator(Simulator &theSimulator);
 
 	void Write(int theAddress, std::uint32_t const *values, int count) override;
@@ -175,6 +197,5 @@ public:
 	void ClearAll() override;
 };
 
-
-}
-}
+} // namespace modules
+} // namespace dfx

@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Logger functions record node and bus values during simulation.
-	Content can be printed in table form or exported as a
-	machine-readable text file.
+    Logger functions record node and bus values during simulation.
+    Content can be printed in table form or exported as a
+    machine-readable text file.
 
 */
 
@@ -87,7 +87,7 @@ static std::vector<std::string> format_as_bus(std::vector<std::string> const &el
 		element << std::setw(elementWidth) << elements[i * width + firstElement];
 
 		for (int j = 1; j < width; ++j)
-			element << std::setw(elementWidthWithSeparation) << elements[i * width + firstElement + j*direction];
+			element << std::setw(elementWidthWithSeparation) << elements[i * width + firstElement + j * direction];
 
 		result.push_back(element.str());
 	}
@@ -99,7 +99,8 @@ namespace dfx {
 namespace backend {
 namespace blocks {
 
-template<typename T> class logger_block: public BlockBase, public logger_BlockBase, private IStep {
+template<typename T>
+class logger_block : public BlockBase, public logger_BlockBase, private IStep {
 
 private:
 
@@ -179,6 +180,9 @@ public:
 	{
 	}
 
+	logger_block(logger_block const &) = delete;
+	void operator=(logger_block const &) = delete;
+
 	virtual ~logger_block()
 	{
 		// Inform the parent Logger class when this block becomes destructed.
@@ -199,8 +203,8 @@ public:
 	}
 };
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace modules {
 
@@ -237,7 +241,6 @@ void Logger::NotifyRemoval(backend::logger_BlockBase *loggerBlock)
 	auto found = std::find_if(Columns.begin(), Columns.end(), [=](Column const &column) { return column.Block == loggerBlock; });
 	Columns.erase(found);
 }
-
 
 //
 // Node logging
@@ -367,7 +370,7 @@ void Logger::Log(std::string const &tag, std::string const &name, bus_access<std
 	auto &block = Design::GetCurrent().NewBlock<backend::blocks::logger_block<std::int32_t>>((logger_callback *)this, format);
 	block.add_bus(bus);
 
-	Column column;	
+	Column column;
 	column.Tag = tag;
 	column.Name = name;
 	column.Block = &block;
@@ -436,7 +439,6 @@ void Logger::Log(std::string const &tag, std::string const &name, bus_access<dyn
 
 	Columns.push_back(column);
 }
-
 
 //
 // Sequence logging
@@ -550,6 +552,9 @@ void Logger::WriteTable(std::basic_ostream<char> &os, std::unordered_set<std::st
 		std::string Name;
 		std::vector<std::string> Elements;
 		int Width;
+
+		FormattedColumn() :
+			Name(), Elements(), Width() { }
 	};
 
 	std::vector<FormattedColumn> formattedColumns;
@@ -568,8 +573,7 @@ void Logger::WriteTable(std::basic_ostream<char> &os, std::unordered_set<std::st
 			formattedColumn.Elements = format_as_bus(column.Block->get_formatted_list(), column.BusWidth, column.Separation, (column.BusFlags & Flags::ReversedElementOrder) != 0);
 			formattedColumn.Width = std::max(
 				(int)formattedColumn.Name.length(),
-				max_element_width(formattedColumn.Elements)
-				);
+				max_element_width(formattedColumn.Elements));
 		}
 		else {
 
@@ -584,8 +588,7 @@ void Logger::WriteTable(std::basic_ostream<char> &os, std::unordered_set<std::st
 
 			formattedColumn.Width = std::max(
 				(int)formattedColumn.Name.length(),
-				max_element_width(formattedColumn.Elements)
-				);
+				max_element_width(formattedColumn.Elements));
 		}
 
 		formattedColumns.push_back(formattedColumn);
@@ -664,7 +667,7 @@ void Logger::ExportToVaryPlot(std::string const &s_basePath, std::unordered_set<
 
 		file << std::setprecision(16);
 
-		std::vector<std::string> values = column.IsBus 
+		std::vector<std::string> values = column.IsBus
 			? format_as_bus(column.Block->get_formatted_list(), column.BusWidth, 1, false)
 			: column.Block->get_formatted_list();
 
@@ -685,25 +688,25 @@ void Logger::ExportToVaryPlot(std::string const &s_basePath, std::unordered_set<
 		std::ofstream clockFile(basePath / fs::path("#clock.txt"));
 		clockFile << "0 0" << "\n";
 		for (int i = 1; i < numberOfClocks; ++i)
-			clockFile << i * xScaling << " 1" << "\n" << (i + 0.5) * xScaling << " 0" << "\n";
+			clockFile << i * xScaling << " 1" << "\n"
+					  << (i + 0.5) * xScaling << " 0" << "\n";
 
 		waveforms.insert(waveforms.begin(), { nullptr, "CLOCK", "#clock" });
 	}
-
 
 	// Create VaryPlot script file.
 	std::ofstream script(basePath / fs::path("plots.vps"));
 
 	// Digital graphs
-	script <<
-		"setapplication maximize=yes\n"
-		"setapplication synchrange=x\n"
-		"setapplication autoreloaddata=yes\n\n"
-		"addwindow ti=\"Digital\"\n"
-		"addgraph ti=\"Digital\" type=digital\n" 
-		"setgraph xlabel=\"" << xLabel << "\" xunit=\"" << xUnit << "\"\n"
-		"setgraph legendpos=13\n"
-		<< "\n";
+	script << "setapplication maximize=yes\n"
+			  "setapplication synchrange=x\n"
+			  "setapplication autoreloaddata=yes\n\n"
+			  "addwindow ti=\"Digital\"\n"
+			  "addgraph ti=\"Digital\" type=digital\n"
+			  "setgraph xlabel=\""
+		   << xLabel << "\" xunit=\"" << xUnit << "\"\n"
+												  "setgraph legendpos=13\n"
+		   << "\n";
 
 	for (auto const &formattedColumn : waveforms) {
 
@@ -719,34 +722,38 @@ void Logger::ExportToVaryPlot(std::string const &s_basePath, std::unordered_set<
 				for (int i = 0; i < column->BusWidth; ++i) {
 
 					std::string indexStr = (column->BusFlags & Flags::OneBasedIndexing) != 0
-						? string_printf("(%d)", firstElement + i*direction + 1)
-						: string_printf("[%d]", firstElement + i*direction);
+						? string_printf("(%d)", firstElement + i * direction + 1)
+						: string_printf("[%d]", firstElement + i * direction);
 
-					script <<
-						"addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:" << firstElement + i*direction + 2 << "\n"
-						"setcurve title=\"" << formattedColumn.Name << indexStr << "\" identifier="" visible=yes inlegend=yes\n"
-						"setcurve digiconnect=" << (signalType == SignalType::Boolean ? 1 : 4) << "\n"
-						<< "\n";
+					script << "addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:" << firstElement + i * direction + 2 << "\n"
+																																 "setcurve title=\""
+						   << formattedColumn.Name << indexStr << "\" identifier="
+																  " visible=yes inlegend=yes\n"
+																  "setcurve digiconnect="
+						   << (signalType == SignalType::Boolean ? 1 : 4) << "\n"
+						   << "\n";
 				}
 			}
 			else {
 
-				script <<
-					"addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:2\n"
-					"setcurve title=\"" << formattedColumn.Name << "\" identifier="" visible=yes inlegend=yes\n"
-					"setcurve digiconnect=" << (signalType == SignalType::Boolean ? 1 : 4) << "\n"
-					<< "\n";
+				script << "addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:2\n"
+																		  "setcurve title=\""
+					   << formattedColumn.Name << "\" identifier="
+												  " visible=yes inlegend=yes\n"
+												  "setcurve digiconnect="
+					   << (signalType == SignalType::Boolean ? 1 : 4) << "\n"
+					   << "\n";
 			}
 		}
 	}
 
 	// Analogue graphs
-	script <<
-		"addwindow ti=\"Analogue\"\n"
-		"addgraph ti=\"Analogue\" type=analog\n"
-		"setgraph xlabel=\"" << xLabel << "\" xunit=\"" << xUnit << "\"\n"
-		"setgraph legendpos=13\n"
-		<< "\n";
+	script << "addwindow ti=\"Analogue\"\n"
+			  "addgraph ti=\"Analogue\" type=analog\n"
+			  "setgraph xlabel=\""
+		   << xLabel << "\" xunit=\"" << xUnit << "\"\n"
+												  "setgraph legendpos=13\n"
+		   << "\n";
 
 	for (auto const &formattedColumn : waveforms) {
 
@@ -763,32 +770,33 @@ void Logger::ExportToVaryPlot(std::string const &s_basePath, std::unordered_set<
 				for (int i = 0; i < column->BusWidth; ++i) {
 
 					std::string indexStr = (column->BusFlags & Flags::OneBasedIndexing) != 0
-						? string_printf("(%d)", firstElement + i*direction + 1)
-						: string_printf("[%d]", firstElement + i*direction);
+						? string_printf("(%d)", firstElement + i * direction + 1)
+						: string_printf("[%d]", firstElement + i * direction);
 
-					script <<
-						"addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:" << firstElement + i*direction + 2 << "\n"
-						"setcurve title=\"" << formattedColumn.Name << indexStr << "\" identifier="" visible=yes inlegend=yes\n"
-						"setcurve connect=4\n"
-						<< "\n";
+					script << "addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:" << firstElement + i * direction + 2 << "\n"
+																																 "setcurve title=\""
+						   << formattedColumn.Name << indexStr << "\" identifier="
+																  " visible=yes inlegend=yes\n"
+																  "setcurve connect=4\n"
+						   << "\n";
 				}
 			}
 			else {
 
-				script <<
-					"addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:2\n"
-					"setcurve title=\"" << formattedColumn.Name << "\" identifier="" visible=yes inlegend=yes\n"
-					"setcurve connect=4\n"
-					<< "\n";
+				script << "addcurvetxt \"" << formattedColumn.FileName << ".txt\" 1:2\n"
+																		  "setcurve title=\""
+					   << formattedColumn.Name << "\" identifier="
+												  " visible=yes inlegend=yes\n"
+												  "setcurve connect=4\n"
+					   << "\n";
 			}
 		}
 	}
 
-	script <<
-		"setapplication arrangewindows=1\n"
-		"setapplication freeze=yes\n"
-		<< "\n";
+	script << "setapplication arrangewindows=1\n"
+			  "setapplication freeze=yes\n"
+		   << "\n";
 }
 
-}
-}
+} // namespace modules
+} // namespace dfx

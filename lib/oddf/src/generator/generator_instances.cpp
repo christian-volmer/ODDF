@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Classes that support the generation of code (e.g., Verilog) from the
-	design. Implements the identification of modules and their instances.
+    Classes that support the generation of code (e.g., Verilog) from the
+    design. Implements the identification of modules and their instances.
 
 */
 
@@ -44,6 +44,11 @@ void Generator::IdentifyInstances(std::basic_ostream<char> &os)
 
 			std::list<Entity *> inputConnectors;
 			std::list<Entity *> outputConnectors;
+
+			Connectivity() :
+				inputConnectors(), outputConnectors()
+			{
+			}
 		};
 
 		struct InstanceSequenceCompare {
@@ -80,8 +85,7 @@ void Generator::IdentifyInstances(std::basic_ostream<char> &os)
 				"instance",
 				module->name,
 				std::vector<std::string>(connectivity.inputConnectors.size()),
-				std::vector<std::string>(connectivity.outputConnectors.size())
-				);
+				std::vector<std::string>(connectivity.outputConnectors.size()));
 
 			Entity &instanceEntity = instance.entities.back();
 			instanceEntity.targetModule = module;
@@ -158,10 +162,9 @@ void Generator::IdentifyInstances(std::basic_ostream<char> &os)
 		}
 
 		// Remove all '$input_connector' and '$output_connector' entities from their instance
-		// and double-check that all '$input_connector' and '$output_connector' have been completely disconnected 
+		// and double-check that all '$input_connector' and '$output_connector' have been completely disconnected
 
 		instance.entities.remove_if([](Entity const &ent) {
-
 			if ((ent.className == "$input_connector") || (ent.className == "$output_connector")) {
 
 				assert(ent.inputs[0].driver == nullptr);
@@ -224,30 +227,29 @@ bool Generator::InstancesEqual(Instance const *instance1, Instance const *instan
 
 			// Compare inputs
 			if (!std::equal(it1->inputs.cbegin(), it1->inputs.cend(), it2->inputs.cbegin(),
-				[](Entity::Input const &input1, Entity::Input const &input2) {
+					[](Entity::Input const &input1, Entity::Input const &input2) {
+						if (input1.driver == nullptr) {
 
-				if (input1.driver == nullptr) {
+							if (input2.driver == nullptr)
+								return true;
+							else
+								return false;
+						}
 
-					if (input2.driver == nullptr)
+						if (input1.driver->entity->index != input2.driver->entity->index)
+							return false;
+
+						if (input1.driver->index != input2.driver->index)
+							return false;
+
+						if (input1.driver->targets.size() != input2.driver->targets.size())
+							return false;
+
+						if (input1.driver->type != input2.driver->type)
+							return false;
+
 						return true;
-					else
-						return false;
-				}
-
-				if (input1.driver->entity->index != input2.driver->entity->index)
-					return false;
-
-				if (input1.driver->index != input2.driver->index)
-					return false;
-
-				if (input1.driver->targets.size() != input2.driver->targets.size())
-					return false;
-
-				if (input1.driver->type != input2.driver->type)
-					return false;
-
-				return true;
-			}))
+					}))
 				return false;
 
 			// TODO: do we need to check the outputs as well? I think they are checked implicitely by the input check.
@@ -360,7 +362,6 @@ void Generator::GenerateModules(std::basic_ostream<char> &os)
 			}
 		}
 
-
 	// Assign proper module names and check for name clashes
 	std::map<std::string, std::list<Instance *>> nameAssignments;
 	for (auto &instance : instances)
@@ -373,7 +374,7 @@ void Generator::GenerateModules(std::basic_ostream<char> &os)
 
 			if (!assignment.first.empty())
 				assignment.second.front()->moduleName = assignment.first;
-			else 
+			else
 				assignment.second.front()->moduleName = assignment.second.front()->GetFullName();
 		}
 		else {
@@ -389,7 +390,6 @@ void Generator::GenerateModules(std::basic_ostream<char> &os)
 	// Replace invalid characters by underscores.
 	for (auto &instance : instances)
 		std::transform(instance.moduleName.begin(), instance.moduleName.end(), instance.moduleName.begin(), [](char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ? c : '_'; });
-
 
 	// Print summary
 	int longestModuleName = std::accumulate(instances.begin(), instances.end(), 10, [](int current, Instance const &instance) { return std::max(current, (int)instance.moduleName.length()); });
@@ -411,5 +411,5 @@ void Generator::GenerateModules(std::basic_ostream<char> &os)
 	os << std::endl;
 }
 
-}
-}
+} // namespace generator
+} // namespace dfx

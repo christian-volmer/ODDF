@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Select() returns a sequence of elements of a bus based starting at
-	the index given by its input node.
+    Select() returns a sequence of elements of a bus based starting at
+    the index given by its input node.
 
 */
 
@@ -31,7 +31,8 @@ namespace dfx {
 namespace backend {
 namespace blocks {
 
-template<typename T> class select_block : public BlockBase {
+template<typename T>
+class select_block : public BlockBase {
 
 private:
 
@@ -102,13 +103,18 @@ private:
 		return BlockBase::GetOutputPinDescription(index, groupIndex, busSize, busIndex);
 	}
 
-
 public:
+
+	~select_block() = default;
+
+	select_block(select_block const &) = delete;
+	void operator=(select_block const &) = delete;
 
 	select_block(node<dynfix> const &indexNode, bus_access<T> const &input, int length) :
 		BlockBase("select"),
 		length(length),
 		inputWidth(input.width()),
+		stride(),
 		indexInput(this, indexNode),
 		inputs(),
 		outputs()
@@ -138,11 +144,10 @@ public:
 
 		return output;
 	}
-
 };
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace blocks {
 
@@ -152,11 +157,10 @@ namespace blocks {
 		return Design::GetCurrent().NewBlock<backend::blocks::select_block<_type_>>(index, input, length).get_output_bus(); \
 	}
 
-
 IMPLEMENT_SELECT_FUNCTION(bool)
 IMPLEMENT_SELECT_FUNCTION(double)
 IMPLEMENT_SELECT_FUNCTION(std::int32_t)
 IMPLEMENT_SELECT_FUNCTION(std::int64_t)
 
-}
-}
+} // namespace blocks
+} // namespace dfx

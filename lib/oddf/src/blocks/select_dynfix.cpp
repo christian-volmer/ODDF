@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Select() returns a sequence of elements of a bus based starting at
-	the index given by its input node. Implementation for 'dynfix'.
+    Select() returns a sequence of elements of a bus based starting at
+    the index given by its input node. Implementation for 'dynfix'.
 
 */
 
@@ -46,7 +46,6 @@ private:
 		{
 			assert(align >= 0);
 		}
-
 	};
 
 	int length;
@@ -115,10 +114,16 @@ private:
 
 public:
 
+	~select_block_dynfix() = default;
+
+	select_block_dynfix(select_block_dynfix const &) = delete;
+	void operator=(select_block_dynfix const &) = delete;
+
 	select_block_dynfix(node<dynfix> const &indexNode, bus_access<dynfix> const &input, int length) :
 		BlockBase("select"),
 		length(length),
 		inputWidth(input.width()),
+		stride(),
 		indexInput(this, indexNode),
 		inputs(),
 		outputs()
@@ -156,11 +161,10 @@ public:
 
 		return output;
 	}
-
 };
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace blocks {
 
@@ -169,5 +173,5 @@ bus<dynfix> Select(bus_access<dynfix> const &input, node<dynfix> const &index, i
 	return Design::GetCurrent().NewBlock<backend::blocks::select_block_dynfix>(index, input, length).get_output_bus();
 }
 
-}
-}
+} // namespace blocks
+} // namespace dfx

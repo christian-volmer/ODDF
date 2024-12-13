@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Implementation of the configuration::IBuilder interfaces. Provides
-	access a serial interface similar to AMBA/APB.
+    Implementation of the configuration::IBuilder interfaces. Provides
+    access a serial interface similar to AMBA/APB.
 
 */
 
@@ -32,14 +32,11 @@ namespace dfx {
 namespace modules {
 
 SerialConfigurationBuilder::SerialConfigurationBuilder(configuration::Namespace &theNamespace) :
+	Inputs(), Outputs(),
 	configNamespace(theNamespace),
-	globalNextAddress(0),
-	nextAddress(globalNextAddress),
-	isFinal(false),
-	current(),
-	stack(),
-	locked(true),
-	readBackWires()
+	globalNextAddress(0), nextAddress(globalNextAddress),
+	isFinal(false), current(), stack(), locked(true),
+	readBackWires(), forkedBuilders()
 {
 	namespace b = blocks;
 
@@ -56,14 +53,11 @@ SerialConfigurationBuilder::SerialConfigurationBuilder(configuration::Namespace 
 }
 
 SerialConfigurationBuilder::SerialConfigurationBuilder(configuration::Namespace &theNamespace, int &masterNextAddress, Level &forkFrom) :
+	Inputs(), Outputs(),
 	configNamespace(theNamespace),
-	globalNextAddress(-1),
-	nextAddress(masterNextAddress),
-	isFinal(false),
-	current(),
-	stack(),
-	locked(true),
-	readBackWires()
+	globalNextAddress(-1), nextAddress(masterNextAddress),
+	isFinal(false), current(), stack(), locked(true),
+	readBackWires(), forkedBuilders()
 {
 	namespace b = blocks;
 
@@ -78,7 +72,6 @@ SerialConfigurationBuilder::SerialConfigurationBuilder(configuration::Namespace 
 	current.baseAddress = forkFrom.baseAddress;
 	current.hierarchyLevel = forkFrom.hierarchyLevel;
 }
-
 
 void SerialConfigurationBuilder::Finalise()
 {
@@ -181,18 +174,18 @@ void SerialConfigurationBuilder::Merge(int extraPipelining)
 	/*
 
 	// We add a dummy register after the very last register in the main config bus.
-	// This is to avoid SPI read time-out errors when reading the last register due to 
+	// This is to avoid SPI read time-out errors when reading the last register due to
 	// read-ahead feature.
 	if ((std::next(stack.begin()) == stack.end()) && (globalNextAddress != -1)) {
 
-		if (locked) {
+	    if (locked) {
 
-			Break(0);
-			AddObserver(b::Constant<ufix<1>>(0), "dummy");
-			Merge(0);
-		}
-		else
-			AddObserver(b::Constant<ufix<1>>(0), "dummy");
+	        Break(0);
+	        AddObserver(b::Constant<ufix<1>>(0), "dummy");
+	        Merge(0);
+	    }
+	    else
+	        AddObserver(b::Constant<ufix<1>>(0), "dummy");
 	}
 
 	WARNING: breaks code-generation, creates duplicate input 'in_Config_BaseAddress'
@@ -332,9 +325,10 @@ node<dynfix> SerialConfigurationBuilder::AddRegister(bool isSigned, int wordWidt
 	if (wordWidth <= configuration::DataWidth) {
 
 		value <<= b::Delay(b::Decide(
-			current.ClearAll, zero,
-			current.WriteEnable && current.Address == localAddress, b::ReinterpretCast(value, current.WriteData), 
-			value), tag);
+							   current.ClearAll, zero,
+							   current.WriteEnable && current.Address == localAddress, b::ReinterpretCast(value, current.WriteData),
+							   value),
+			tag);
 		readBackWires.append(value);
 		++nextAddress;
 	}
@@ -349,12 +343,13 @@ node<dynfix> SerialConfigurationBuilder::AddRegister(bool isSigned, int wordWidt
 			current.WriteEnable && current.Address == localAddress, b::ReinterpretCast(highValue, current.WriteData),
 			highValue));
 
-		// low order bits come at current address + 1. Higher order bits are copied from shadow 
+		// low order bits come at current address + 1. Higher order bits are copied from shadow
 		// register when lower order bits are written to.
 		value <<= b::Delay(b::Decide(
-			current.ClearAll, zero,
-			current.WriteEnable && current.Address == localAddress + 1, b::FloorCast(value, b::ReinterpretCast(value, current.WriteData) + highValue),
-			value), tag);
+							   current.ClearAll, zero,
+							   current.WriteEnable && current.Address == localAddress + 1, b::FloorCast(value, b::ReinterpretCast(value, current.WriteData) + highValue),
+							   value),
+			tag);
 
 		readBackWires.append(b::FloorCast(highValue, value));
 		readBackWires.append(value);
@@ -421,7 +416,8 @@ configuration::Range SerialConfigurationBuilder::AddRange(bool isSigned, int wor
 	configuration::Range range(isSigned, wordWidth, fraction);
 
 	int addressWidth = 1, temp = length - 1;
-	while ((temp = temp / 2) > 0) ++addressWidth;
+	while ((temp = temp / 2) > 0)
+		++addressWidth;
 
 	dynfix addressZero = dynfix(false, addressWidth, 0);
 	dynfix dataZero = dynfix(isSigned, wordWidth, fraction);
@@ -457,6 +453,5 @@ configuration::Range SerialConfigurationBuilder::AddRange(bool isSigned, int wor
 	return range;
 }
 
-
-}
-}
+} // namespace modules
+} // namespace dfx

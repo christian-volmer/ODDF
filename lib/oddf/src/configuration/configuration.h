@@ -144,6 +144,15 @@ public:
 		int address;
 		int arrayLength;
 		std::string fullName;
+
+		Entry() :
+			access(), name(), description(), typeDesc(), instance(),
+			address(), arrayLength(), fullName() { }
+
+		~Entry() = default;
+
+		Entry(Entry const &) = default;
+		Entry &operator=(Entry const &) = default;
 	};
 
 public:
@@ -152,6 +161,8 @@ public:
 	std::vector<Entry> entries;
 
 public:
+
+	Namespace() = default;
 
 	void AddEntry(Entry::Access access, std::string const &name, std::string const &description, HierarchyLevel const *instance, types::TypeDescription const &typeDesc, int address, int arrayLength);
 	Entry const *Lookup(std::string const &fullName) const;

@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Logger functions record node and bus values during simulation.
-	Content can be printed in table form or exported as a
-	machine-readable text file.
+    Logger functions record node and bus values during simulation.
+    Content can be printed in table form or exported as a
+    machine-readable text file.
 
 */
 
@@ -34,6 +34,8 @@ namespace backend {
 class logger_BlockBase {
 
 public:
+
+	virtual ~logger_BlockBase() = default;
 
 	// Detaches this logger block from the owning Logger object.
 	virtual void detach() = 0;
@@ -52,11 +54,13 @@ class logger_callback {
 
 public:
 
+	virtual ~logger_callback() = default;
+
 	virtual bool IsEnabled() const = 0;
 	virtual void NotifyRemoval(logger_BlockBase *loggerBlock) = 0;
 };
 
-}
+} // namespace backend
 
 namespace modules {
 
@@ -72,7 +76,6 @@ private:
 		Integer = 1,
 		Analogue = 2
 	};
-
 
 	struct Column {
 
@@ -101,10 +104,10 @@ public:
 	};
 
 	Logger();
-	Logger(Logger const &) = delete;
 	~Logger();
 
-	Logger &operator =(Logger const &) = delete;
+	Logger(Logger const &) = delete;
+	void operator=(Logger const &) = delete;
 
 	//
 	// Log functions with user-defined tag.
@@ -150,7 +153,6 @@ public:
 	void LogSequence(std::string const &name, bus_access<double> const &bus, int flags = 0, int separation = 1, char const *format = "%.17g");
 	void LogSequence(std::string const &name, bus_access<dynfix> const &bus, int flags = 0, int separation = 1, char const *format = "%.17g");
 
-
 	// Clears all logged content.
 	void Clear();
 
@@ -177,9 +179,7 @@ public:
 
 	// Exports the logged data with default tag ("") in a format compatible with VaryPlot.
 	void ExportToVaryPlot(std::string const &basePath) const;
-
 };
-
 
 //
 // Node logging without explicit tag
@@ -210,7 +210,6 @@ inline void Logger::Log(std::string const &name, node<dynfix> const &node, char 
 	Log("", name, node, format);
 }
 
-
 //
 // Bus logging without explicit tag
 //
@@ -239,9 +238,6 @@ inline void Logger::Log(std::string const &name, bus_access<dynfix> const &bus, 
 {
 	Log("", name, bus, flags, separation, format);
 }
-
-
-
 
 //
 // Sequence logging without explicit tag
@@ -272,7 +268,6 @@ inline void Logger::LogSequence(std::string const &name, bus_access<dynfix> cons
 	LogSequence("", name, bus, flags, separation, format);
 }
 
-
 //
 // Wrappers for exporting without explicit tag
 //
@@ -287,12 +282,10 @@ inline void Logger::ExportToVaryPlot(std::string const &basePath, std::unordered
 	ExportToVaryPlot(basePath, tags, "clock", "cycles", 1);
 }
 
-
 inline void Logger::ExportToVaryPlot(std::string const &basePath) const
 {
 	ExportToVaryPlot(basePath, { "" });
 }
 
-
-}
-}
+} // namespace modules
+} // namespace dfx

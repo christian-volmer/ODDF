@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Classes that support the generation of code (e.g., Verilog) from the
-	design.
+    Classes that support the generation of code (e.g., Verilog) from the
+    design.
 
 */
 
@@ -308,7 +308,6 @@ bool Entity::IsConsistent() const
 	return true;
 }
 
-
 //
 // Generator::Configuration
 //
@@ -319,22 +318,26 @@ Generator::Configuration::Configuration() :
 {
 }
 
-
 //
 // Generator class
 //
 
 Generator::Generator(Design const &design, std::basic_ostream<char> &os, Configuration const &theConfiguration /* = Configuration() */) :
-	configuration(theConfiguration)
+	instance_mapping(),
+	entity_mapping(),
+	configuration(theConfiguration),
+	instances()
 {
-	os << std::endl << " --- Generator --- " << std::endl << std::endl;
+	os << std::endl
+	   << " --- Generator --- " << std::endl
+	   << std::endl;
 
 	for (auto &block : design.GetBlocks())
 		block->Simplify();
 
 	MapEntities(design, os);
 	MapConnections(os);
-	//ReportUnconnectedOutputs(os);
+	// ReportUnconnectedOutputs(os);
 	PlacePorts(os);
 	NamePorts(os);
 	IdentifyInstances(os);
@@ -375,7 +378,6 @@ void Generator::BreakConnection(Entity::Input &input)
 	input.driver->targets.remove(&input);
 	input.driver = nullptr;
 }
-
 
 void Generator::MapEntities(dfx::Design const &design, std::basic_ostream<char> &os)
 {
@@ -475,5 +477,5 @@ void Generator::CheckConsistency(std::basic_ostream<char> &os)
 				throw design_error("Internal error: entity '" + instance.GetFullName() + "/" + ent.name + "' failed consistency checks.");
 }
 
-}
-}
+} // namespace generator
+} // namespace dfx

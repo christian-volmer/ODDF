@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Obsolete, will be removed eventually. Use SerialConfigurationBuilder
-	and SerialConfigurationController instead.
+    Obsolete, will be removed eventually. Use SerialConfigurationBuilder
+    and SerialConfigurationController instead.
 
 */
 
@@ -67,7 +67,7 @@ public:
 		SetDirty();
 	}
 
-	node<dynfix> GetNode() 
+	node<dynfix> GetNode()
 	{
 		return writeOutput.GetNode();
 	}
@@ -108,8 +108,8 @@ public:
 	}
 };
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace modules {
 
@@ -118,19 +118,14 @@ namespace modules {
 //
 
 RegisterFile::register_description_base::register_description_base() :
-	name(),
-	fullName(),
-	instance(nullptr),
-	typeDesc(),
-	address(0),
-	arrayLength(0),
-	arrayIndex(0)
+	name(), fullName(), description(), instance(), typeDesc(), address(),
+	arrayLength(), arrayIndex()
 {
 }
 
 RegisterFile::read_register_description::read_register_description() :
 	register_description_base(),
-	readBlock(nullptr)
+	readBlock()
 {
 }
 
@@ -147,7 +142,9 @@ RegisterFile::RegisterFile() :
 	ReadDefinitions(),
 	WriteRegisterBus(nullptr),
 	WriteNames(),
-	WriteDefinitions()
+	WriteDefinitions(),
+	Inputs(),
+	Outputs()
 {
 }
 
@@ -167,10 +164,11 @@ void RegisterFile::SetWriteRegisterBus(forward_bus<ufix<64>> &writeRegisterBus)
 
 void RegisterFile::report(std::basic_ostream<char> &os) const
 {
-	using std::setw;
 	using std::endl;
+	using std::setw;
 
-	os << endl << " --- Write Registers --- " << endl;
+	os << endl
+	   << " --- Write Registers --- " << endl;
 
 	HierarchyLevel const *previous_instance = nullptr;
 
@@ -182,7 +180,9 @@ void RegisterFile::report(std::basic_ostream<char> &os) const
 		HierarchyLevel const *new_instance = reg.instance;
 
 		if (new_instance != previous_instance)
-			os << endl << " " << new_instance->GetFullName() << endl << endl;
+			os << endl
+			   << " " << new_instance->GetFullName() << endl
+			   << endl;
 
 		previous_instance = new_instance;
 
@@ -196,7 +196,8 @@ void RegisterFile::report(std::basic_ostream<char> &os) const
 
 	os << endl;
 
-	os << endl << " --- Read Registers --- " << endl;
+	os << endl
+	   << " --- Read Registers --- " << endl;
 
 	previous_instance = nullptr;
 
@@ -208,7 +209,9 @@ void RegisterFile::report(std::basic_ostream<char> &os) const
 		HierarchyLevel const *new_instance = reg.instance;
 
 		if (new_instance != previous_instance)
-			os << endl << " " << new_instance->GetFullName() << endl << endl;
+			os << endl
+			   << " " << new_instance->GetFullName() << endl
+			   << endl;
 
 		previous_instance = new_instance;
 
@@ -221,9 +224,7 @@ void RegisterFile::report(std::basic_ostream<char> &os) const
 	}
 
 	os << endl;
-
 }
-
 
 //
 // Write registers
@@ -337,7 +338,6 @@ void RegisterFile::InternalWrite(int startAddress, int count, types::TypeDescrip
 
 			break;
 		}
-
 
 		default:
 			throw std::bad_cast();
@@ -585,7 +585,7 @@ void RegisterFile::InternalRead(int startAddress, int count, types::TypeDescript
 			}
 			else
 				throw std::bad_cast();
-				
+
 			break;
 		}
 
@@ -653,6 +653,5 @@ void RegisterFile::InternalRead(int startAddress, int count, types::TypeDescript
 	}
 }
 
-
-}
-}
+} // namespace modules
+} // namespace dfx

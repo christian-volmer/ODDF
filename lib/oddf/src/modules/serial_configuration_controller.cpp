@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Implementation of the configuration::IController interfaces. Provides
-	access a serial interface similar to AMBA/APB.
+    Implementation of the configuration::IController interfaces. Provides
+    access a serial interface similar to AMBA/APB.
 
 */
 
@@ -35,13 +35,15 @@ namespace dfx {
 namespace modules {
 
 SerialConfigurationController::SerialConfigurationController(int theTimeOut) :
+	Inputs(),
+	Outputs(),
 	readAcknowledge(),
 	readData(),
 	timeOut(theTimeOut),
-	clearAll(), 
-	address(), 
-	writeEnable(), 
-	writeData(), 
+	clearAll(),
+	address(),
+	writeEnable(),
+	writeData(),
 	readRequest(),
 	simulator(nullptr)
 {
@@ -112,9 +114,8 @@ void SerialConfigurationController::Read(int theAddress, std::uint32_t *values, 
 			std::memcpy(&values[ackIndex], readData, sizeof(std::uint32_t));
 			++ackIndex;
 		}
-		else
-			if (++timeOutCounter >= timeOut)
-				throw std::runtime_error("SerialConfigurationController::Read(): read response timed out.");
+		else if (++timeOutCounter >= timeOut)
+			throw std::runtime_error("SerialConfigurationController::Read(): read response timed out.");
 	}
 }
 
@@ -128,5 +129,5 @@ void SerialConfigurationController::ClearAll()
 	clearAll = false;
 }
 
-}
-}
+} // namespace modules
+} // namespace dfx

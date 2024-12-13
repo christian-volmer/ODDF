@@ -43,7 +43,13 @@ public:
 	bool outdated;
 
 	Component() :
-		size(0), blocksFirst(nullptr), blocksEnd(&blocksFirst), outdated(true) { }
+		sortingOrder(),
+		size(),
+		blocksFirst(nullptr),
+		blocksEnd(&blocksFirst),
+		outdated(true)
+	{
+	}
 };
 
 } // namespace backend
@@ -58,9 +64,6 @@ private:
 
 	std::vector<backend::IStep *> steppables;
 
-	void RecursiveBuildExecutionOrder(backend::BlockBase *current);
-	void Prepare();
-
 	std::atomic<int> currentSteppableIndex;
 	std::atomic<int> currentTaskIndex;
 	std::vector<std::list<backend::Component *>> tasks;
@@ -69,6 +72,9 @@ private:
 	std::list<int> runStates;
 	std::mutex runMutex;
 	std::condition_variable runCv;
+
+	void RecursiveBuildExecutionOrder(backend::BlockBase *current);
+	void Prepare();
 
 	void Propagate();
 	void PropagateCore();
@@ -80,11 +86,12 @@ private:
 
 public:
 
-	Simulator(Design const &design);
 	~Simulator();
 
 	Simulator(Simulator const &) = delete;
 	void operator=(Simulator const &) = delete;
+
+	Simulator(Design const &design);
 
 	void Run(unsigned numberOfIterations = 1);
 

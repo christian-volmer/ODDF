@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Like the normal 'source' module but instead of having a read-enable
-	input, the data is provided at an average speed specified during data
-	initialisation.
+    Like the normal 'source' module but instead of having a read-enable
+    input, the data is provided at an average speed specified during data
+    initialisation.
 
 */
 
@@ -32,10 +32,10 @@
 namespace dfx {
 namespace modules {
 
-template<typename T> ThrottledSource<T>::ThrottledSource(int busWidth /* = 1 */) :
-	mResetGenerator(),
-	mSource(busWidth),
-	mIncrement(1.0)
+template<typename T>
+ThrottledSource<T>::ThrottledSource(int busWidth /* = 1 */) :
+	mResetGenerator(), mSource(busWidth), mIncrement(1.0),
+	Outputs()
 {
 	mResetGenerator.Inputs.ReadEnable <<= blocks::Constant(true);
 
@@ -54,18 +54,20 @@ template<typename T> ThrottledSource<T>::ThrottledSource(int busWidth /* = 1 */)
 	mSource.Inputs.ReadEnable <<= overflow;
 }
 
-template<typename T> void ThrottledSource<T>::SetData(class std::vector<T> const &data, double increment, bool periodic /* = false */)
+template<typename T>
+void ThrottledSource<T>::SetData(class std::vector<T> const &data, double increment, bool periodic /* = false */)
 {
 	mIncrement = increment;
 	mSource.SetData(data, periodic);
-	mResetGenerator.SetData(std::vector<int>{ 0 }, false);
+	mResetGenerator.SetData(std::vector<int> { 0 }, false);
 }
 
-template<typename T> void ThrottledSource<T>::SetData(class std::vector<T> &&data, double increment, bool periodic /* = false */)
+template<typename T>
+void ThrottledSource<T>::SetData(class std::vector<T> &&data, double increment, bool periodic /* = false */)
 {
 	mIncrement = increment;
 	mSource.SetData(std::move(data), periodic);
-	mResetGenerator.SetData(std::vector<int>{ 0 }, false);
+	mResetGenerator.SetData(std::vector<int> { 0 }, false);
 }
 
 // explicit template implementations
@@ -74,5 +76,5 @@ template class ThrottledSource<std::int32_t>;
 template class ThrottledSource<std::int64_t>;
 template class ThrottledSource<double>;
 
-}
-}
+} // namespace modules
+} // namespace dfx

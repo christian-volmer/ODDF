@@ -210,15 +210,17 @@ protected:
 public:
 
 	OutputPinBase(BlockBase *owner) :
+		index(),
 		owner(owner)
 	{
 		index = (int)owner->outputPins.size();
 		owner->outputPins.push_back(this);
 	}
 
-	virtual ~OutputPinBase()
-	{
-	}
+	OutputPinBase(OutputPinBase const &) = delete;
+	void operator=(OutputPinBase const &) = delete;
+
+	virtual ~OutputPinBase() = default;
 
 	virtual bool IsConnected() const = 0;
 
@@ -309,15 +311,17 @@ protected:
 public:
 
 	InputPinBase(BlockBase *owner) :
+		index(),
 		owner(owner)
 	{
 		index = (int)owner->inputPins.size();
 		owner->inputPins.push_back(this);
 	}
 
-	virtual ~InputPinBase()
-	{
-	}
+	InputPinBase(InputPinBase const &) = delete;
+	void operator=(InputPinBase const &) = delete;
+
+	virtual ~InputPinBase() = default;
 
 	std::string GetName() const
 	{

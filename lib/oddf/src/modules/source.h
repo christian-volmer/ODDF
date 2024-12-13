@@ -52,24 +52,32 @@ private:
 
 public:
 
-	struct {
+	struct InputsType {
 
 		inout::input_node<bool> ReadEnable;
 
+		InputsType() :
+			ReadEnable() { }
+
 	} Inputs;
 
-	struct {
+	struct OutputsType {
 
 		inout::output_node<bool> OutputReady;
 		inout::output_node<T> Data;
 		inout::output_bus<T> DataBus;
 
+		OutputsType() :
+			OutputReady(), Data(), DataBus() { }
+
 	} Outputs;
 
-	Source(int busWidth = 1);
+	~Source() = default;
 
 	Source(Source const &) = delete;
 	void operator=(Source const &) = delete;
+
+	Source(int busWidth = 1);
 
 	void SetData(class std::vector<T> const &data, bool periodic = false);
 	void SetData(class std::vector<T> &&data, bool periodic = false);

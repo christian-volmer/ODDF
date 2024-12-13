@@ -51,10 +51,19 @@ public:
 
 	struct Input {
 
+	public:
+
 		Entity *entity;
 		int index;
 		std::string name;
 		Output *driver;
+
+	public:
+
+		Input() :
+			entity(), index(), name(), driver() { }
+
+		~Input() = default;
 
 		Input(Input const &) = default;
 		Input &operator=(Input const &) = default;
@@ -64,27 +73,29 @@ public:
 
 	private:
 
-		int index;
-		std::string name;
-		std::list<Input *> targets;
-
 		friend class Entity;
 		friend class Generator;
 		friend class Instance;
 
+		int index;
+		std::string name;
+		std::list<Input *> targets;
+
+	public:
+
+		Entity *entity;
+		types::TypeDescription type;
+		int groupIndex;
+		int busSize; // -1 signifies a non-bus node.
+		int busIndex;
+
 	public:
 
 		Output() :
-			index(0),
-			name(),
-			targets(),
-			entity(nullptr),
-			type(),
-			groupIndex(0),
-			busSize(-1),
-			busIndex(0)
-		{
-		}
+			index(0), name(), targets(), entity(nullptr),
+			type(), groupIndex(0), busSize(-1), busIndex(0) { }
+
+		~Output() = default;
 
 		Output(Output const &) = default;
 		Output &operator=(Output const &) = default;
@@ -98,12 +109,6 @@ public:
 		{
 			name = newName;
 		}
-
-		Entity *entity;
-		types::TypeDescription type;
-		int groupIndex;
-		int busSize; // -1 signifies a non-bus node.
-		int busIndex;
 	};
 
 	dfx::backend::BlockBase const *block;
@@ -122,17 +127,26 @@ public:
 	// Used by entities of class 'instance' and points to the instantiated module.
 	Instance *targetModule;
 
-	Entity(Instance *instance, dfx::backend::BlockBase const *block);
-	Entity(Instance *instance, std::string const &className, std::string const &name, std::vector<std::string> const &inputNames, std::vector<std::string> const &outputNames);
-	Entity(Instance *instance, std::string const &className, std::string const &name, int numberOfInputs, int numberOfOutputs);
+public:
+
+	~Entity() = default;
 
 	Entity(Entity const &) = delete;
 	void operator=(Entity const &) = delete;
+
+	Entity(Instance *instance, dfx::backend::BlockBase const *block);
+	Entity(Instance *instance, std::string const &className, std::string const &name, std::vector<std::string> const &inputNames, std::vector<std::string> const &outputNames);
+	Entity(Instance *instance, std::string const &className, std::string const &name, int numberOfInputs, int numberOfOutputs);
 
 	bool IsConsistent() const;
 };
 
 class Instance {
+
+private:
+
+	mutable bool cachedHashValid;
+	mutable std::size_t cachedHash;
 
 public:
 
@@ -168,32 +182,37 @@ public:
 
 	std::size_t GetHash() const;
 
-	Instance(int sequenceNumber, std::string const &name, std::string const &moduleName, Instance *parent) :
-		parent(parent),
-		entities(),
-		sequenceNumber(sequenceNumber),
-		name(name),
-		moduleName(),
-		userModuleName(moduleName),
-		isModel(false),
-		unifiedWith(nullptr),
-		inputPorts(),
-		outputPorts(),
-		cachedHashValid(false),
-		cachedHash(0)
-	{
-	}
+public:
+
+	~Instance() = default;
 
 	Instance(Instance const &) = delete;
 	void operator=(Instance const &) = delete;
 
-private:
-
-	mutable bool cachedHashValid;
-	mutable std::size_t cachedHash;
+	Instance(int sequenceNumber, std::string const &name, std::string const &moduleName, Instance *parent) :
+		cachedHashValid(), cachedHash(),
+		parent(parent), entities(), sequenceNumber(sequenceNumber),
+		name(name), moduleName(), userModuleName(moduleName),
+		isModel(), unifiedWith(),
+		inputPorts(), outputPorts()
+	{
+	}
 };
 
 class Generator {
+
+public:
+
+	struct Configuration {
+
+		// Enable bussification globally.
+		bool globalBussification;
+
+		// Enable or disable bussification per module.
+		std::map<std::string, bool> moduleBussification;
+
+		Configuration();
+	};
 
 private:
 
@@ -203,6 +222,8 @@ private:
 
 	std::unordered_map<dfx::HierarchyLevel const *, Instance *> instance_mapping;
 	std::unordered_map<dfx::backend::BlockBase const *, Entity *> entity_mapping;
+
+	Configuration configuration;
 
 	Instance *ToInstance(dfx::HierarchyLevel const *hierarchyLevel);
 	static void MakeConnection(Entity::Output &output, Entity::Input &input);
@@ -248,24 +269,15 @@ private:
 
 public:
 
-	struct Configuration {
-
-		// Enable bussification globally.
-		bool globalBussification;
-
-		// Enable or disable bussification per module.
-		std::map<std::string, bool> moduleBussification;
-
-		Configuration();
-	};
-
-private:
-
-	Configuration configuration;
+	std::list<Instance> instances;
 
 public:
 
-	std::list<Instance> instances;
+	~Generator() = default;
+
+	Generator(Generator const &) = delete;
+	void operator=(Generator const &) = delete;
+
 	Generator(Design const &design, std::basic_ostream<char> &os, Configuration const &theConfiguration = Configuration());
 };
 

@@ -54,16 +54,26 @@ dynfix::dynfix(bool isSigned, int theWordWidth, int theFraction) :
 		throw design_error("dfx::dynfix: The parameter 'theWordWidth' exceeds the maximum supported width (currently " + std::to_string(MAX_FIELDS * 32) + "). Increase dfx::dynfix::MAX_FIELDS if needed.");
 }
 
-dynfix::dynfix(std::int32_t value)
-{
-	Construct(value);
-}
-dynfix::dynfix(std::int64_t value)
+dynfix::dynfix(std::int32_t value) :
+	wordWidth(0),
+	fraction(0),
+	data()
 {
 	Construct(value);
 }
 
-dynfix::dynfix(double value)
+dynfix::dynfix(std::int64_t value) :
+	wordWidth(0),
+	fraction(0),
+	data()
+{
+	Construct(value);
+}
+
+dynfix::dynfix(double value) :
+	wordWidth(0),
+	fraction(0),
+	data()
 {
 	int exp = 0;
 	value = std::frexp(value, &exp);
@@ -557,7 +567,8 @@ TypeDescription::TypeDescription() :
 {
 }
 
-TypeDescription::TypeDescription(Class typeClass)
+TypeDescription::TypeDescription(Class typeClass) :
+	typeInfo(0)
 {
 	if (typeClass == Boolean || typeClass == Double || typeClass == Int32 || typeClass == Int64)
 		typeInfo = (unsigned)typeClass << 28;
@@ -565,7 +576,8 @@ TypeDescription::TypeDescription(Class typeClass)
 		throw design_error("TypeDescription::TypeDescription(typeClass): this constructor supports Boolean, Double, Int32, and Int64 type classes only.");
 }
 
-TypeDescription::TypeDescription(Class typeClass, bool isSigned, int wordLength, int fraction)
+TypeDescription::TypeDescription(Class typeClass, bool isSigned, int wordLength, int fraction) :
+	typeInfo(0)
 {
 	// TODO: check arguments are inside the supported range.
 	if (typeClass == FixedPoint) {

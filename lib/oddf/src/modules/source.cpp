@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	The 'source' module provides data during simulation on every clock
-	cycle as determined by its 'ReadEnable' input. The available data can
-	be specified through an std::vector before or during simulation.
+    The 'source' module provides data during simulation on every clock
+    cycle as determined by its 'ReadEnable' input. The available data can
+    be specified through an std::vector before or during simulation.
 
 */
 
@@ -34,12 +34,14 @@ namespace backend {
 namespace blocks {
 
 // replacemant<T> class required because std::vector does not work with bool.
-template<typename S> struct replacement {
+template<typename S>
+struct replacement {
 	typedef S type;
 	static type cast(S const &value) { return value; }
 };
 
-template<> struct replacement<bool> {
+template<>
+struct replacement<bool> {
 	typedef char type;
 	static bool cast(char const &value) { return value != 0; }
 };
@@ -48,7 +50,7 @@ template<typename T>
 class source_block : public BlockBase, private IStep {
 
 private:
-	
+
 	InputPin<bool> readEnableInput;
 
 	std::list<OutputPin<T>> outputs;
@@ -193,12 +195,14 @@ public:
 	}
 };
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace modules {
 
-template<typename T> Source<T>::Source(int busWidth /* = 1 */)
+template<typename T>
+Source<T>::Source(int busWidth /* = 1 */) :
+	Block(), Inputs(), Outputs()
 {
 	if (busWidth < 1)
 		throw design_error("Source module: Parameter 'busWidth' must be greate than or equal to one.");
@@ -211,12 +215,14 @@ template<typename T> Source<T>::Source(int busWidth /* = 1 */)
 	Outputs.OutputReady = block.get_output_ready();
 }
 
-template<typename T> void Source<T>::SetData(class std::vector<T> const &data, bool periodic /* = false */)
+template<typename T>
+void Source<T>::SetData(class std::vector<T> const &data, bool periodic /* = false */)
 {
 	Block->set_data(std::vector<T>(data), periodic);
 }
 
-template<typename T> void Source<T>::SetData(class std::vector<T> &&data, bool periodic /* = false */)
+template<typename T>
+void Source<T>::SetData(class std::vector<T> &&data, bool periodic /* = false */)
 {
 	Block->set_data(std::move(data), periodic);
 }
@@ -227,5 +233,5 @@ template class Source<std::int32_t>;
 template class Source<std::int64_t>;
 template class Source<double>;
 
-}
-}
+} // namespace modules
+} // namespace dfx

@@ -38,12 +38,15 @@ protected:
 
 public:
 
-	EntityProcessor(VerilogExporter *theExporter) :
-		exporter(theExporter) { }
-	virtual ~EntityProcessor() { }
+	virtual ~EntityProcessor() = default;
 
 	EntityProcessor(EntityProcessor const &) = delete;
 	void operator=(EntityProcessor const &) = delete;
+
+	EntityProcessor(VerilogExporter *theExporter) :
+		exporter(theExporter)
+	{
+	}
 
 	virtual void WritePreamble(std::ofstream &f, dfx::generator::Instance &module, dfx::generator::Entity &entity) const = 0;
 	virtual void WriteCode(std::ofstream &f, dfx::generator::Instance &module, dfx::generator::Entity &entity) const = 0;
@@ -75,19 +78,21 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<EntityProcessor>> entityProcessors;
 	std::unique_ptr<EntityProcessor> defaultProcessor;
 
+	std::list<std::string> listOfFiles;
+
 	std::string MakeCompliantName(std::string name) const;
 
 	void PrepareModule(dfx::generator::Instance &module);
 	void ExportModule(std::string const &basePath, dfx::generator::Instance &module, std::basic_ostream<char> &os, bool includeInListOfFiles);
 
-	std::list<std::string> listOfFiles;
-
 public:
 
-	VerilogExporter(dfx::generator::Generator &generator, Configuration const &theConfiguration = Configuration());
+	~VerilogExporter() = default;
 
 	VerilogExporter(VerilogExporter const &) = delete;
 	void operator=(VerilogExporter const &) = delete;
+
+	VerilogExporter(dfx::generator::Generator &generator, Configuration const &theConfiguration = Configuration());
 
 	void Export(std::string const &basePath, std::basic_ostream<char> &os);
 

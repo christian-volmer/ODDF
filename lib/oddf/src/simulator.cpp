@@ -1,26 +1,26 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	The simulator core.
+    The simulator core.
 
 */
 
@@ -40,7 +40,15 @@ static int const STATE_STEPPING = 2;
 static int const STATE_TERMINATING = 3;
 
 Simulator::Simulator(Design const &design) :
-	currentComponent(nullptr),
+	components(),
+	reusableComponents(),
+	currentComponent(),
+	steppables(),
+	currentSteppableIndex(),
+	currentTaskIndex(),
+	tasks(),
+	runThreads(),
+	runStates(),
 	runMutex(),
 	runCv()
 {
@@ -64,10 +72,11 @@ Simulator::Simulator(Design const &design) :
 	reusableComponents.push_front(&components.back());
 
 	/*
+
 	// Shuffle the blocks to check the validity of the block sorting algorithms.
 	std::deque<backend::BlockBase *> shuffledBlocks;
 	for (auto &block : design.Blocks)
-		shuffledBlocks.push_back(block.get());
+	    shuffledBlocks.push_back(block.get());
 
 	std::random_device rd;
 	std::mt19937 g(rd());
@@ -75,19 +84,20 @@ Simulator::Simulator(Design const &design) :
 	//std::shuffle(shuffledBlocks.begin(), shuffledBlocks.end(), g);
 
 	for (auto *block : shuffledBlocks) {
+
 	*/
 
-	//int position = 0;
+	// int position = 0;
 	for (auto &block : design.blocks) {
 
-		if (block->CanEvaluate()/* && block->IsConnected()*/) {
+		if (block->CanEvaluate() /* && block->IsConnected()*/) {
 
 			if (reusableComponents.empty()) {
 
 #if defined(DFX_SIMULATOR_ENABLE_COMPONENTS) && (DFX_SIMULATOR_ENABLE_COMPONENTS == 1)
 
-					components.emplace_back();
-					currentComponent = &components.back();
+				components.emplace_back();
+				currentComponent = &components.back();
 
 #elif defined(DFX_SIMULATOR_ENABLE_COMPONENTS) && (DFX_SIMULATOR_ENABLE_COMPONENTS == 0)
 
@@ -103,10 +113,9 @@ Simulator::Simulator(Design const &design) :
 				reusableComponents.pop_front();
 			}
 
-			//currentComponent->sortingOrder = position++;
+			// currentComponent->sortingOrder = position++;
 			RecursiveBuildExecutionOrder(block.get());
 		}
-
 	}
 
 	components.remove_if([](backend::Component const &component) { return component.blocksFirst == nullptr; });
@@ -162,8 +171,6 @@ Simulator::Simulator(Design const &design) :
 	}
 }
 
-
-
 Simulator::~Simulator()
 {
 	std::unique_lock<std::mutex> lock(runMutex);
@@ -198,7 +205,7 @@ void Simulator::RecursiveBuildExecutionOrder(backend::BlockBase *current)
 			backend::Component *toComponent = current->component;
 			backend::Component *fromComponent = currentComponent;
 
-			// Making sure that the smaller list becomes mergerd into the larger one 
+			// Making sure that the smaller list becomes mergerd into the larger one
 			// gives a significant performance improvement.
 			// TODO: are we really free to swap the order in which the two lists are merged?
 			if (fromComponent->size > toComponent->size)
@@ -212,19 +219,19 @@ void Simulator::RecursiveBuildExecutionOrder(backend::BlockBase *current)
 				toComponent->size += fromComponent->size;
 
 				// concatenation order based on sortingOrder does not yield the expected speed improvement. Keep it here for reference.
-				//if (toComponent->sortingOrder < fromComponent->sortingOrder) {
+				// if (toComponent->sortingOrder < fromComponent->sortingOrder) {
 
-					*toComponent->blocksEnd = fromComponent->blocksFirst;
-					toComponent->blocksEnd = fromComponent->blocksEnd;
+				*toComponent->blocksEnd = fromComponent->blocksFirst;
+				toComponent->blocksEnd = fromComponent->blocksEnd;
 				/*}
 				else {
 
-					*fromComponent->blocksEnd = toComponent->blocksFirst;
-					fromComponent->blocksEnd = toComponent->blocksEnd;
+				    *fromComponent->blocksEnd = toComponent->blocksFirst;
+				    fromComponent->blocksEnd = toComponent->blocksEnd;
 
-					toComponent->sortingOrder = fromComponent->sortingOrder;
-					toComponent->blocksFirst = fromComponent->blocksFirst;
-					toComponent->blocksEnd = fromComponent->blocksEnd;
+				    toComponent->sortingOrder = fromComponent->sortingOrder;
+				    toComponent->blocksFirst = fromComponent->blocksFirst;
+				    toComponent->blocksEnd = fromComponent->blocksEnd;
 				}*/
 			}
 
@@ -317,7 +324,7 @@ void Simulator::Propagate()
 	PropagateCore();
 
 	lock.lock();
-	runCv.wait(lock, [this] { 
+	runCv.wait(lock, [this] {
 		return std::all_of(runStates.cbegin(), runStates.cend(), [](int state) { return state == STATE_IDLE; });
 	});
 }
@@ -332,8 +339,6 @@ void Simulator::StepCore()
 		index = currentSteppableIndex.fetch_add(1, std::memory_order_relaxed);
 	}
 }
-
-	
 
 void Simulator::Step()
 {
@@ -380,7 +385,8 @@ void Simulator::Report(std::basic_ostream<char> &os) const
 	for (auto const &component : components)
 		componentSizes[(int)std::ceil(std::log2(component.size))]++;
 
-	os << " --- Simulator --- " << endl << endl;
+	os << " --- Simulator --- " << endl
+	   << endl;
 
 	os << " Number of components        : " << components.size() << endl;
 	os << " Number of computable blocks : " << std::accumulate(components.begin(), components.end(), 0, [](int current, backend::Component const &component) { return current + component.size; }) << endl;
@@ -398,5 +404,4 @@ void Simulator::Report(std::basic_ostream<char> &os) const
 	os << endl;
 }
 
-
-}
+} // namespace dfx

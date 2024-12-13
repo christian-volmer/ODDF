@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Like the normal 'source' module but instead of having a read-enable
-	input, the data is provided at an average speed specified during data
-	initialisation.
+    Like the normal 'source' module but instead of having a read-enable
+    input, the data is provided at an average speed specified during data
+    initialisation.
 
 */
 
@@ -46,13 +46,21 @@ private:
 
 public:
 
-	struct {
+	struct OutputsType {
 
 		inout::output_node<bool> Valid;
 		inout::output_node<T> Data;
 		inout::output_bus<T> DataBus;
 
+		OutputsType() :
+			Valid(), Data(), DataBus() { }
+
 	} Outputs;
+
+	~ThrottledSource() = default;
+
+	ThrottledSource(ThrottledSource const &) = delete;
+	void operator=(ThrottledSource const &) = delete;
 
 	ThrottledSource(int busWidth = 1);
 
@@ -60,5 +68,5 @@ public:
 	void SetData(class std::vector<T> &&data, double increment, bool periodic = false);
 };
 
-}
-}
+} // namespace modules
+} // namespace dfx

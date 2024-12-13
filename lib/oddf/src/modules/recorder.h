@@ -1,29 +1,29 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	The recorder can be used to record the inputs and outputs of a design
-	during simulation. Recorded content can be written to file and used
-	in a Verilog simulation to confirm the correctness of the generated
-	code.
+    The recorder can be used to record the inputs and outputs of a design
+    during simulation. Recorded content can be written to file and used
+    in a Verilog simulation to confirm the correctness of the generated
+    code.
 
 */
 
@@ -34,23 +34,33 @@ namespace modules {
 
 class Recorder;
 
-}
+} // namespace modules
+
 namespace backend {
 namespace blocks {
 
 class recorder_block : public BlockBase {
 
 private:
+
 	dfx::modules::Recorder *Recorder;
-    void GetProperties(dfx::generator::Properties &properties) const;
 	int StimWidth;
 	int RefWidth;
-	void Evaluate() override { };
-	bool CanEvaluate() const override {	return false; }
+
+	void GetProperties(dfx::generator::Properties &properties) const;
+	void Evaluate() override {};
+	bool CanEvaluate() const override { return false; }
 	source_blocks_t GetSourceBlocks() const override { return source_blocks_t(); }
 
 public:
+
+	~recorder_block() = default;
+
+	recorder_block(recorder_block const &) = delete;
+	void operator=(recorder_block const &) = delete;
+
 	recorder_block(dfx::modules::Recorder *Recorder);
+
 	bool CanRemove() const { return false; };
 };
 
@@ -68,7 +78,17 @@ protected:
 	int getNodeWidth(const node<dynfix> &val) const;
 
 public:
-	stimcheck_block_base(const int startIndex, const int bitWidth) : startIndex(startIndex), bitWidth(bitWidth) {};
+
+	virtual ~stimcheck_block_base() = default;
+
+	stimcheck_block_base(stimcheck_block_base const &) = delete;
+	void operator=(stimcheck_block_base const &) = delete;
+
+	stimcheck_block_base(const int startIndex, const int bitWidth) :
+		startIndex(startIndex), bitWidth(bitWidth)
+	{
+	}
+
 	virtual int getNumElements() const = 0;
 	virtual int getElementWidth() const = 0;
 	virtual std::string getElement(const int index) const = 0;
@@ -78,10 +98,10 @@ public:
 	int getStartIndex() const;
 
 	void GetPropertiesBase(dfx::generator::Properties &properties) const;
-
 };
 
-template<typename T> class stim_block : public BlockBase, private IStep, public stimcheck_block_base {
+template<typename T>
+class stim_block : public BlockBase, private IStep, public stimcheck_block_base {
 
 private:
 
@@ -122,13 +142,20 @@ private:
 	}
 
 public:
+
+	~stim_block() = default;
+
+	stim_block(stim_block const &) = delete;
+	void operator=(stim_block const &) = delete;
+
 	stim_block(node<T> const &in, const int startIndex) :
 		BlockBase("stimulus"),
 		stimcheck_block_base(startIndex, getNodeWidth(in)),
 		input(this, in),
-		output(this, types::DefaultFrom(in.GetDriver()->value))
+		output(this, types::DefaultFrom(in.GetDriver()->value)),
+		data()
 	{
-	};
+	}
 
 	node<T> getOutNode()
 	{
@@ -159,10 +186,10 @@ public:
 	{
 		stimcheck_block_base::GetPropertiesBase(properties);
 	}
-
 };
 
-template<typename T> class checker_block : public BlockBase, private IStep, public stimcheck_block_base  {
+template<typename T>
+class checker_block : public BlockBase, private IStep, public stimcheck_block_base {
 
 private:
 
@@ -175,7 +202,7 @@ private:
 	source_blocks_t GetSourceBlocks() const override
 	{
 		source_blocks_t blocks;
-		//blocks.insert(input.GetDrivingBlock());
+		// blocks.insert(input.GetDrivingBlock());
 		return blocks;
 	}
 
@@ -198,15 +225,21 @@ private:
 		return this;
 	}
 
-
 public:
+
+	checker_block() = delete;
+	~checker_block() = default;
+
+	checker_block(checker_block const &) = delete;
+	void operator=(checker_block const &) = delete;
 
 	checker_block(node<T> const &in, const int startIndex) :
 		BlockBase("checker"),
 		stimcheck_block_base(startIndex, getNodeWidth(in)),
-		input(this, in)
+		input(this, in),
+		data()
 	{
-	};
+	}
 
 	int getNumElements() const override
 	{
@@ -233,18 +266,17 @@ public:
 		stimcheck_block_base::GetPropertiesBase(properties);
 	}
 };
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace modules {
 
-class Recorder
-{
+class Recorder {
 
 private:
 
 	backend::blocks::recorder_block *rec_block;
-	
+
 	std::list<dfx::backend::blocks::stimcheck_block_base *> stims;
 	std::list<dfx::backend::blocks::stimcheck_block_base *> checkers;
 
@@ -255,16 +287,21 @@ private:
 	std::string Binary2Hex(std::string &);
 
 public:
-	Recorder();
 
-	node<bool>   AddStimulus(node<bool> const &in);
+	Recorder();
+	~Recorder() = default;
+
+	Recorder(Recorder const &) = delete;
+	void operator=(Recorder const &) = delete;
+
+	node<bool> AddStimulus(node<bool> const &in);
 	node<dynfix> AddStimulus(node<dynfix> const &in);
-	bus<bool>    AddStimulus(bus<bool> const &in_bus);
-	bus<dynfix>  AddStimulus(bus<dynfix> const &in_bus);
-	node<bool>   AddChecker(node<bool> const &in);
+	bus<bool> AddStimulus(bus<bool> const &in_bus);
+	bus<dynfix> AddStimulus(bus<dynfix> const &in_bus);
+	node<bool> AddChecker(node<bool> const &in);
 	node<dynfix> AddChecker(node<dynfix> const &in);
-	bus<bool>    AddChecker(bus<bool> const &in_bus);
-	bus<dynfix>  AddChecker(bus<dynfix> const &in_bus);
+	bus<bool> AddChecker(bus<bool> const &in_bus);
+	bus<dynfix> AddChecker(bus<dynfix> const &in_bus);
 
 	void WriteToFile(const std::string &basePath);
 	void Clear();
@@ -273,5 +310,5 @@ public:
 	int GetRefWidth();
 };
 
-}
-}
+} // namespace modules
+} // namespace dfx

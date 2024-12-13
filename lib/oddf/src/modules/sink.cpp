@@ -1,28 +1,28 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	The 'sink' module consumes data during simulation on every clock
-	cycle as determined by its 'writeEnableInput'. Collected data can be
-	copied to an std::vector after simulation.
+    The 'sink' module consumes data during simulation on every clock
+    cycle as determined by its 'writeEnableInput'. Collected data can be
+    copied to an std::vector after simulation.
 
 */
 
@@ -98,19 +98,25 @@ public:
 	}
 };
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace modules {
 
-template<typename T> Sink<T>::Sink()
+template<typename T>
+Sink<T>::Sink() :
+	Block(),
+	Inputs()
 {
 	auto &block = Design::GetCurrent().NewBlock<backend::blocks::sink_block<T>>(Inputs.WriteEnable);
 	Block = &block;
 	block.add_input(Inputs.Data);
 }
 
-template<typename T> BusSink<T>::BusSink(int busWidth)
+template<typename T>
+BusSink<T>::BusSink(int busWidth) :
+	Block(),
+	Inputs()
 {
 	if (busWidth < 1)
 		throw design_error("Sink module: Parameter 'busWidth' must be greate than or equal to one.");
@@ -123,28 +129,29 @@ template<typename T> BusSink<T>::BusSink(int busWidth)
 		block.add_input(Inputs.Data(i));
 }
 
-template<typename T> std::vector<T> const &Sink<T>::GetData() const
+template<typename T>
+std::vector<T> const &Sink<T>::GetData() const
 {
 	return Block->Data;
 }
 
-template<typename T> std::vector<T> const &BusSink<T>::GetData() const
+template<typename T>
+std::vector<T> const &BusSink<T>::GetData() const
 {
 	return Block->Data;
 }
 
-template<typename T> void Sink<T>::Clear()
+template<typename T>
+void Sink<T>::Clear()
 {
 	Block->Data.clear();
 }
 
-template<typename T> void BusSink<T>::Clear()
+template<typename T>
+void BusSink<T>::Clear()
 {
 	Block->Data.clear();
 }
-
-
-
 
 // explicit template implementations
 template class Sink<bool>;
@@ -157,6 +164,5 @@ template class BusSink<std::int32_t>;
 template class BusSink<std::int64_t>;
 template class BusSink<double>;
 
-
-}
-}
+} // namespace modules
+} // namespace dfx

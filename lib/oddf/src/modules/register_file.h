@@ -1,27 +1,27 @@
 /*
 
-	ODDF - Open Digital Design Framework
-	Copyright Advantest Corporation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ODDF - Open Digital Design Framework
+    Copyright Advantest Corporation
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
 /*
 
-	Obsolete, will be removed eventually. Use SerialConfigurationBuilder
-	and SerialConfigurationController instead.
+    Obsolete, will be removed eventually. Use SerialConfigurationBuilder
+    and SerialConfigurationController instead.
 
 */
 
@@ -31,11 +31,11 @@ namespace dfx {
 namespace backend {
 namespace blocks {
 
-class write_register_block; 
+class write_register_block;
 class read_register_block;
 
-}
-}
+} // namespace blocks
+} // namespace backend
 
 namespace modules {
 
@@ -55,6 +55,10 @@ private:
 		int arrayIndex;
 
 		register_description_base();
+		~register_description_base() = default;
+
+		register_description_base(register_description_base const &) = default;
+		register_description_base &operator=(register_description_base const &) = default;
 	};
 
 	HierarchyLevel *baseHierarchy;
@@ -67,6 +71,10 @@ private:
 		backend::blocks::read_register_block *readBlock;
 
 		read_register_description();
+		~read_register_description() = default;
+
+		read_register_description(read_register_description const &) = default;
+		read_register_description &operator=(read_register_description const &) = default;
 	};
 
 	bus<dynfix> *ReadRegisterBus;
@@ -84,15 +92,18 @@ private:
 
 	read_register_description const &ReadResolveName(std::string const &name) const;
 
-
 	//
-	// Write registers 
+	// Write registers
 
 	struct write_register_description : public register_description_base {
 
 		backend::blocks::write_register_block *writeBlock;
 
 		write_register_description();
+		~write_register_description() = default;
+
+		write_register_description(write_register_description const &) = default;
+		write_register_description &operator=(write_register_description const &) = default;
 	};
 
 	forward_bus<ufix<64>> *WriteRegisterBus;
@@ -112,22 +123,29 @@ private:
 
 public:
 
-	struct {
+	struct InputsType {
 
 		inout::input_bus<ufix<64>> ReadRegisters;
 
+		InputsType() :
+			ReadRegisters() { }
+
 	} Inputs;
 
-	struct {
+	struct OutputsType {
 
 		inout::output_bus<dynfix> WriteRegisters;
+
+		OutputsType() :
+			WriteRegisters() { }
 
 	} Outputs;
 
 	RegisterFile();
-	RegisterFile(RegisterFile const &) = delete;
+	~RegisterFile() = default;
 
-	RegisterFile &operator =(RegisterFile const &) = delete;
+	RegisterFile(RegisterFile const &) = delete;
+	void operator=(RegisterFile const &) = delete;
 
 	void report(std::basic_ostream<char> &os) const;
 
@@ -137,11 +155,12 @@ public:
 	void SetReadRegisterBus(bus<dynfix> &readRegisterBus);
 
 	// Adds a read register with scalar data type.
-	template<typename T> typename std::enable_if<std::rank<T>::value == 0, forward_node<T>>::type AddReadRegister(std::string const &name, std::string const &description);
+	template<typename T>
+	typename std::enable_if<std::rank<T>::value == 0, forward_node<T>>::type AddReadRegister(std::string const &name, std::string const &description);
 
 	// Adds a read register with array data type.
-	template<typename T> typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), forward_bus<typename std::remove_all_extents<T>::type>>::type AddReadRegister(std::string const &name, std::string const &description);
-
+	template<typename T>
+	typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), forward_bus<typename std::remove_all_extents<T>::type>>::type AddReadRegister(std::string const &name, std::string const &description);
 
 	//
 	// Read access
@@ -149,9 +168,10 @@ public:
 	// Reads the raw register value from the given address.
 	std::int64_t ReadRaw(int address) const;
 
-	template<typename T> typename std::enable_if<std::rank<T>::value == 0, T>::type Read(std::string const &name) const;
-	template<typename T> typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), void>::type Read(std::string const &name, T &values) const;
-
+	template<typename T>
+	typename std::enable_if<std::rank<T>::value == 0, T>::type Read(std::string const &name) const;
+	template<typename T>
+	typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), void>::type Read(std::string const &name, T &values) const;
 
 	//
 	// Write registers
@@ -159,10 +179,12 @@ public:
 	void SetWriteRegisterBus(forward_bus<ufix<64>> &writeRegisterBus);
 
 	// Adds a write register with scalar data type.
-	template<typename T> typename std::enable_if<std::rank<T>::value == 0, node<typename types::TypeTraits<T>::internalType>>::type AddWriteRegister(std::string const &name, std::string const &description);
+	template<typename T>
+	typename std::enable_if<std::rank<T>::value == 0, node<typename types::TypeTraits<T>::internalType>>::type AddWriteRegister(std::string const &name, std::string const &description);
 
 	// Adds a write register with array data type.
-	template<typename T> typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), bus<typename types::TypeTraits<typename std::remove_all_extents<T>::type>::internalType>>::type AddWriteRegister(std::string const &name, std::string const &description);
+	template<typename T>
+	typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), bus<typename types::TypeTraits<typename std::remove_all_extents<T>::type>::internalType>>::type AddWriteRegister(std::string const &name, std::string const &description);
 
 	//
 	// Write access
@@ -173,12 +195,13 @@ public:
 	// Write a raw register value to the given address.
 	void WriteRaw(int address, std::int64_t rawValue);
 
-	template<typename T> typename std::enable_if<std::rank<T>::value == 0, void>::type Write(std::string const &name, T const &value);
-	template<typename T> typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), void>::type Write(std::string const &name, T const &values);
-	template<typename T> void Write(std::string const &name, std::initializer_list<T> values);
-
+	template<typename T>
+	typename std::enable_if<std::rank<T>::value == 0, void>::type Write(std::string const &name, T const &value);
+	template<typename T>
+	typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), void>::type Write(std::string const &name, T const &values);
+	template<typename T>
+	void Write(std::string const &name, std::initializer_list<T> values);
 };
-
 
 //
 // Write registers high-level API
@@ -253,12 +276,11 @@ inline typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::va
 	catch (std::bad_cast const &) {
 
 		throw design_error("Write register '" + regDesc.fullName + "' is of type '"
-						   + string_printf("%s[%d]", regDesc.typeDesc.ToString().c_str(), regDesc.arrayLength)
-						   + "'. Cannot write it through type '"
-						   + string_printf("%s[%d]", types::GetDescription(baseT()).ToString().c_str(), width) + "'.");
+			+ string_printf("%s[%d]", regDesc.typeDesc.ToString().c_str(), regDesc.arrayLength)
+			+ "'. Cannot write it through type '"
+			+ string_printf("%s[%d]", types::GetDescription(baseT()).ToString().c_str(), width) + "'.");
 	}
 }
-
 
 template<typename T>
 inline void RegisterFile::Write(std::string const &name, std::initializer_list<T> values)
@@ -281,12 +303,11 @@ inline void RegisterFile::Write(std::string const &name, std::initializer_list<T
 	catch (std::bad_cast const &) {
 
 		throw design_error("Write register '" + regDesc.fullName + "' is of type '"
-						   + string_printf("%s[%d]", regDesc.typeDesc.ToString().c_str(), regDesc.arrayLength)
-						   + "'. Cannot write it through type '"
-						   + string_printf("%s[%d]", types::GetDescription(T()).ToString().c_str(), width) + "'.");
+			+ string_printf("%s[%d]", regDesc.typeDesc.ToString().c_str(), regDesc.arrayLength)
+			+ "'. Cannot write it through type '"
+			+ string_printf("%s[%d]", types::GetDescription(T()).ToString().c_str(), width) + "'.");
 	}
 }
-
 
 //
 // Read registers high-level API
@@ -309,9 +330,8 @@ inline typename std::enable_if<std::rank<T>::value == 0, forward_node<T>>::type 
 	return userNode;
 }
 
-
 // Adds a read register with array data type.
-template<typename T> 
+template<typename T>
 inline typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), forward_bus<typename std::remove_all_extents<T>::type>>::type RegisterFile::AddReadRegister(std::string const &name, std::string const &description)
 {
 	using baseT = typename std::remove_all_extents<T>::type;
@@ -321,7 +341,6 @@ inline typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::va
 
 	if (!types::IsInitialised(baseT()))
 		throw design_error("The type '" + typeDesc.ToString() + "' cannot be used for a register.");
-
 
 	for (int i = 0; i < width; ++i)
 		InternalAddReadRegister(name, description, typeDesc, width, i);
@@ -333,7 +352,7 @@ inline typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::va
 	return userBus;
 }
 
-template<typename T> 
+template<typename T>
 inline typename std::enable_if<std::rank<T>::value == 0, T>::type RegisterFile::Read(std::string const &name) const
 {
 	auto const &regDesc = ReadResolveName(name);
@@ -350,7 +369,6 @@ inline typename std::enable_if<std::rank<T>::value == 0, T>::type RegisterFile::
 		throw design_error("Read register '" + regDesc.fullName + "' is of type '" + regDesc.typeDesc.ToString() + "'. Cannot read it through type '" + types::GetDescription(T()).ToString() + "'.");
 	}
 }
-
 
 template<typename T>
 inline typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::value > 0), void>::type RegisterFile::Read(std::string const &name, T &values) const
@@ -370,10 +388,10 @@ inline typename std::enable_if<(std::rank<T>::value == 1) && (std::extent<T>::va
 	catch (std::bad_cast const &) {
 
 		throw design_error("Read register '" + regDesc.fullName + "' is of type '"
-						   + string_printf("%s[%d]", regDesc.typeDesc.ToString().c_str(), regDesc.arrayLength)
-						   + "'. Cannot read it through type '"
-						   + string_printf("%s[%d]", types::GetDescription(baseT()).ToString().c_str(), width) + "'.");
+			+ string_printf("%s[%d]", regDesc.typeDesc.ToString().c_str(), regDesc.arrayLength)
+			+ "'. Cannot read it through type '"
+			+ string_printf("%s[%d]", types::GetDescription(baseT()).ToString().c_str(), width) + "'.");
 	}
 }
-}
-}
+} // namespace modules
+} // namespace dfx
