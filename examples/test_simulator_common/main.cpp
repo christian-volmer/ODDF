@@ -55,7 +55,7 @@ int main()
 	    x <<= b::Delay(!x);
 	*/
 
-	b::Probe(b::Constant<dynfix>(65538));
+	b::Probe(b::Constant<dynfix>(257));
 
 	//
 	// Simulation
@@ -65,7 +65,7 @@ int main()
 
 	simulator.TranslateDesign(design);
 
-	auto myProbe = sim::Probe<int>(simulator, "myprobe");
+	auto myProbe = sim::Probe<unsigned short>(simulator, "myprobe");
 	// auto mySignal = sim::Signal<bool>(simulator, "mysignal");
 
 	simulator.Run(1);

@@ -58,13 +58,15 @@ private:
 
 public:
 
-	SimulatorBlockOutput(SimulatorBlockBase &owningBlock, design::NodeType const &nodeType, size_t index);
+	~SimulatorBlockOutput() = default;
 
 	SimulatorBlockOutput(SimulatorBlockOutput const &) = delete;
 	void operator=(SimulatorBlockOutput const &) = delete;
 
 	SimulatorBlockOutput(SimulatorBlockOutput &&);
 	void operator=(SimulatorBlockOutput &&) = delete;
+
+	SimulatorBlockOutput(SimulatorBlockBase &owningBlock, design::NodeType const &nodeType, size_t index);
 
 	design::NodeType GetType() const noexcept;
 

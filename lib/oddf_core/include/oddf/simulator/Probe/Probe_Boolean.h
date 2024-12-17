@@ -20,33 +20,38 @@
 
 /*
 
-    Simulator support for the 'probe' design block.
+    <no description>
 
 */
 
 #pragma once
 
-#include <oddf/simulator/common/backend/SimulatorBlockBase.h>
+#include "../backend/IProbeAccess.h"
 
-namespace oddf::simulator::common::backend::blocks {
+namespace oddf::simulator {
 
-//
-// Probe
-//
+template<>
+class Probe<bool> {
 
-class Probe : public SimulatorBlockBase {
+private:
+
+	backend::IProbeAccess &m_probeAccess;
 
 public:
 
-	Probe(design::blocks::backend::IDesignBlock const &designBlock);
+	Probe(oddf::simulator::ISimulator &simulator, std::string const &name) :
+		m_probeAccess(simulator.GetSimulatorAccess().GetNamedObjectInterface<backend::IProbeAccess>(name))
+	{
+		if (m_probeAccess.GetType().GetTypeId() != design::NodeType::BOOLEAN)
+			throw Exception(ExceptionCode::Unsupported);
+	}
 
-	virtual std::string GetDesignPathHint() const override;
-
-	virtual void Elaborate(ISimulatorElaborationContext &context) override;
-
-	virtual void GenerateCode(ISimulatorCodeGenerationContext &) override { }
-
-	virtual void Finalise(ISimulatorFinalisationContext &context) override;
+	bool GetValue()
+	{
+		std::uint8_t value;
+		m_probeAccess.Read(&value, sizeof(value));
+		return value != 0;
+	}
 };
 
-} // namespace oddf::simulator::common::backend::blocks
+} // namespace oddf::simulator

@@ -57,13 +57,15 @@ private:
 
 public:
 
-	SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index);
+	~SimulatorBlockInput() = default;
 
 	SimulatorBlockInput(SimulatorBlockInput const &) = delete;
 	void operator=(SimulatorBlockInput const &) = delete;
 
 	SimulatorBlockInput(SimulatorBlockInput &&);
 	void operator=(SimulatorBlockInput &&) = delete;
+
+	SimulatorBlockInput(SimulatorBlockBase &owningBlock, size_t index);
 
 	design::NodeType GetType() const;
 

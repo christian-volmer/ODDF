@@ -53,9 +53,7 @@ void SimulatorCore::GenerateCode()
 		public:
 
 			I_NoOperation(ISimulatorCodeGenerationContext &) :
-				SimulatorInstructionBase(&InstructionFunction)
-			{
-			}
+				SimulatorInstructionBase(&InstructionFunction) { }
 		};
 
 	private:
@@ -67,8 +65,7 @@ void SimulatorCore::GenerateCode()
 
 		SimulatorBlockBase *m_currentBlock;
 		void *m_currentInstruction;
-
-		size_t m_maxAlignment;
+		size_t m_currentInstructionSize;
 
 		CodeGenerationContext(CodeGenerationContext const &) = delete;
 		void operator=(CodeGenerationContext const &) = delete;
@@ -89,6 +86,7 @@ void SimulatorCore::GenerateCode()
 			m_code.insert(m_code.end(), size, 0);
 
 			m_currentInstruction = m_code.data() + (m_code.size() - size);
+			m_currentInstructionSize = size;
 
 			return m_currentInstruction;
 		}
@@ -97,7 +95,7 @@ void SimulatorCore::GenerateCode()
 		// Input registration
 		//
 
-		design::NodeType InternalRegisterInput(size_t index, void const **inputPointerPointer)
+		void InternalRegisterInput(size_t index, void const **inputPointerPointer, design::NodeType::TypeId expectedTypeId)
 		{
 			if (!m_currentInstruction)
 				throw Exception(ExceptionCode::IllegalMethodCall, "EmitInstruction() must be called before calling this function.");
@@ -107,27 +105,32 @@ void SimulatorCore::GenerateCode()
 			if (index >= inputs.size())
 				throw Exception(ExceptionCode::InvalidArgument, "Parameter 'index' is out of range.");
 
-			if (inputs[index].m_inputPointerReference)
+			auto &input = inputs[index];
+
+			if (input.m_inputPointerReference)
 				throw Exception(ExceptionCode::IllegalMethodCall, "Function was already called on this input. Cannot call it a second time.");
 
-			inputs[index].m_inputPointerReference = reinterpret_cast<char const *>(inputPointerPointer) - m_code.data();
+			if (input.GetType().GetTypeId() != expectedTypeId)
+				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument must match the type of the simulator block input.");
 
-			// TODO: check that 'inputPointerPointer' is within the memory bounds of 'm_currentInstruction'
+			ptrdiff_t offset = (char const *)inputPointerPointer - (char const *)m_currentInstruction;
 
-			return inputs[index].GetDriver().GetType();
+			if (offset < (ptrdiff_t)sizeof(SimulatorInstructionBase) || offset + (ptrdiff_t)sizeof(void *) > (ptrdiff_t)m_currentInstructionSize)
+				throw Exception(ExceptionCode::InvalidArgument, "Argument 'inputPointerPointer' is not within the memory bounds of the current instruction.");
+
+			input.m_inputPointerReference = reinterpret_cast<char const *>(inputPointerPointer) - m_code.data();
 		}
 
 		virtual void RegisterInput(size_t index, types::Boolean const *&inputPointerReference) override
 		{
-			if (InternalRegisterInput(index, reinterpret_cast<void const **>(&inputPointerReference)).GetTypeId() != design::NodeType::BOOLEAN)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument (Boolean const *) must match the type of the simulator block input (NodeType::BOOLEAN).");
+			InternalRegisterInput(index, reinterpret_cast<void const **>(&inputPointerReference), design::NodeType::BOOLEAN);
 		}
 
 		//
 		// Output registration
 		//
 
-		design::NodeType InternalRegisterOutput(size_t index, void *storagePointer, size_t storageSize)
+		void InternalRegisterOutput(size_t index, void *storagePointer, size_t storageSize, design::NodeType::TypeId expectedTypeId)
 		{
 			if (!m_currentInstruction)
 				throw Exception(ExceptionCode::IllegalMethodCall, "EmitInstruction() must be called before calling this function.");
@@ -137,28 +140,33 @@ void SimulatorCore::GenerateCode()
 			if (index >= outputs.size())
 				throw Exception(ExceptionCode::InvalidArgument, "Parameter 'index' is out of range.");
 
-			if (outputs[index].m_storageReference)
+			auto &output = outputs[index];
+
+			if (output.m_storageReference)
 				throw Exception(ExceptionCode::IllegalMethodCall, "Function was already called on this output. Cannot call it a second time.");
 
-			outputs[index].m_storageReference = reinterpret_cast<char const *>(storagePointer) - m_code.data();
+			if (output.GetType().GetTypeId() != expectedTypeId)
+				throw Exception(ExceptionCode::InvalidArgument, "Type of the argument must match the type of the simulator block output.");
 
-			// TODO: check that 'storagePointer' and 'storageSize' are within the memory bounds of 'm_currentInstruction'
+			if (types::GetStoredByteSize(output.GetType()) != storageSize)
+				throw Exception(ExceptionCode::InvalidArgument, "Parameter 'storageSize' does not match the type of the simulator block output.");
 
-			return outputs[index].GetType();
+			ptrdiff_t offset = (char const *)storagePointer - (char const *)m_currentInstruction;
+
+			if (offset < (ptrdiff_t)sizeof(SimulatorInstructionBase) || offset + (ptrdiff_t)storageSize > (ptrdiff_t)m_currentInstructionSize)
+				throw Exception(ExceptionCode::InvalidArgument, "Arguments 'storagePointer' and 'storageSize' are not within the memory bounds of the current instruction.");
+
+			output.m_storageReference = reinterpret_cast<char const *>(storagePointer) - m_code.data();
 		}
 
 		virtual void RegisterOutput(size_t index, types::Boolean &outputReference) override
 		{
-			auto type = InternalRegisterOutput(index, &outputReference, sizeof(types::Boolean));
-			if (type.GetTypeId() != design::NodeType::BOOLEAN)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the specified output does not match the provided storage (types::Boolean).");
+			InternalRegisterOutput(index, &outputReference, sizeof(types::Boolean), design::NodeType::BOOLEAN);
 		}
 
 		virtual void RegisterOutput(size_t index, types::FixedPointElement *outputReference, size_t elementCount) override
 		{
-			auto type = InternalRegisterOutput(index, outputReference, sizeof(types::FixedPointElement) * elementCount);
-			if (types::FixedPointElement::RequiredElementCount(type) != elementCount)
-				throw Exception(ExceptionCode::InvalidArgument, "Type of the specified output does not match the provided storage (types::FixedPointElement and 'elementCount').");
+			InternalRegisterOutput(index, outputReference, sizeof(types::FixedPointElement) * elementCount, design::NodeType::FIXED_POINT);
 		}
 
 		void TranslateOutputReferences()
@@ -213,7 +221,7 @@ void SimulatorCore::GenerateCode()
 			m_code(component.m_code),
 			m_currentBlock(nullptr),
 			m_currentInstruction(nullptr),
-			m_maxAlignment(alignof(SimulatorInstructionBase))
+			m_currentInstructionSize()
 		{
 		}
 
@@ -224,6 +232,7 @@ void SimulatorCore::GenerateCode()
 				assert(block);
 				m_currentBlock = block;
 				m_currentInstruction = nullptr;
+				m_currentInstructionSize = 0;
 
 				m_currentBlock->GenerateCode(*this);
 

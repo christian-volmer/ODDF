@@ -45,9 +45,10 @@ size_t GetStoredByteSize(design::NodeType const &nodeType)
 		case design::NodeType::BIT_VECTOR:
 		case design::NodeType::REAL:
 			throw Exception(ExceptionCode::NotImplemented);
-	}
 
-	throw Exception(ExceptionCode::Unexpected);
+		default:
+			throw Exception(ExceptionCode::Unexpected);
+	}
 }
 
 } // namespace oddf::simulator::common::backend::types

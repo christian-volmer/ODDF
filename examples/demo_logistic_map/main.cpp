@@ -61,14 +61,10 @@ int main()
 
 	dfx::debug::Logger.WriteTable(std::cout);
 
-	/*
-
 	dfx::generator::Generator generator(design, std::cout);
 	VerilogExporter exporter(generator);
 
-	exporter.Export(".", std::cout);
-
-	*/
+	// exporter.Export(".", std::cout);
 
 	return 0;
 }

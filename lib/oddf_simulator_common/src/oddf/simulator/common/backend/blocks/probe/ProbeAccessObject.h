@@ -26,36 +26,28 @@
 
 #pragma once
 
-#include <oddf/utility/GetInterfaceHelper.h>
 #include <oddf/simulator/backend/IProbeAccess.h>
 
-#include <oddf/utility/CopyBoolean.h>
-#include <oddf/utility/CopyInteger.h>
+#include <oddf/simulator/common/backend/ISimulatorComponent.h>
+#include <oddf/simulator/common/backend/SimulatorBlockOutput.h>
 
-#include <oddf/simulator/common/backend/Types.h>
-
-#include <type_traits>
-#include <cstring>
+#include <oddf/design/NodeType.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
 template<typename simulatorT>
 class ProbeAccessObject : public virtual simulator::backend::IProbeAccess {
 
-	/*
-	    The current implementation has been tested for `Boolean` and will probably
-	    work for `Integer` and `Real`, too. Need to implement correct handling of the
-	    dynamic size for bit-vector and fixed-point.
-
-	*/
-	static_assert(std::is_same_v<simulatorT, types::Boolean>
-		|| std::is_same_v<simulatorT, types::FixedPointElement>);
-
-public:
-
 	ISimulatorComponent &m_component;
 	design::NodeType m_nodeType;
 	simulatorT const *m_probedOutputPointer;
+
+public:
+
+	~ProbeAccessObject() = default;
+
+	ProbeAccessObject(ProbeAccessObject<simulatorT> const &) = delete;
+	void operator=(ProbeAccessObject<simulatorT> const &) = delete;
 
 	ProbeAccessObject(ISimulatorComponent &component, SimulatorBlockOutput const &driver) :
 		m_component(component),
@@ -71,41 +63,13 @@ public:
 	{
 	}
 
-	ProbeAccessObject(ProbeAccessObject<simulatorT> const &) = delete;
-	void operator=(ProbeAccessObject<simulatorT> const &) = delete;
+	virtual void *GetInterface(Uid const &iid) override;
 
-	virtual void *GetInterface(Uid const &iid) override
-	{
-		return utility::GetInterfaceHelper<
-			simulator::backend::IProbeAccess,
-			IObject>::GetInterface(this, iid);
-	}
-
-	virtual design::NodeType GetType() const noexcept override
-	{
-		return m_nodeType;
-	}
+	virtual design::NodeType GetType() const noexcept override;
 
 	virtual void Read(void *buffer, size_t count) const override;
 
-	virtual size_t GetSize() const noexcept override
-	{
-		return types::GetRequiredByteSize(m_nodeType);
-	}
+	virtual size_t GetSize() const noexcept override;
 };
-
-template<>
-inline void ProbeAccessObject<types::Boolean>::Read(void *buffer, size_t count) const
-{
-	m_component.EnsureValidState();
-	utility::CopyBoolean(buffer, count, m_probedOutputPointer, types::GetStoredByteSize(m_nodeType));
-}
-
-template<>
-inline void ProbeAccessObject<types::FixedPointElement>::Read(void *buffer, size_t count) const
-{
-	m_component.EnsureValidState();
-	utility::CopyUnsignedInteger(buffer, count, m_probedOutputPointer, types::GetStoredByteSize(m_nodeType));
-}
 
 } // namespace oddf::simulator::common::backend::blocks

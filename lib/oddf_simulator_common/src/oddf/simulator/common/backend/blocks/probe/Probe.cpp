@@ -25,23 +25,24 @@
 */
 
 #include "../Probe.h"
+
 #include "ProbeAccessObject.h"
 
 #include <oddf/Exception.h>
 
 namespace oddf::simulator::common::backend::blocks {
 
-ProbeMaster::ProbeMaster(design::blocks::backend::IDesignBlock const &designBlock) :
+Probe::Probe(design::blocks::backend::IDesignBlock const &designBlock) :
 	SimulatorBlockBase(designBlock)
 {
 }
 
-std::string ProbeMaster::GetDesignPathHint() const
+std::string Probe::GetDesignPathHint() const
 {
 	return GetDesignBlockReference()->GetPath();
 }
 
-void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
+void Probe::Elaborate(ISimulatorElaborationContext &)
 {
 	auto outputs = GetOutputsList();
 
@@ -60,9 +61,11 @@ void ProbeMaster::Elaborate(ISimulatorElaborationContext &)
 		throw Exception(ExceptionCode::Unsupported);
 }
 
-void ProbeMaster::Finalise(ISimulatorFinalisationContext &context)
+void Probe::Finalise(ISimulatorFinalisationContext &context)
 {
-	auto const &input = GetInputsList()[0];
+	auto inputs = GetInputsList();
+	auto const &input = inputs[0];
+
 	switch (input.GetType().GetTypeId()) {
 
 		case design::NodeType::BOOLEAN: {

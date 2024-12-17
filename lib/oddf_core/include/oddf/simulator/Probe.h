@@ -26,79 +26,12 @@
 
 #pragma once
 
-#include "backend/IProbeAccess.h"
-
 namespace oddf::simulator {
 
-template<typename accessT>
+template<typename T, typename Enable = void>
 class Probe;
 
-//
-// Probe<bool>
-//
-
-template<>
-class Probe<bool> {
-
-private:
-
-	backend::IProbeAccess &m_probeAccess;
-
-public:
-
-	Probe(oddf::simulator::ISimulator &simulator, std::string const &name) :
-		m_probeAccess(simulator.GetSimulatorAccess().GetNamedObjectInterface<backend::IProbeAccess>(name))
-	{
-		if (m_probeAccess.GetType().GetTypeId() != design::NodeType::BOOLEAN)
-			throw Exception(ExceptionCode::Unsupported);
-	}
-
-	bool GetValue()
-	{
-		std::uint8_t value;
-		m_probeAccess.Read(&value, sizeof(value));
-		return value != 0;
-	}
-};
-
-//
-// Probe<int>
-//
-
-template<>
-class Probe<int> {
-
-private:
-
-	backend::IProbeAccess &m_probeAccess;
-	design::NodeType const m_type;
-
-public:
-
-	Probe(oddf::simulator::ISimulator &simulator, std::string const &name) :
-		m_probeAccess(simulator.GetSimulatorAccess().GetNamedObjectInterface<backend::IProbeAccess>(name)),
-		m_type(m_probeAccess.GetType())
-	{
-		switch (m_type.GetTypeId()) {
-
-			case design::NodeType::BOOLEAN:
-			case design::NodeType::FIXED_POINT:
-				break;
-
-			default:
-				throw Exception(ExceptionCode::Unsupported);
-		}
-	}
-
-	int GetValue()
-	{
-		int value {};
-		if (m_type.GetFraction() != 0)
-			throw Exception(ExceptionCode::NotImplemented);
-
-		m_probeAccess.Read(&value, sizeof(value));
-		return value;
-	}
-};
-
 } // namespace oddf::simulator
+
+#include "Probe/Probe_Boolean.h"
+#include "Probe/Probe_Integral.h"

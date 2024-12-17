@@ -11,6 +11,8 @@ InsertNewlineAtEOF: true
 
 SortIncludes: Never
 
+AlignEscapedNewlines: DontAlign
+
 NamespaceIndentation: None
 FixNamespaceComments: true
 CompactNamespaces: false
@@ -20,9 +22,8 @@ SpaceAfterTemplateKeyword: false
 RequiresExpressionIndentation: OuterScope
 BreakBeforeConceptDeclarations: Always
 SpaceBeforeRangeBasedForLoopColon: true
-# KeepEmptyLines:
-#  AtEndOfFile: false
-#  AtStartOfBlock: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+KeepEmptyLinesAtEOF: false
 AllowShortBlocksOnASingleLine: Never
 AlwaysBreakTemplateDeclarations: Yes
 Cpp11BracedListStyle: false
